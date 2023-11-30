@@ -164,7 +164,7 @@ function ClientToDbDateFormat($c_date){
 		.navbar::before {
 			content: '';
 			position: absolute;
-			width: 264px;
+			width: 19.3%;
 			height: 100%;
 			background: #fff;
 			z-index: -1;

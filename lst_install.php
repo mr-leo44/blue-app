@@ -303,6 +303,7 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 										<div class="form-group text-left mb-0 mt-1">
 											<select class='form-control select2' style='width: 100%;' id='filtre' name='filtre[]' required multiple="multiple">
 												<option value="t_log_installation.statut_installation='1'">Terminée</option>
+												<option value="t_log_installation.compteur_desaffecte='1'">Désaffecté</option>
 												<option value="t_log_installation.statut_installation='0'">En cours</option>
 												<option value="t_log_installation.type_installation='0'">Installation</option>
 												<option value="t_log_installation.type_installation='1'">Remplacement</option>
@@ -3626,6 +3627,43 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 			<?php if ($utilisateur->HasDroits("10_800")) {
 			?>
 
+				function desaffect_compteur() {
+					$('#desaffect-compteur').click(function(e) {
+						event.preventDefault();
+						event.stopPropagation()
+						var name_actuel = $(this).attr("data-name-install");
+						var jeton_actuel = $(this).attr("data-id-install");
+ 
+						var view_mode = "desaffect_compteur_in_installation";
+						$.ajax({
+							url: "controller.php",
+							method: "GET",
+							data: {
+								view: view_mode,
+								q: jeton_actuel
+							},
+							beforeSend: function() {
+								ShowLoader("Le compteur est en cours de désaffectation...");
+							},
+							success: function(data) {
+								try {
+									var result = $.parseJSON(data);
+									if (result.error == 0) {
+										swal("Information", result.message, "success");
+										CloseFiche()
+										var show_ = $("#show").val();
+										displayRecords(show_, 1, '');
+									} else if (result.error == 1) {
+										swal("Information", result.message, "error");
+									}
+								} catch (erreur) {}
+							},
+							complete: function() {
+								HideLoader();
+							}
+						});
+					});
+				}
 				// $('.delete').click(function () {
 				jQuery(document).delegate('a.view-fiche', 'click', function(e) {
 					e.preventDefault();
@@ -3648,9 +3686,6 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 								if (result.error == 0) {
 									$("#fiche_viewer_title").html('VISUALISATION FICHE INSTALLATION');
 									$("#fiche_viewer").html(result.data);
-									// modalbox_scroll();
-									// $("#box_fiche_viewer").show();
-									// $("#myBackdrop").show();
 									ShowFiche();
 								} else if (result.error == 1) {
 									swal("Information", result.message, "error");
@@ -3658,10 +3693,10 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 							} catch (erreur) {}
 						},
 						complete: function() {
+							desaffect_compteur()
 							HideLoader();
 						}
 					});
-
 				});
 			<?php } ?>
 

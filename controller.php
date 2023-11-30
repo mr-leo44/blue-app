@@ -1753,7 +1753,11 @@ switch ($view) {
 			}
 
 			if ($utilisateur->HasDroits("10_80")) {
-				$result .=  '<a href="#" class="btn btn-outline-light float-right delete-install" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Supprimer</a>';
+				$result .=  '<a href="#" class="btn btn-outline-danger float-right delete-install" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Supprimer</a>';
+
+				if (strtolower($data['data']['compteur_desaffecte']) == "0") {
+					$result .=  '<a id="desaffect-compteur" href="#" class="btn btn-outline-dark float-right" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Désaffecter</a>';
+				}
 			}
 
 
@@ -2458,19 +2462,6 @@ exit();*/
 			$total_rows = $item->countAll($utilisateur, $filtre);
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 		$paginate_now->page = $page;
 		$paginate_now->total_rows = $total_rows;
 		$paginate_now->records_per_page = $records_per_page;
@@ -2486,8 +2477,6 @@ exit();*/
 		if ($utilisateur->HasDroits("10_40")) {
 			$num_line = 0;
 			while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-
 				$date_identif = "";
 				$date_titre = "Date identification";
 				$num_line++;
@@ -2644,6 +2633,28 @@ exit();*/
 				DroitsNotGranted();
 			}*/
 		break;
+	case "desaffect_compteur_in_installation":
+
+		$id_install = isset($_GET['q']) ? $_GET['q'] : "";
+
+		$query = "UPDATE t_log_installation SET compteur_desaffecte = :compteur_desaffecte WHERE id_install = :id_install";
+		$stmt = $db->prepare($query);
+		$stmt->bindValue(":id_install", $id_install);
+		$stmt->bindValue(":compteur_desaffecte", 1);
+
+		$res = $stmt->execute();
+
+		if ($res) {
+			$result["error"] = 0;
+			$result["message"] = "Le compteur a été désaffecté";
+		} else {
+			$result['error'] = 1;
+			$result['message'] = "Impossible de désaffecter ce compteur de cette installation ! ";
+		}
+
+		echo json_encode($result);
+
+		break;
 	case "search_view_installation":
 
 		$search_item_value = "";
@@ -2676,6 +2687,7 @@ exit();*/
 			$arr_type_cpteur = array();
 			$arr_provinces = [];
 			$arr_sites = [];
+			$compteur_desaffecte = [];
 			$filtres = explode(',', $_GET['filtre']);
 
 			foreach ($filtres as $k_ => $v_) {
@@ -2700,7 +2712,27 @@ exit();*/
 					$arr_provinces[] = $v_;
 				} else if ($filter_item[0] == 't_log_installation.ref_site_install') {
 					$arr_sites[] = $v_;
+				} else if ($filter_item[0] == 't_log_installation.compteur_desaffecte') {
+					$compteur_desaffecte[] = $v_;
 				}
+			}
+
+
+			if (count($compteur_desaffecte) > 0) {
+				$filtre .= " AND (";
+				$len_ = count($compteur_desaffecte);
+				$contexte_ctr = 0;
+				foreach ($compteur_desaffecte as $est_item) {
+					//$len_moins = $len_ - 1;
+					if ($contexte_ctr == 0) {
+						$filtre .=  $est_item . "";
+					} else {
+						$filtre .= " AND " . $est_item . "";
+					}
+
+					$contexte_ctr++;
+				}
+				$filtre .= ")";
 			}
 
 			if (count($arr_provinces) > 0) {
@@ -2897,9 +2929,21 @@ exit();*/
 			while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$num_line++;
 
+				$desaffecte = "";
+				if ($row_["compteur_desaffecte"] == '1') {
+					$desaffecte .= ' <span class="badge badge-dark">Compteur désaffecté</span>';
+				}
 				$result .= '<div class="control-row card bg-white">
-			<div class="card-header d-flex">
-                                       <div>	<div class="text-dark">Compteur ' . Utils::getCompteurTypeSpan($row_['type_new_cpteur']) . '</div>  <h4 class="mb-0 text-primary">' .  $row_["numero_compteur"] . ' <span class="badge ' . Utils::getAssign_Control_Badge($row_["approbation_installation"]) . '">' . Utils::getApproved_Label($row_['approbation_installation']) . '</span> ' . Utils::getInstallationEnplaceSPAN(trim($row_["num_compteur_actuel"]), trim($row_["numero_compteur"])) . '</h4></div>';
+								<div class="card-header d-flex">
+                                    <div>	
+									   <div class="text-dark">Compteur ' . Utils::getCompteurTypeSpan($row_['type_new_cpteur']) . '</div>  
+									   <h4 class="mb-0 text-primary">' .  $row_["numero_compteur"] .
+					' <span class="badge ' . Utils::getAssign_Control_Badge($row_["approbation_installation"]) . '">' .
+					Utils::getApproved_Label($row_['approbation_installation']) . '</span> ' .
+					Utils::getInstallationEnplaceSPAN(trim($row_["num_compteur_actuel"]), trim($row_["numero_compteur"]))
+					.
+					$desaffecte
+					. '</h4></div>';
 				// <div class="dropdown ml-auto">
 				// <a class="toolbar" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-dots-vertical"></i>  </a>
 				// <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink" x-placement="bottom-end" style="position: absolute; transform: translate3d(-160px, 23px, 0px); top: 0px; left: 0px; will-change: transform;">';
@@ -2946,6 +2990,7 @@ exit();*/
 				if ($row_["is_draft_install"] == '1') {
 					$result .= ' <span class="badge badge-info">Brouillon</span>';
 				}
+
 				$result .= '</div>
 						<div class="font-medium text-primary control-date">';
 				$result .= Utils::getDateInstall_Value($row_["statut_installation"], $row_["date_fin_installation_fr"], $row_["date_debut_installation_fr"]);

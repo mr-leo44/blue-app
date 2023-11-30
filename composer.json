@@ -1,0 +1,17 @@
+{
+    "name": "blue/app",
+    "autoload": {
+        "psr-4": {
+            "Blue\\App\\": "./"
+        }
+    },
+    "authors": [
+        {
+            "name": "Blue App",
+            "email": "blue@app.com"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.29"
+    }
+}

@@ -34,6 +34,7 @@ $type_compteur = new Param_TypeCompteur($db);
 $type_usage = new Param_TypeUsage($db);
 $marquecompteur = new MarqueCompteur($db);
 $adress_item = new  AdresseEntity($db);
+
 if ($utilisateur->is_logged_in() == false) {
     $utilisateur->redirect('login.php');
 }
@@ -352,12 +353,6 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                         if ($utilisateur->HasDroits("10_480")) {
                                             $num_line = 0;
 
-
-
-
-
-
-
                                             while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                                 $num_line++;
 
@@ -365,18 +360,12 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                                 $row_gp = $organisme->GetDetail();
                                                 //	echo "<option value='{$row_gp["ref_organisme"]}'>
 
-
-
-
-
-
                                                 // $commune->code = $row_["commune_id"];
                                                 $cvs->code = $row_["cvs_id"];
                                                 // $commune->GetDetailIN();
                                                 $cvs->GetDetailIN();
                                                 //    echo '<td>' . $commune->libelle . '</td>';
                                                 $ctl_rw = $utilisateur->readDetail($row_["id_chef_operation"]);
-
 
                                         ?>
                                                 <div class="client-row card bg-white">

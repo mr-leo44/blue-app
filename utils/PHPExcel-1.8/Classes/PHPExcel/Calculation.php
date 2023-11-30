@@ -3914,6 +3914,9 @@ class PHPExcel_Calculation
         $output = $stack->pop();
         $output = $output['value'];
 
+        //        if ((is_array($output)) && (self::$returnArrayAsType != self::RETURN_ARRAY_AS_ARRAY)) {
+        //            return array_shift(PHPExcel_Calculation_Functions::flattenArray($output));
+        //        }
         return $output;
     }
 

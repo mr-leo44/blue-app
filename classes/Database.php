@@ -1,6 +1,6 @@
 <?php
 try {
-    $files = glob($directory . '../env*');
+    $files = glob('../env*');
     foreach ($files as $file) {
         $envVariables = parse_ini_file($file);
         if ($envVariables !== false) {
