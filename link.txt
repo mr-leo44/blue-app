@@ -1,0 +1,47 @@
+file:///C:/PROGRA~2/EASYPH~1.1VC/data/localweb/template/concept-master%20(1)/concept-master/influencer-profile.html
+
+
+$_SERVER['REMOTE_ADDR'] =string '127.0.0.1' (length=9)
+
+$_SERVER['REQUEST_METHOD'] =string 'GET' (length=3)
+
+$_SERVER['REQUEST_URI'] =string '/blue-app-dev/reporting/rpt_compteur_install.php' (length=48)
+
+
+pour dash item
+
+t_param_avis_technique
+t_param_accessibility
+//t_param_cabine
+t_param_conformity_installation
+t_param_etat_poc
+t_param_liste_compteurs
+t_param_liste_materiels
+t_param_marque_compteur
+t_param_statut_client
+t_param_type_client
+t_param_type_usage
+*******************************************************************************************************
+Jusqu'à présent, aucune mise à jour n'a été faite  de tout ce que vous avez promis de faire; entre autre:
+
+- Affiche PA et Nombre de ménage dans le Journal des identification;
+
+- Conformité des filtres de recherche partout;
+
+- Visualisation Fiche dans les autres menus;
+
+- Envois demande de ticket après l'acception du numéro de compteur non pas lors de la validation de la fiche;
+
+- Enregistrement en mode brouillon pour les installations;
+
+- Que les adresses dispatchées aux techniciens disparaissent de cette liste au risque de dispatcher une même adresse deux fois;
+
+- etc...
+
+Toutes ces observations sont reprises dans le fichier "Test de l'Application Blue App" vous envoyé.
+
+Une fois de plus, vous en êtes où avec la Base des données à importer dans l'Application avant son lancement pour ce lundi 11 Octobre 2021.
+
+
+
+Merci

@@ -1,0 +1,23 @@
+@media print {
+	a[href]:after{
+		content: none !important;
+	}
+	@page{
+		size: auto A4 landscape;
+		margin-top: 0;
+	}
+	body{
+		padding-top: 72px;
+		padding-bottom: 72px;
+	}
+}
+@print {
+	@page :footer{
+		display: none;
+	}
+}
+
+	body{
+	/*	margin: 10mm 15mm 10mm 15mm ;  */
+		margin: 0px;
+	}

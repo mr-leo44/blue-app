@@ -1,0 +1,6 @@
+# Turn rewrite engine on
+Options -FollowSymlinks
+Options -Indexes
+
+Order Deny,Allow
+Deny from all

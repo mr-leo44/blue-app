@@ -1,0 +1,36 @@
+/* 
+    Document   : loader
+    Created on : 3 juin 2021, 13:19:17
+    Author     : Aser
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/** SPINNER CREATION **/
+
+            .loader {
+                position: relative;
+                text-align: center;
+                margin: 15px auto 35px auto;
+                z-index: 9999;
+                display: block;
+                width: 80px;
+                height: 80px;
+                border: 10px solid rgba(0, 0, 0, .3);
+                border-radius: 50%;
+                border-top-color: #5969ff;
+                animation: spin 1s ease-in-out infinite;
+                -webkit-animation: spin 1s ease-in-out infinite;
+            }
+
+            @keyframes spin {
+                to {
+                -webkit-transform: rotate(360deg);
+            }
+            }
+
+            @-webkit-keyframes spin {
+                to {
+                -webkit-transform: rotate(360deg);
+            }
+            }

@@ -1,0 +1,8 @@
+{
+  "url":"https://hedi.ngrok.io/apk/blue-app.apk",
+  "versionCode":1,
+  "forceUpdate":true,
+  "versionName":"1.0.2",
+  "appId":"com.hedi.blue.app",
+  "updateMessage":"Il y a une nouvelle version"
+}
