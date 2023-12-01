@@ -17,6 +17,8 @@ $Abonne = new PARAM_Assign($db);
 $Abonne->type_assignation = '1';
 $utilisateur = new Utilisateur($db);
 $commune = new Commune($db);
+$communeEntity = new AdresseEntity($db);
+
 $etat_poc = new PARAM_EtatPOC($db);
 $pTypeDefaut = new Param_TypeDefaut($db);
 $statut_installation = new PARAM_StatutInstallation($db);
@@ -34,6 +36,8 @@ $type_compteur = new Param_TypeCompteur($db);
 $type_usage = new Param_TypeUsage($db);
 $marquecompteur = new MarqueCompteur($db);
 $adress_item = new  AdresseEntity($db);
+$site = new Site($db);
+$province = new AdresseEntity($db);
 
 if ($utilisateur->is_logged_in() == false) {
     $utilisateur->redirect('login.php');
@@ -94,13 +98,202 @@ $collapse = "collapse";
 $collapsed = "collapsed";
 $records_per_page = 30;
 
-if ($search_term == '') {
-    $stmt = $Abonne->readAll($from_record_num, $records_per_page, $utilisateur);
-    $total_rows = $Abonne->countAll($utilisateur);
+$filtre = '';
+
+if (isset($_GET['filtre-search']) && count($_GET['filtre-search']) > 0) {
+    $est_installer = array();
+    $e_commune = array();
+    $param_cvs = array();
+    $assignation_status_ = array();
+    $equipe_ident_ = array();
+    $chef_equipe_ident_ = array();
+    $identificateurs_arr = array();
+    $arr_sites =  [];
+    $organisme_ = [];
+
+    // $filtres = explode(',', $_GET['filtre-search']);
+    $filtres = $_GET['filtre-search'];
+
+    foreach ($filtres as $k_ => $v_) {
+        $filter_item = explode('=', $v_);
+
+        if ($filter_item[0] == 't_param_assignation.statut_') {
+            $est_installer[] = $v_;
+        } else if ($filter_item[0] == 'e_commune.code') {
+            $e_commune[] = $v_;
+        } else if ($filter_item[0] == 't_main_data.cvs_id') {
+            $param_cvs[] = $v_;
+        } else if ($filter_item[0] == 'id_equipe_identification') {
+            $equipe_ident_[] = $v_;
+        } else if ($filter_item[0] == 't_chef_equipe.code_utilisateur') {
+            $chef_equipe_ident_[] = $v_;
+        } else if ($filter_item[0] == 't_main_data.identificateur') {
+            $identificateurs_arr[] = $v_;
+        } else if ($filter_item[0] == 't_param_assignation') {
+            $assignation_status_[] = $v_;
+        } else if ($filter_item[0] == 't_main_data.ref_site_identif') {
+            $arr_sites[] = $v_;
+        } else if ($filter_item[0] == "t_param_assignation.id_organe") {
+            $organisme_[] = $v_;
+        }
+    }
+
+    if (count($organisme_) > 0) {
+        $filtre .= " and (";
+        $len_ = count($organisme_);
+        $contexte_ctr = 0;
+        foreach ($organisme_ as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+
+    if (count($arr_sites) > 0) {
+        $filtre .= " and (";
+        $len_ = count($arr_sites);
+        $contexte_ctr = 0;
+        foreach ($arr_sites as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+    if (count($assignation_status_) > 0) {
+        $filtre .= " and (";
+        $len_ = count($assignation_status_);
+        $contexte_ctr = 0;
+        foreach ($assignation_status_ as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+
+    if (count($chef_equipe_ident_) > 0) {
+        $filtre .= " and (";
+        $len_ = count($chef_equipe_ident_);
+        $contexte_ctr = 0;
+        foreach ($chef_equipe_ident_ as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+    if (count($identificateurs_arr) > 0) {
+        $filtre .= " and (";
+        $len_ = count($identificateurs_arr);
+        $contexte_ctr = 0;
+        foreach ($identificateurs_arr as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+    if (count($equipe_ident_) > 0) {
+        $filtre .= " and (";
+        $len_ = count($equipe_ident_);
+        $contexte_ctr = 0;
+        foreach ($equipe_ident_ as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+    if (count($est_installer) > 0) {
+        $filtre .= " and (";
+        $len_ = count($est_installer);
+        $contexte_ctr = 0;
+        foreach ($est_installer as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+    if (count($e_commune) > 0) {
+        $filtre .= " and (";
+        $len_ = count($e_commune);
+        $contexte_ctr = 0;
+        foreach ($e_commune as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+    if (count($param_cvs) > 0) {
+        $filtre .= " and (";
+        $len_ = count($param_cvs);
+        $contexte_ctr = 0;
+        foreach ($param_cvs as $est_item) {
+            //$len_moins = $len_ - 1;
+            if ($contexte_ctr == 0) {
+                $filtre .=  $est_item . "";
+            } else {
+                $filtre .= " Or " . $est_item . "";
+            }
+
+            $contexte_ctr++;
+        }
+        $filtre .= ")";
+    }
+}
+$du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";
+$au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
+if ($search_term == '' and $du == "" and $au == "") {
+    $stmt = $Abonne->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
+    $total_rows = $Abonne->countAll($utilisateur, $filtre);
 } else {
     $page_url .= "s={$search_term}&";
-    $stmt = $Abonne->search($search_term, $from_record_num, $records_per_page, $utilisateur);
-    $total_rows = $Abonne->countAll_BySearch($search_term, $utilisateur);
+    $stmt = $Abonne->search($du, $au, $search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+    $total_rows = $Abonne->countAll_BySearch($du, $au, $search_term, $utilisateur, $filtre);
 }
 $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 //}
@@ -326,6 +519,100 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                                 <form method="get" role='search' id="frm_search_advanced">
                                                     <div class="input-group mt-1">
                                                         <input type="text" id="s" name="s" class="form-control" placeholder="Recherche..." value="<?php echo $search_term; ?>">
+                                                        <div class="col-sm-3">
+                                                            <div class="form-group text-left mb-0 mt-1">
+                                                                <select class='form-control select2' style='width: 100%;' id='filtre-search' name='filtre-search[]' multiple="multiple">
+                                                                    <option value="t_param_assignation.statut_='1'">Controlé</option>
+                                                                    <option value="t_param_assignation.statut_='0'">Non controlé</option>
+                                                                    <?php
+
+                                                                    $stmt_tarif = $type_compteur->read();
+                                                                    while ($row_gp = $stmt_tarif->fetch(PDO::FETCH_ASSOC)) {
+                                                                        echo "<option value=t_log_installation.type_new_cpteur='" . $row_gp["code"] . "'>Type compteur - " . $row_gp["libelle"] . "</option>";
+                                                                    }
+                                                                    echo "<option value=t_log_installation.type_new_cpteur=''>Type compteur - Non défini</option>";
+                                                                    if ($utilisateur->id_service_group ==  '3') {  //Administration
+                                                                        $stmt_chief = $utilisateur->GetAll_OrganeUserListForAdmin();
+                                                                        while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=t_log_installation.installateur='" . $row_chief["code_utilisateur"] . "'>Installateur - " . $row_chief["nom_complet"] . "</option>";
+                                                                        }
+                                                                    } else {
+                                                                        $stmt_chief = $utilisateur->GetCurrentUserListIdentificateurs($utilisateur->code_utilisateur, $utilisateur->id_organisme, $utilisateur->is_chief);
+
+                                                                        while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=t_log_installation.installateur='" . $row_chief["code_utilisateur"] . "'>Installateur - " . $row_chief["nom_complet"] . "</option>";
+                                                                        }
+                                                                    }
+
+
+                                                                    $stmt_chief = null;
+                                                                    if ($utilisateur->id_service_group ==  '3') {  //Administration
+                                                                        $stmt_chief = $utilisateur->GetAllChiefForAdmin();
+                                                                        while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=t_chef_equipe.code_utilisateur='{$row_chief["code_utilisateur"]}'>Chef équipe - {$row_chief["nom_complet"]}</option>";
+                                                                        }
+                                                                    } else {
+                                                                        $stmt_chief = $utilisateur->GetCurrentUserChief($utilisateur);
+                                                                        while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=t_chef_equipe.code_utilisateur='{$row_chief["code_utilisateur"]}'>Chef équipe - {$row_chief["nom_complet"]}</option>";
+                                                                        }
+                                                                    }
+
+                                                                    $stmt_select = $province->getAllProvinces();
+                                                                    $provinces = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+
+                                                                    foreach ($provinces as $row_select) {
+                                                                        // echo "<option value=t_param_adresse_entity.code='" . $row_select["code"] . "'>Province - " . $row_select["libelle"] . "</option>";
+                                                                    }
+
+                                                                    foreach ($provinces as $province) {
+                                                                        $stmt_select = $communeEntity->GetProvinceAllCommune($province['code']);
+                                                                        while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=e_commune.code='" . $row_select["code"] . "'>Commune - " . $row_select["libelle"] . "</option>";
+                                                                        }
+
+
+                                                                        $stmt_select = $communeEntity->GetProvinceAllCVS($province['code']);
+                                                                        while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=t_main_data.cvs_id,='" . $row_select["code"] . "'>CVS - " . $row_select["libelle"] . "</option>";
+                                                                        }
+                                                                    }
+
+                                                                    $stmt_select = $site->GetAll();
+                                                                    while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                                        echo "<option value=t_main_data.ref_site_identif='" . $row_select["code"] . "'>Site - " . $row_select["libelle"] . "</option>";
+                                                                    }
+
+                                                                    if ($utilisateur->id_service_group ==  '3' || $utilisateur->HasGlobalAccess()) {  //Administration
+                                                                        $stmt_ = $organisme->read();
+                                                                        while ($row_gp = $stmt_->fetch(PDO::FETCH_ASSOC)) {
+                                                                            echo "<option value=t_param_assignation.id_organe='{$row_gp["ref_organisme"]}'>Organisme - {$row_gp["denomination"]}</option>";
+                                                                        }
+                                                                    } else {
+                                                                        $organisme->ref_organisme = $utilisateur->id_organisme;
+                                                                        $row_gp = $organisme->GetDetail();
+                                                                        echo "<option value=t_param_assignation.id_organe='{$row_gp["ref_organisme"]}'>Organisme - {$row_gp["denomination"]}</option>";
+                                                                    }
+                                                                    ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <div class="input-group  mt-2">
+                                                                <input type="text" autocomplete="none" class="form-control datetimepicker-input" name="Du" id="Du" placeholder="Du" />
+                                                                <div class="input-group-append">
+                                                                    <div class="input-group-text" id="add_on_du"><i class="far fa-calendar-alt"></i></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <div class="input-group  mt-2">
+                                                                <input type="text" class="form-control datetimepicker-input" name="Au" id="Au" placeholder="Au" />
+                                                                <div class="input-group-append">
+                                                                    <div class="input-group-text" id="add_on_au"><i class="far fa-calendar-alt"></i></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                         <button type="submit" name="search" id="btn_search" class="mx-2 btn btn-primary"><i class="fa fa-search"></i>
                                                         </button>
                                                         <button style="display: none;" id="delete-cancel-checkboxes" class="btn mx-2 btn-danger">Désactiver l'annulation</button>
@@ -335,6 +622,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                                         <button id="add-cancel-checkboxes" class="btn  btn-warning">Activer l'annulation</button>
                                                     </div>
                                                 </form>
+
                                             </div>
                                         </div>
                                     </div>
@@ -645,6 +933,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="card">
                                         <div class="card-header d-flex">
                                             <h4 class="mb-0">Liste des compteurs</h4>
@@ -704,6 +993,10 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
             var load_cvs = false;
             var load_chief = false;
 
+            $('#filtre-search').select2({
+                placeholder: "Filtre CVS, Equipe installation, ....",
+                multiple: true
+            });
 
 
 

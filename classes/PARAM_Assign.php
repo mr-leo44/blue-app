@@ -383,22 +383,114 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
    return $stmt;
   }
   */
-	function readAll($from_record_num, $records_per_page, $user_context)
+	function readAll($from_record_num, $records_per_page, $user_context, $filtre)
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
-		$query = "SELECT t_main_data.id_,t_chef_equipe.nom_complet as nom_chef,t_identificateur.nom_complet as noms_identificateur,t_main_data.identificateur,t_main_data.date_identification,t_main_data.p_a,t_main_data.gps_longitude,t_main_data.gps_latitude,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,coalesce(identite_client.phone_number,'-') as phone_client_blue,t_main_data.reference_appartement,t_main_data.adresse_id,t_main_data.cvs_id,t_main_data.num_compteur_actuel,t_param_assignation.id_assign,t_param_assignation.id_organe,t_param_assignation.datesys,DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,t_param_assignation.statut_,t_param_assignation.type_assignation,t_param_assignation.is_valid,t_param_assignation.annule,t_param_assignation.id_chef_operation FROM t_main_data  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_utilisateurs as t_identificateur ON t_main_data.identificateur = t_identificateur.code_utilisateur left JOIN t_utilisateurs as t_chef_equipe ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur where t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation   " . $user_filtre . " ORDER BY t_param_assignation.datesys  DESC LIMIT {$from_record_num}, {$records_per_page}";
+		$user_filtre .= " " . $filtre;
+
+		$query = "SELECT t_main_data.id_,
+			t_chef_equipe.nom_complet as nom_chef,
+			t_identificateur.nom_complet as noms_identificateur,
+			t_main_data.identificateur,
+			t_main_data.date_identification,
+			t_main_data.p_a,
+			t_main_data.gps_longitude,
+			t_main_data.gps_latitude,
+			Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,
+			coalesce(identite_client.phone_number,'-') as phone_client_blue,
+			t_main_data.reference_appartement,
+			t_main_data.adresse_id,
+			t_main_data.cvs_id,
+			t_main_data.num_compteur_actuel,
+			t_param_assignation.id_assign,
+			t_param_assignation.id_organe,
+			t_param_assignation.datesys,
+			DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,
+			t_param_assignation.statut_,
+			t_param_assignation.type_assignation,
+			t_param_assignation.is_valid,
+			t_param_assignation.annule,
+			t_param_assignation.id_chef_operation 
+		FROM t_main_data  
+		INNER JOIN t_param_identite AS identite_client 
+			ON t_main_data.client_id = identite_client.id 
+		INNER JOIN t_param_assignation 
+			ON t_main_data.id_ = t_param_assignation.id_fiche_identif 
+		INNER JOIN t_utilisateurs as t_identificateur 
+			ON t_main_data.identificateur = t_identificateur.code_utilisateur 
+		left JOIN t_utilisateurs as t_chef_equipe 
+			ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur 
+		where t_main_data.ref_site_identif=:ref_site_identif 
+			and t_param_assignation.annule=0 
+			and t_param_assignation.type_assignation=:type_assignation   " . $user_filtre .
+			" ORDER BY t_param_assignation.datesys  DESC LIMIT {$from_record_num}, {$records_per_page}";
 		$stmt = $this->connection->prepare($query);
 		$stmt->bindValue(":ref_site_identif", $user_context->site_id);
 		$stmt->bindValue(":type_assignation", $this->type_assignation);
 		$stmt->execute();
 		return $stmt;
 	}
-	public function search($search_term, $from_record_num, $records_per_page, $user_context)
+	public function search($du, $au, $search_term, $from_record_num, $records_per_page, $user_context, $filtre)
 	{
 		// $query = "SELECT code,libelle,is_sync,annule  FROM " . $this->table_name  . " WHERE libelle LIKE :search_term  ORDER BY libelle ASC LIMIT :from, :offset";
 		$user_filtre = $user_context->GetUserFilterAssignation();
+		$user_filtre .= " " . $filtre;
 
-		$query = "SELECT t_main_data.id_,t_chef_equipe.nom_complet as nom_chef,t_identificateur.nom_complet as noms_identificateur,t_main_data.identificateur,t_main_data.date_identification,t_main_data.p_a,t_main_data.reference_appartement,t_main_data.gps_longitude,t_main_data.gps_latitude,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,coalesce(identite_client.phone_number,'-') as phone_client_blue,t_main_data.adresse_id,t_main_data.cvs_id,t_main_data.num_compteur_actuel,t_param_assignation.id_assign,t_param_assignation.id_organe,t_param_assignation.datesys,DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,t_param_assignation.statut_,t_param_assignation.type_assignation,t_param_assignation.is_valid,t_param_assignation.annule,t_param_assignation.id_chef_operation FROM t_main_data  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code`  INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` INNER JOIN t_utilisateurs as t_identificateur ON t_main_data.identificateur = t_identificateur.code_utilisateur left JOIN t_utilisateurs as t_chef_equipe ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur where (t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation) and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) LIKE :search_term or identite_client.phone_number LIKE :search_term or  t_chef_equipe.nom_complet LIKE :search_term or  t_identificateur.nom_complet LIKE :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term)   " . $user_filtre . " ORDER BY t_param_assignation.datesys  DESC LIMIT :from, :offset";
+		$query = "SELECT t_main_data.id_,
+				t_chef_equipe.nom_complet as nom_chef,
+				t_identificateur.nom_complet as noms_identificateur,
+				t_main_data.identificateur,
+				t_main_data.date_identification,
+				t_main_data.p_a,
+				t_main_data.reference_appartement,
+				t_main_data.gps_longitude,
+				t_main_data.gps_latitude,
+				Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,
+				coalesce(identite_client.phone_number,'-') as phone_client_blue,
+				t_main_data.adresse_id,
+				t_main_data.cvs_id,
+				t_main_data.num_compteur_actuel,
+				t_param_assignation.id_assign,
+				t_param_assignation.id_organe,
+				t_param_assignation.datesys,
+				DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,
+				t_param_assignation.statut_,
+				t_param_assignation.type_assignation,
+				t_param_assignation.is_valid,
+				t_param_assignation.annule,
+				t_param_assignation.id_chef_operation 
+			FROM t_main_data  
+				INNER JOIN t_param_identite AS identite_client 
+					ON t_main_data.client_id = identite_client.id 
+				INNER JOIN t_param_assignation 
+					ON t_main_data.id_ = t_param_assignation.id_fiche_identif 
+				INNER JOIN t_log_adresses 
+					ON t_main_data.adresse_id = t_log_adresses.id 
+				INNER JOIN t_param_adresse_entity AS e_quartier 
+					ON t_log_adresses.quartier_id = e_quartier.`code` 
+				INNER JOIN t_param_adresse_entity AS e_commune  
+					ON t_log_adresses.commune_id = e_commune.`code`  
+				INNER JOIN t_param_adresse_entity AS e_avenue 
+					ON t_log_adresses.avenue = e_avenue.`code` 
+				INNER JOIN t_utilisateurs as t_identificateur 
+					ON t_main_data.identificateur = t_identificateur.code_utilisateur 
+				LEFT JOIN t_utilisateurs as t_chef_equipe 
+					ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur 
+				WHERE (
+						t_main_data.ref_site_identif=:ref_site_identif 
+						and t_param_assignation.annule=0 
+						and t_param_assignation.type_assignation=:type_assignation
+					) 
+					and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)  
+					and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) 
+					LIKE :search_term OR identite_client.phone_number 
+					LIKE :search_term or  t_chef_equipe.nom_complet 
+					LIKE :search_term or  t_identificateur.nom_complet 
+					LIKE :search_term or e_avenue.libelle 
+					Like :search_term or e_quartier.libelle 
+					Like :search_term or e_commune.libelle 
+					Like :search_term)   " . $user_filtre .
+			" ORDER BY t_param_assignation.datesys  DESC LIMIT :from, :offset";
 
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
@@ -407,22 +499,58 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		$stmt->bindParam(':offset', $records_per_page, PDO::PARAM_INT);
 		$stmt->bindValue(":ref_site_identif", $user_context->site_id);
 		$stmt->bindValue(":type_assignation", $this->type_assignation);
+		$stmt->bindParam(':du', $du);
+		$stmt->bindParam(':au', $au);
 		$stmt->execute();
 		return $stmt;
 	}
 
 
-	public function countAll_BySearch($search_term, $user_context)
+	public function countAll_BySearch($du, $au, $search_term, $user_context, $filtre)
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
-		$query = "SELECT COUNT(*) as total_rows   FROM t_main_data  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code`  INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` INNER JOIN t_utilisateurs as t_identificateur ON t_main_data.identificateur = t_identificateur.code_utilisateur left JOIN t_utilisateurs as t_chef_equipe ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur where (t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation) and (t_main_data.num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) LIKE :search_term or identite_client.phone_number LIKE :search_term or  t_chef_equipe.nom_complet LIKE :search_term or  t_identificateur.nom_complet LIKE :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term)   " . $user_filtre . " ";
+		$user_filtre .= " " . $filtre;
+		$query = "SELECT COUNT(*) as total_rows   
+			FROM t_main_data  
+				INNER JOIN t_param_identite AS identite_client 
+					ON t_main_data.client_id = identite_client.id 
+				INNER JOIN t_param_assignation 
+					ON t_main_data.id_ = t_param_assignation.id_fiche_identif 
+				INNER JOIN t_log_adresses 
+					ON t_main_data.adresse_id = t_log_adresses.id 
+				INNER JOIN t_param_adresse_entity AS e_quartier 
+					ON t_log_adresses.quartier_id = e_quartier.`code` 
+				INNER JOIN t_param_adresse_entity AS e_commune  
+					ON t_log_adresses.commune_id = e_commune.`code`  
+				INNER JOIN t_param_adresse_entity AS e_avenue 
+					ON t_log_adresses.avenue = e_avenue.`code` 
+				INNER JOIN t_utilisateurs as t_identificateur 
+					ON t_main_data.identificateur = t_identificateur.code_utilisateur 
+				left JOIN t_utilisateurs as t_chef_equipe 
+					ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur 
+				where (t_main_data.ref_site_identif=:ref_site_identif 
+					and t_param_assignation.annule=0 
+					and t_param_assignation.type_assignation=:type_assignation) 
+					and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)  
+					and (t_main_data.num_compteur_actuel 
+					LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) 
+					LIKE :search_term or identite_client.phone_number 
+					LIKE :search_term or  t_chef_equipe.nom_complet 
+					LIKE :search_term or  t_identificateur.nom_complet 
+					LIKE :search_term or e_avenue.libelle 
+					Like :search_term or e_quartier.libelle 
+					Like :search_term or e_commune.libelle 
+					Like :search_term)   " . $user_filtre . " ";
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
 		$stmt->bindParam(":search_term", $search_term);
 		$stmt->bindValue(":ref_site_identif", $user_context->site_id);
 		$stmt->bindValue(":type_assignation", $this->type_assignation);
+		$stmt->bindParam(':du', $du);
+		$stmt->bindParam(':au', $au);
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+		
 		return $row["total_rows"];
 	}
 
@@ -431,7 +559,36 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 	{
 
 		$user_filtre = $user_context->GetUserFilterAssignation();
-		$query = "SELECT t_main_data.id_,t_utilisateurs.nom_complet,t_main_data.date_identification,t_main_data.p_a,t_main_data.gps_longitude,t_main_data.gps_latitude,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,coalesce(identite_client.phone_number,'-') as phone_client_blue,t_main_data.adresse_id,t_main_data.cvs_id,t_main_data.num_compteur_actuel,t_param_assignation.id_assign,t_param_assignation.id_organe,t_param_assignation.datesys,DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,t_param_assignation.statut_,t_param_assignation.type_assignation,t_param_assignation.is_valid,t_param_assignation.annule,t_param_assignation.id_chef_operation FROM t_main_data  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif  where (t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation) and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) LIKE :search_term or identite_client.phone_number LIKE :search_term) and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)   " . $user_filtre . " ORDER BY t_param_assignation.datesys  DESC LIMIT :from, :offset";
+		$query = "SELECT t_main_data.id_,
+			t_utilisateurs.nom_complet,
+			t_main_data.date_identification,
+			t_main_data.p_a,
+			t_main_data.gps_longitude,
+			t_main_data.gps_latitude,
+			Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,
+			coalesce(identite_client.phone_number,'-') as phone_client_blue,t_main_data.adresse_id,
+			t_main_data.cvs_id,
+			t_main_data.num_compteur_actuel,
+			t_param_assignation.id_assign,
+			t_param_assignation.id_organe,
+			t_param_assignation.datesys,
+			DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,
+			t_param_assignation.statut_,
+			t_param_assignation.type_assignation,
+			t_param_assignation.is_valid,
+			t_param_assignation.annule,
+			t_param_assignation.id_chef_operation 
+		FROM t_main_data  
+			INNER JOIN t_param_identite AS identite_client 
+				ON t_main_data.client_id = identite_client.id 
+			INNER JOIN t_param_assignation 
+				ON t_main_data.id_ = t_param_assignation.id_fiche_identif  
+			where (t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation) 
+			and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) 
+			LIKE :search_term or identite_client.phone_number 
+			LIKE :search_term) and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)   " . $user_filtre
+			. " ORDER BY t_param_assignation.datesys  DESC LIMIT :from, :offset";
+
 
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
@@ -461,10 +618,12 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		$stmt->execute();
 		return $stmt;
 	}
-	public function countAll($user_context)
+
+	public function countAll($user_context, $filtre)
 	{
 
 		$user_filtre = $user_context->GetUserFilterAssignation();
+		$user_filtre .= " " . $filtre;
 		$query = "SELECT t_main_data.id_  FROM t_main_data  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_utilisateurs as t_identificateur ON t_main_data.identificateur = t_identificateur.code_utilisateur INNER JOIN t_utilisateurs as t_chef_equipe ON t_main_data.identificateur = t_chef_equipe.code_utilisateur where t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.type_assignation=:type_assignation   " . $user_filtre . "";
 		$stmt = $this->connection->prepare($query);
 		$stmt->bindValue(":ref_site_identif", $user_context->site_id);
@@ -476,7 +635,10 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 	public function countAll_BySearch_advanced($du, $au, $search_term, $user_context)
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
-		$query = "SELECT COUNT(*) as total_rows  FROM t_main_data  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif  where (t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation) and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) LIKE :search_term or identite_client.phone_number LIKE :search_term)  and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)  " . $user_filtre . " ";
+		$query = "SELECT COUNT(*) as total_rows  FROM t_main_data  
+			INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 
+			INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif  
+			where (t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation=:type_assignation) and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) LIKE :search_term or identite_client.phone_number LIKE :search_term)  and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)  " . $user_filtre . " ";
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
 		$stmt->bindParam(":search_term", $search_term);

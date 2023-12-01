@@ -953,8 +953,33 @@ INNER JOIN t_utilisateurs ON t_log_installation.code_installateur = t_utilisateu
 	{
 		$user_filtre = $this->GetUserFilterSearch($user_context);
 		$query = "SELECT t_log_installation.id_install,t_log_installation.is_draft_install,t_log_installation.type_installation,t_log_installation.id_equipe,t_log_installation.type_new_cpteur, t_log_installation.ref_identific,DATE_FORMAT( t_log_installation.date_debut_installation,'%d/%m/%Y %H:%i:%S')  as date_debut_installation_fr, t_log_installation.date_debut_installation, t_log_installation.date_fin_installation,DATE_FORMAT(date_fin_installation,'%d/%m/%Y %H:%i:%S')  as date_fin_installation_fr, t_log_installation.p_a, t_log_installation.nom_installateur, t_log_installation.nom_equipe, t_log_installation.numero_compteur,t_log_installation.num_serie_cpteur_post_paie,t_main_data.num_compteur_actuel, t_log_installation.photo_compteur, t_log_installation.marque_compteur,  t_log_installation.datesys, t_log_installation.date_update, t_log_installation.code_installateur,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue, coalesce(identite_client.phone_number,'-') as phone_client_blue, t_main_data.adresse_id, t_main_data.photo_pa_avant, t_main_data.cvs_id, t_main_data.section_cable, t_main_data.nbre_branchement,t_log_installation.statut_installation,t_log_installation.approbation_installation,t_param_cvs.libelle,e_quartier.libelle as quartier,e_commune.libelle as commune,t_utilisateurs.nom_utilisateur,t_utilisateurs.nom_complet,t_chef_equipe.nom_complet as nom_chef_equipe,t_utilisateurs.code_utilisateur,t_param_organisme.denomination,t_main_data.is_draft FROM t_log_installation INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_  INNER JOIN t_param_cvs ON t_param_cvs.`code` = t_main_data.cvs_id INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
-INNER JOIN t_utilisateurs ON t_log_installation.code_installateur = t_utilisateurs.code_utilisateur  INNER JOIN t_utilisateurs as t_chef_equipe ON t_log_installation.chef_equipe = t_chef_equipe.code_utilisateur INNER JOIN t_param_organisme ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code`  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id  WHERE (Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or t_main_data.id_ Like :search_term OR t_log_installation.id_install Like :search_term OR t_utilisateurs.nom_complet  Like :search_term  OR t_chef_equipe.nom_complet  Like :search_term OR t_log_installation.numero_compteur Like :search_term OR identite_client.phone_number Like :search_term OR DATE_FORMAT(date_fin_installation,'%d/%m/%Y') Like :search_term OR e_avenue.libelle Like :search_term OR e_commune.libelle Like :search_term OR e_quartier.libelle Like :search_term)  and  t_log_installation.ref_site_install=:ref_site_install   and  t_log_installation.annule=0 "  . $filtre  . $user_filtre . "	ORDER BY t_log_installation.date_fin_installation DESC LIMIT :from, :offset";
+			INNER JOIN t_param_adresse_entity AS e_ville 
+				ON t_log_adresses.ville_id = e_ville.`code` 
+			INNER JOIN t_utilisateurs 
+				ON t_log_installation.code_installateur = t_utilisateurs.code_utilisateur  
+			INNER JOIN t_utilisateurs as t_chef_equipe 
+				ON t_log_installation.chef_equipe = t_chef_equipe.code_utilisateur 
+			INNER JOIN t_param_organisme 
+				ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme 
+			INNER JOIN t_param_adresse_entity AS e_avenue 
+				ON t_log_adresses.avenue = e_avenue.`code`  
+			INNER JOIN t_param_identite AS identite_client 
+				ON t_main_data.client_id = identite_client.id  
+			WHERE (Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) 
+				Like :search_term or t_main_data.id_ 
+				Like :search_term OR t_log_installation.id_install 
+				Like :search_term OR t_utilisateurs.nom_complet  
+				Like :search_term  OR t_chef_equipe.nom_complet  
+				Like :search_term OR t_log_installation.numero_compteur 
+				Like :search_term OR identite_client.phone_number 
+				Like :search_term OR DATE_FORMAT(date_fin_installation,'%d/%m/%Y') 
+				Like :search_term OR e_avenue.libelle 
+				Like :search_term OR e_commune.libelle 
+				Like :search_term OR e_quartier.libelle 
+				Like :search_term)  
+				and  t_log_installation.ref_site_install=:ref_site_install   
+				and  t_log_installation.annule=0 "  . $filtre  . $user_filtre .
+				 "	ORDER BY t_log_installation.date_fin_installation DESC LIMIT :from, :offset";
 		// or t_main_data.adresse Like :search_term or	
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
@@ -988,8 +1013,34 @@ INNER JOIN t_utilisateurs ON t_log_installation.code_installateur = t_utilisateu
 	{
 		$user_filtre = $this->GetUserFilterSearch($user_context);
 		$query = "SELECT t_log_installation.id_install,t_log_installation.is_draft_install,t_log_installation.type_installation,t_log_installation.id_equipe,t_log_installation.type_new_cpteur, t_log_installation.ref_identific,DATE_FORMAT( t_log_installation.date_debut_installation,'%d/%m/%Y %H:%i:%S')  as date_debut_installation_fr, t_log_installation.date_debut_installation, t_log_installation.date_fin_installation,DATE_FORMAT(date_fin_installation,'%d/%m/%Y %H:%i:%S')  as date_fin_installation_fr, t_log_installation.p_a, t_log_installation.nom_installateur, t_log_installation.nom_equipe, t_log_installation.numero_compteur,t_log_installation.num_serie_cpteur_post_paie,t_main_data.num_compteur_actuel, t_log_installation.photo_compteur, t_log_installation.marque_compteur,  t_log_installation.datesys, t_log_installation.date_update, t_log_installation.code_installateur,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue, coalesce(identite_client.phone_number,'-') as phone_client_blue, t_main_data.adresse_id, t_main_data.photo_pa_avant, t_main_data.cvs_id, t_main_data.section_cable, t_main_data.nbre_branchement,t_log_installation.statut_installation,t_log_installation.approbation_installation,t_param_cvs.libelle,e_quartier.libelle as quartier,e_commune.libelle as commune,t_utilisateurs.nom_utilisateur,t_utilisateurs.nom_complet,t_chef_equipe.nom_complet as nom_chef_equipe,t_utilisateurs.code_utilisateur,t_param_organisme.denomination,t_main_data.is_draft FROM t_log_installation INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_  INNER JOIN t_param_cvs ON t_param_cvs.`code` = t_main_data.cvs_id INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
-INNER JOIN t_utilisateurs ON t_log_installation.code_installateur = t_utilisateurs.code_utilisateur  INNER JOIN t_utilisateurs as t_chef_equipe ON t_log_installation.chef_equipe = t_chef_equipe.code_utilisateur INNER JOIN t_param_organisme ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code`  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id   WHERE (Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or t_main_data.id_ Like :search_term OR t_log_installation.id_install Like :search_term OR t_utilisateurs.nom_complet  Like :search_term  OR t_chef_equipe.nom_complet  Like :search_term OR t_log_installation.numero_compteur Like :search_term OR identite_client.phone_number Like :search_term OR DATE_FORMAT(date_fin_installation,'%d/%m/%Y') Like :search_term OR e_avenue.libelle Like :search_term OR e_commune.libelle Like :search_term OR e_quartier.libelle Like :search_term)  and (DATE_FORMAT(t_log_installation.date_fin_installation,'%Y-%m-%d')  between :du and :au)  and  t_log_installation.ref_site_install=:ref_site_install  and  t_log_installation.annule=0 "  . $filtre  . $user_filtre . " ORDER BY t_log_installation.date_fin_installation DESC  LIMIT :from, :offset";
+				INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
+				INNER JOIN t_utilisateurs 
+					ON t_log_installation.code_installateur = t_utilisateurs.code_utilisateur  
+				INNER JOIN t_utilisateurs as t_chef_equipe 
+					ON t_log_installation.chef_equipe = t_chef_equipe.code_utilisateur 
+				INNER JOIN t_param_organisme 
+					ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme 
+				INNER JOIN t_param_adresse_entity AS e_avenue 
+					ON t_log_adresses.avenue = e_avenue.`code`  
+				INNER JOIN t_param_identite AS identite_client 
+					ON t_main_data.client_id = identite_client.id   
+				WHERE (Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) 
+					Like :search_term or t_main_data.id_ 
+					Like :search_term OR t_log_installation.id_install 
+					Like :search_term OR t_utilisateurs.nom_complet  
+					Like :search_term  OR t_chef_equipe.nom_complet  
+					Like :search_term OR t_log_installation.numero_compteur 
+					Like :search_term OR identite_client.phone_number 
+					Like :search_term OR DATE_FORMAT(date_fin_installation,'%d/%m/%Y') 
+					Like :search_term OR e_avenue.libelle 
+					Like :search_term OR e_commune.libelle 
+					Like :search_term OR e_quartier.libelle 
+					Like :search_term)  
+					and (DATE_FORMAT(t_log_installation.date_fin_installation,'%Y-%m-%d')  between :du and :au)  
+					and  t_log_installation.ref_site_install=:ref_site_install  
+					and  t_log_installation.annule=0 "  . $filtre  . $user_filtre .
+			" ORDER BY t_log_installation.date_fin_installation DESC  LIMIT :from, :offset";
+
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
 		$stmt->bindParam(':search_term', $search_term);

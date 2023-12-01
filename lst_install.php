@@ -408,8 +408,6 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 								</div>
 							</div>
 						</div>
-
-
 						<div id="results"></div>
 
 
@@ -3616,13 +3614,7 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 
 				});
 
-
-
-
-
 			<?php   }  ?>
-
-
 
 			<?php if ($utilisateur->HasDroits("10_800")) {
 			?>
