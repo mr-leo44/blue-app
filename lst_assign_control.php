@@ -1186,7 +1186,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                     if (data.length == 1) {
                         textMessage = `Voulez-vous annuler l'assignation du compteur ( ${data[0]} )?`
                     } else if (data.length > 1) {
-                        textMessage = `${data.length} elements à supprimer. \n Voulez-vous annuler l(es) assignation(s) de(s) compteur(s) ( ${data.join(', ')} )?`
+                        textMessage = `${data.length} elements à supprimer. \n Voulez-vous annuler l(es) assignation(s) de(s) compteur(s) ?`
                     } else {
                         return false
                     }
