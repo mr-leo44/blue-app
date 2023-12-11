@@ -3623,37 +3623,61 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 					$('#desaffect-compteur').click(function(e) {
 						event.preventDefault();
 						event.stopPropagation()
+
 						var name_actuel = $(this).attr("data-name-install");
 						var jeton_actuel = $(this).attr("data-id-install");
- 
-						var view_mode = "desaffect_compteur_in_installation";
-						$.ajax({
-							url: "controller.php",
-							method: "GET",
-							data: {
-								view: view_mode,
-								q: jeton_actuel
-							},
-							beforeSend: function() {
-								ShowLoader("Le compteur est en cours de désaffectation...");
-							},
-							success: function(data) {
-								try {
-									var result = $.parseJSON(data);
-									if (result.error == 0) {
-										swal("Information", result.message, "success");
-										CloseFiche()
-										var show_ = $("#show").val();
-										displayRecords(show_, 1, '');
-									} else if (result.error == 1) {
-										swal("Information", result.message, "error");
-									}
-								} catch (erreur) {}
-							},
-							complete: function() {
-								HideLoader();
-							}
-						});
+						var raison = $("#desaffection-form select").val()
+
+						console.log("RAISON", raison)
+
+						if (!raison) {
+							swal("Information", "Choisissez une raison pour la désaffectation ! ", "error");
+							return;
+						}
+
+						swal({
+							title: 'Confirmer la désaffectation',
+							text: `Voulez-vous vraiment désaffecter ce compteur - [ ${jeton_actuel} ] ? `,
+							showCancelButton: true,
+							confirmButtonColor: '#DD6B55',
+							confirmButtonText: 'Confirmer !',
+							closeOnConfirm: true,
+						}, function(isConfirm) {
+							// do whatever you want with the form data
+							console.log(isConfirm) // { name: 'user name', nickname: 'what the user sends' }
+							var view_mode = "desaffect_compteur_in_installation";
+
+							$.ajax({
+								url: "controller.php",
+								method: "GET",
+								data: {
+									view: view_mode,
+									q: jeton_actuel, 
+									raison: raison
+								},
+								beforeSend: function() {
+									ShowLoader("Le compteur est en cours de désaffectation...");
+								},
+								success: function(data) {
+									try {
+										var result = $.parseJSON(data);
+										if (result.error == 0) {
+											swal("Information", result.message, "success");
+											CloseFiche()
+											var show_ = $("#show").val();
+											displayRecords(show_, 1, '');
+										} else if (result.error == 1) {
+											swal("Information", result.message, "error");
+										}
+									} catch (erreur) {}
+								},
+								complete: function() {
+									HideLoader();
+								}
+							});
+						})
+
+
 					});
 				}
 				// $('.delete').click(function () {

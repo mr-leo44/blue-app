@@ -1661,9 +1661,9 @@ switch ($view) {
                              <div class="form-group">
                                     <label>COMMETAIRE INSTALLATEUR</label>
                                     <div class="input-group" style="width: 100%;"> 
-											<div class="font-medium text-primary ">' . $data['data']['commentaire_installateur'] .  '</div>
-										</div>                
-                                </div>
+										<div class="font-medium text-primary ">' . $data['data']['commentaire_installateur'] .  '</div>
+									</div>                
+                            </div>
                         </div>
 								 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
 										<div class="card">
@@ -1722,7 +1722,36 @@ switch ($view) {
                                 </div>';
 			}
 
+			if ($utilisateur->HasDroits("10_80")) {
+				if (strtolower($data['data']['compteur_desaffecte']) == "0") {
+					$temp_btn =  '<a id="desaffect-compteur" href="#" class="btn btn-outline-dark float-right ml-2" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Désaffecter</a>';
 
+					$desaffect_container = '
+						<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-4 "> 
+							<label>DESAFFECTER UN COMPTEUR</label> 
+							<form class="form-inline" id="desaffection-form">
+								<div class="form-group " style="width: 80%;">
+									<select required class="form-control w-100" id="raisonsDesaffectation" name="raisonsDesaffectation">
+										<option value="" selected  >Raison de la désaffectation...</option>
+										<option value="Installation désactivée">Installation désactivée</option>
+										<option value="Compteur défectueux">Compteur défectueux</option>
+										<option value="Changement de propriétaire">Changement de propriétaire</option>
+										<option value="Maintenance planifiée">Maintenance planifiée</option>
+										<option value="Déménagement de l\'utilisateur">Déménagement de l\'utilisateur</option>
+										<option value="Fin de contrat">Fin de contrat</option>
+										<option value="Réaménagement de l\'espace">Réaménagement de l\'espace</option>
+										<option value="Modernisation de l\'équipement">Modernisation de l\'équipement</option>
+										<option value="Problème d\'alimentation électrique">Problème d\'alimentation électrique</option> 
+									</select>
+								</div>
+								' . $temp_btn . '
+							</form>  
+						</div>
+					';
+
+					$result .= $desaffect_container;
+				}
+			}
 
 			$result .= ' <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 									<div class="card">
@@ -1754,10 +1783,6 @@ switch ($view) {
 
 			if ($utilisateur->HasDroits("10_80")) {
 				$result .=  '<a href="#" class="btn btn-outline-danger float-right delete-install" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Supprimer</a>';
-
-				if (strtolower($data['data']['compteur_desaffecte']) == "0") {
-					$result .=  '<a id="desaffect-compteur" href="#" class="btn btn-outline-dark float-right" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Désaffecter</a>';
-				}
 			}
 
 
@@ -2636,10 +2661,12 @@ exit();*/
 	case "desaffect_compteur_in_installation":
 
 		$id_install = isset($_GET['q']) ? $_GET['q'] : "";
+		$raison = isset($_GET['raison']) ? $_GET['raison'] : "";
 
-		$query = "UPDATE t_log_installation SET compteur_desaffecte = :compteur_desaffecte WHERE id_install = :id_install";
+		$query = "UPDATE t_log_installation SET compteur_desaffecte = :compteur_desaffecte, motif_desaffectation = :motif_desaffectation WHERE id_install = :id_install";
 		$stmt = $db->prepare($query);
 		$stmt->bindValue(":id_install", $id_install);
+		$stmt->bindValue(":motif_desaffectation", $raison);
 		$stmt->bindValue(":compteur_desaffecte", 1);
 
 		$res = $stmt->execute();
@@ -2930,8 +2957,15 @@ exit();*/
 				$num_line++;
 
 				$desaffecte = "";
+				$motif_desaffecte = "";
 				if ($row_["compteur_desaffecte"] == '1') {
 					$desaffecte .= ' <span class="badge badge-dark">Compteur désaffecté</span>';
+
+					if ($row_['motif_desaffectation']) {
+						$motif_desaffecte .= ' <span class="badge badge-warning"> <strong>MOTIF : </strong> ' . $row_['motif_desaffectation'] . '</>';
+					} else {
+						$motif_desaffecte .= ' <span class="badge badge-warning">Aucun motif</span>';
+					}
 				}
 				$result .= '<div class="control-row card bg-white">
 								<div class="card-header d-flex">
@@ -2942,7 +2976,7 @@ exit();*/
 					Utils::getApproved_Label($row_['approbation_installation']) . '</span> ' .
 					Utils::getInstallationEnplaceSPAN(trim($row_["num_compteur_actuel"]), trim($row_["numero_compteur"]))
 					.
-					$desaffecte
+					$desaffecte . $motif_desaffecte
 					. '</h4></div>';
 				// <div class="dropdown ml-auto">
 				// <a class="toolbar" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-dots-vertical"></i>  </a>
@@ -3041,9 +3075,6 @@ exit();*/
 											</div>
                                 </div>';
 				}
-
-
-
 
 				$result .= '</div>';
 				$result .= '<div class="row">
