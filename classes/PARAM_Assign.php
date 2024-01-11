@@ -383,7 +383,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
    return $stmt;
   }
   */
-	function readAll($from_record_num, $records_per_page, $user_context, $filtre)
+	function readAll($from_record_num, $records_per_page, $user_context, $filtre =  '')
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
 		$user_filtre .= " " . $filtre;
@@ -550,7 +550,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		$stmt->bindParam(':au', $au);
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		
+
 		return $row["total_rows"];
 	}
 
