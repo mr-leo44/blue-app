@@ -383,7 +383,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
    return $stmt;
   }
   */
-	function readAll($from_record_num, $records_per_page, $user_context, $filtre =  '')
+	function readAll($from_record_num, $records_per_page, $user_context, $filtre = "")
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
 		$user_filtre .= " " . $filtre;
@@ -430,7 +430,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		$stmt->execute();
 		return $stmt;
 	}
-	public function search($du, $au, $search_term, $from_record_num, $records_per_page, $user_context, $filtre)
+	public function search($du, $au, $search_term, $from_record_num, $records_per_page, $user_context, $filtre = "")
 	{
 		// $query = "SELECT code,libelle,is_sync,annule  FROM " . $this->table_name  . " WHERE libelle LIKE :search_term  ORDER BY libelle ASC LIMIT :from, :offset";
 		$user_filtre = $user_context->GetUserFilterAssignation();
@@ -506,7 +506,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 	}
 
 
-	public function countAll_BySearch($du, $au, $search_term, $user_context, $filtre)
+	public function countAll_BySearch($du, $au, $search_term, $user_context, $filtre = "")
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
 		$user_filtre .= " " . $filtre;
@@ -619,7 +619,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		return $stmt;
 	}
 
-	public function countAll($user_context, $filtre)
+	public function countAll($user_context, $filtre = "")
 	{
 
 		$user_filtre = $user_context->GetUserFilterAssignation();
