@@ -979,7 +979,7 @@ INNER JOIN t_utilisateurs ON t_log_installation.code_installateur = t_utilisateu
 				Like :search_term)  
 				and  t_log_installation.ref_site_install=:ref_site_install   
 				and  t_log_installation.annule=0 "  . $filtre  . $user_filtre .
-				 "	ORDER BY t_log_installation.date_fin_installation DESC LIMIT :from, :offset";
+			"	ORDER BY t_log_installation.date_fin_installation DESC LIMIT :from, :offset";
 		// or t_main_data.adresse Like :search_term or	
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";

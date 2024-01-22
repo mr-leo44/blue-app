@@ -812,7 +812,7 @@ class CLS_Controle
 			agent_cvs,n_user_create,datesys,is_sync,date_pose_scelle,type_installation,usage_electricity,
 			etat_poc,photo_compteur,date_debut_installation,date_fin_installation,gps_longitude,gps_latitude,code_installateur,id_equipe,
 			nom_equipe,ref_site_install,is_autocollant_posed,post_paie_trouver,is_draft_install,etat_compteur_reaffected FROM t_log_installation WHERE numero_compteur=:numero_compteur AND id_install=:id_install";
-		
+
 		$stmt = $this->connection->prepare($query);
 
 

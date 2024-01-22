@@ -200,9 +200,18 @@ class Site
         $stmt->bindParam(1, $this->code_site);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $this->code_site = $row['code_site'];
-        $this->intitule_site = $row['intitule_site'];
-        $this->province_id = $row['province_id'];
+
+        if (isset($row['code_site'])) {
+            $this->code_site = $row['code_site'];
+        }
+
+        if (isset($row['intitule_site'])) {
+            $this->intitule_site = $row['intitule_site'];
+        }
+
+        if (isset($row['province_id'])) {
+            $this->province_id = $row['province_id'];
+        }
     }
 
     function GetSiteAccessibleForProvince($user, $province)

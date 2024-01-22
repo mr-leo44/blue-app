@@ -189,7 +189,7 @@ FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param
 		$st = $this->connection->prepare($query);
 		$st->bindValue(":id_cvs", $cvs);
 		$st->bindValue(":du", $du);
-		$st->bindValue(":au", $au); 
+		$st->bindValue(":au", $au);
 		$st->execute();
 		$result = $st->fetch(PDO::FETCH_ASSOC);
 		return	$result["nombre"];

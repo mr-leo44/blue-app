@@ -1,8 +1,8 @@
 <?php
 
-class SpinnerItem { 
+class SpinnerItem
+{
     public $code;
-    public $name; 
-    public $description; 
- }
- ?>
+    public $name;
+    public $description;
+}

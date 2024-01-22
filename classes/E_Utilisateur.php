@@ -1,5 +1,6 @@
 <?php
- class E_Utilisateur {
+class E_Utilisateur
+{
     public $code_utilisateur;
     public $nom_utilisateur;
     public $shop_user;
@@ -12,4 +13,3 @@
     public $activated;
     public $Privileges;
 }
-?> 

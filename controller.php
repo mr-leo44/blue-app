@@ -14,7 +14,7 @@ date_default_timezone_set('Africa/Kinshasa');
 // session_name('t_session_key');
 // session_set_cookie_params(0, $dirname, $_SERVER['HTTP_HOST'], $https, true);
 // session_start(); 
-
+require_once './vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once "core.php";
@@ -2493,11 +2493,9 @@ exit();*/
 		$paginate_now->range_ = $range;
 		$paginate_now->page_url = $page_url;
 
-
 		$result = "";
 		$date_identif = "";
 		$date_titre = "Date identification";
-
 
 		if ($utilisateur->HasDroits("10_40")) {
 			$num_line = 0;
@@ -2506,9 +2504,8 @@ exit();*/
 				$date_titre = "Date identification";
 				$num_line++;
 				$result .= '<div class="control-row card bg-white border-top">
-			<div class="card-header d-flex">
-                                      
-										<div>	<div class="text-dark">Compteur</div>  <h4 class="mb-0 text-primary">' . $row_["num_compteur_actuel"] . '</h4></div>
+					<div class="card-header d-flex">
+						<div>	<div class="text-dark">Compteur</div>  <h4 class="mb-0 text-primary">' . $row_["num_compteur_actuel"] . '</h4></div>
                                         <div class="dropdown ml-auto">
                                             <a class="toolbar" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-dots-vertical"></i>  </a>
                                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink" x-placement="bottom-end" style="position: absolute; transform: translate3d(-160px, 23px, 0px); top: 0px; left: 0px; will-change: transform;">';

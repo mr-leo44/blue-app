@@ -3652,7 +3652,7 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 								method: "GET",
 								data: {
 									view: view_mode,
-									q: jeton_actuel, 
+									q: jeton_actuel,
 									raison: raison
 								},
 								beforeSend: function() {
