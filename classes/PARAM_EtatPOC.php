@@ -34,8 +34,13 @@ class PARAM_EtatPOC
     $stmt->bindParam(1, $this->code);
     $stmt->execute();
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $this->code = $row['code'];
-    $this->libelle = $row['libelle'];
+
+    if (isset($row['code'])) {
+      $this->code = $row['code'];
+    }
+    if (isset($row['libelle'])) {
+      $this->libelle = $row['libelle'];
+    }
   }
   function read()
   {

@@ -6,6 +6,8 @@ $home_page = "dashboard.php";
 $active = "lst_install";
 $parambase = "";
 
+require_once 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';
@@ -311,19 +313,24 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 												<?php
 
 												$stmt_tarif = $type_compteur->read();
-												while ($row_gp = $stmt_tarif->fetch(PDO::FETCH_ASSOC)) {
+
+												$row_gps = $stmt_tarif->fetchAll(PDO::FETCH_ASSOC);
+												foreach ($row_gps as $row_gp) {
 													echo "<option value=t_log_installation.type_new_cpteur='" . $row_gp["code"] . "'>Type compteur - " . $row_gp["libelle"] . "</option>";
 												}
 												echo "<option value=t_log_installation.type_new_cpteur=''>Type compteur - Non défini</option>";
 												if ($utilisateur->id_service_group ==  '3') {  //Administration
 													$stmt_chief = $utilisateur->GetAll_OrganeUserListForAdmin();
-													while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+
+													$chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+													foreach ($chief_rows as $row_chief) {
 														echo "<option value=t_log_installation.installateur='" . $row_chief["code_utilisateur"] . "'>Installateur - " . $row_chief["nom_complet"] . "</option>";
 													}
 												} else {
 													$stmt_chief = $utilisateur->GetCurrentUserListIdentificateurs($utilisateur->code_utilisateur, $utilisateur->id_organisme, $utilisateur->is_chief);
 
-													while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+													$chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+													foreach ($chief_rows as $row_chief) {
 														echo "<option value=t_log_installation.installateur='" . $row_chief["code_utilisateur"] . "'>Installateur - " . $row_chief["nom_complet"] . "</option>";
 													}
 												}
@@ -332,12 +339,16 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 												$stmt_chief = null;
 												if ($utilisateur->id_service_group ==  '3') {  //Administration
 													$stmt_chief = $utilisateur->GetAllChiefForAdmin();
-													while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+
+													$chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+													foreach ($chief_rows as $row_chief) {
 														echo "<option value=t_log_installation.chef_equipe='{$row_chief["code_utilisateur"]}'>Chef équipe - {$row_chief["nom_complet"]}</option>";
 													}
 												} else {
 													$stmt_chief = $utilisateur->GetCurrentUserChief($utilisateur);
-													while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+
+													$chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+													foreach ($chief_rows as $row_chief) {
 														echo "<option value=t_log_installation.chef_equipe='{$row_chief["code_utilisateur"]}'>Chef équipe - {$row_chief["nom_complet"]}</option>";
 													}
 												}
@@ -351,25 +362,33 @@ body { background: linear-gradient(to left, rgb(86, 171, 47), rgb(168, 224, 99))
 
 												foreach ($provinces as $province) {
 													$stmt_select = $commune->GetProvinceAllCommune($province['code']);
-													while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+
+													$chief_rows = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+													foreach ($chief_rows as  $row_select) {
 														echo "<option value=e_commune.code='" . $row_select["code"] . "'>Commune - " . $row_select["libelle"] . "</option>";
 													}
 
 
 													$stmt_select = $commune->GetProvinceAllCVS($province['code']);
-													while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+													$rows = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+
+													foreach ($rows as $row_select) {
 														echo "<option value=t_param_cvs.code='" . $row_select["code"] . "'>CVS - " . $row_select["libelle"] . "</option>";
 													}
 												}
 
 												$stmt_select = $site->GetAll();
-												while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+												$rows = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+
+												foreach ($rows as $row_select) {
 													echo "<option value=t_log_installation.ref_site_install='" . $row_select["code"] . "'>Site - " . $row_select["libelle"] . "</option>";
 												}
 
 												if ($utilisateur->id_service_group ==  '3' || $utilisateur->HasGlobalAccess()) {  //Administration
 													$stmt_ = $organisme->read();
-													while ($row_gp = $stmt_->fetch(PDO::FETCH_ASSOC)) {
+													$row_gps = $stmt_->fetchAll(PDO::FETCH_ASSOC);
+
+													foreach ($row_gps as $row_gp) {
 														echo "<option value=id_equipe='{$row_gp["ref_organisme"]}'>Organisme - {$row_gp["denomination"]}</option>";
 													}
 												} else {

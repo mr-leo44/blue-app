@@ -6,6 +6,7 @@ $page_title = "Liste des Sites de Production";
 $home_page = "index.php";
 $active = "siteproduction";
 $parambase = " active";
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once "core.php";

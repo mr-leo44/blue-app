@@ -1,49 +1,27 @@
 <?php
-try {
-    $files = glob('../env*');
-    foreach ($files as $file) {
-        $envVariables = parse_ini_file($file);
-        if ($envVariables !== false) {
-            foreach ($envVariables as $key => $value) {
-                $_ENV[$key] = $value;
-            }
-        }
-    }
-} catch (Exception $e) {
-}
+require_once dirname(__DIR__) .  '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 class Database
 {
 
     // specify your own database credentials
-    private $host = "localhost";
-    private $db_name = "blue_app";
-    private $username = "root";
-    private $password = "";
-    private $port = 3306;
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
+    private $port;
     public $conn;
     // get the database connection
 
     public function __construct()
     {
-        if (isset($_ENV['DATABASE_HOST']) and $_ENV['DATABASE_HOST'] != "") {
-            $this->host = $_ENV['DATABASE_HOST'];
-        }
-
-        if (isset($_ENV['DATABASE_PORT']) and $_ENV['DATABASE_PORT'] != "") {
-            $this->port = $_ENV['DATABASE_PORT'];
-        }
-
-        if (isset($_ENV['DATABASE_PASSWORD']) and $_ENV['DATABASE_PASSWORD'] != "") {
-            $this->password = $_ENV['DATABASE_PASSWORD'];
-        }
-
-        if (isset($_ENV['DATABASE_USERNAME']) and $_ENV['DATABASE_USERNAME'] != "") {
-            $this->username = $_ENV['DATABASE_USERNAME'];
-        }
-
-        if (isset($_ENV['DATABASE_NAME']) and $_ENV['DATABASE_NAME'] != "") {
-            $this->db_name = $_ENV['DATABASE_NAME'];
-        }
+        $this->host = $_ENV['DATABASE_HOST'] ?? "";
+        $this->port = $_ENV['DATABASE_PORT'] ?? "";
+        $this->password = $_ENV['DATABASE_PASSWORD'] ?? "";
+        $this->username = $_ENV['DATABASE_USERNAME'] ?? "";
+        $this->db_name = $_ENV['DATABASE_NAME'] ?? "";
     }
 
     public function getConnection()

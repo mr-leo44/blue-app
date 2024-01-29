@@ -1,998 +1,1033 @@
-<?php 
- // session_start();
- $mnu_title = "Avenue";
- $page_title = "Liste des Avenues";
- $home_page = "index.php";
- $active = "avenue";
- $parambase = " active";
- 
+<?php
+// session_start();
+$mnu_title = "Avenue";
+$page_title = "Liste des Avenues";
+$home_page = "index.php";
+$active = "avenue";
+$parambase = " active";
+
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 //loading Classes filess
 Autoloader::Load('classes');
 
- include_once "core.php";
- /*include_once "include/database_pdo.php";
+include_once "core.php";
+/*include_once "include/database_pdo.php";
  include_once "classes/class.utilisateur.php";
  include_once "classes/class.commune.php";
  include_once "classes/class.province.php";*/
- $database = new Database();
- $db = $database->getConnection(); 
- $adressEntity = new AdresseEntity($db);
- $utilisateur = new Utilisateur($db);
- 
- 
-if($utilisateur->is_logged_in() == false){
-	$utilisateur->redirect('login.php');
+$database = new Database();
+$db = $database->getConnection();
+$adressEntity = new AdresseEntity($db);
+$utilisateur = new Utilisateur($db);
+
+
+if ($utilisateur->is_logged_in() == false) {
+    $utilisateur->redirect('login.php');
 }
 $utilisateur->readOne();
- /*if($utilisateur->is_logged_in()=="")
+/*if($utilisateur->is_logged_in()=="")
  {
  	$utilisateur->redirect("login.php");
  }
  $utilisateur->code_utilisateur=$_SESSION["uSession"];
  $utilisateur->readOne();*/
-   
-  
 
- $category_id = '10';//Avenue
- ?>
- <!doctype html>
- <html lang="en">
- <head>
+
+
+$category_id = '10'; //Avenue
+?>
+<!doctype html>
+<html lang="en">
+
+<head>
     <style>
- 	    .btn-group-fab {
-   position: fixed;
-   width: 50px;
-   height: auto;
-   right: 20px; 
-   bottom: 50px;
- }
- .btn-group-fab div {
-   position: relative; 
-   width: 100%;
-   height: auto;
- }
- .btn-group-fab .btn {
-   position: absolute;
-   bottom: 0;
-   border-radius: 50%;
-   display: block;
-   margin-bottom: 4px;
-   width: 40px; 
-   height: 40px;
-   margin: 4px auto;
- }
- .btn-group-fab .btn-main {
-   width: 50px; 
-   height: 50px;
-   right: 50%; 
-   margin-right: -25px;
-   z-index: 9;
- }
- .btn-group-fab .btn-sub {
-   bottom: 0; z-index: 8;
-   right: 50%;
-   margin-right: -20px;
-   -webkit-transition: all 2s;
-   transition: all 0.5s;
- }
- .btn-group-fab.active .btn-sub:nth-child(2) {
-   bottom: 60px;
- }
- .btn-group-fab.active .btn-sub:nth-child(3) {
-   bottom: 110px;
- }
- .btn-group-fab.active .btn-sub:nth-child(4) {
-   bottom: 160px;
- }
- .btn-group-fab .btn-sub:nth-child(5) {
-   bottom: 210px;
- }
- .btn-group-fab .btn-sub:nth-child(6) {
-   bottom: 260px;
- }
-     .pagination {
-         float: right;
-         margin: 0 30px 5px;
-     }
-     .pagination li a {
-         border: none;
-         font-size: 95%;
-         width: 50px;
-         height: 30px;
-         color: #6c757d; 
-         line-height: 30px;
-         border-radius: 30px !important;
-         text-align: center;
-         padding: 0;		
- 		background-color: #fff;
- 		border: 2px solid #ddd;
-     .pagination li a:hover {
-         color: #FFF;
-     }
- 	.pagination li.disabled a {
- 		background-color: #000;
-     }
- 	.pagination li.disabled i {
- 		 color: #eee;
-     }
-     .pagination li i {
-         font-size: 16px;
-     }  
- 	.page-item.disabled .page-link {
- 		color: #6c757d;
- 		pointer-events: none;
- 		cursor: auto;
- 		background-color: #000;
- 		border-color: #dee2e6;
- 	}
- .search {
-  cursor:pointer
- } 
- 	</style>
-   <link href="assets/css/select2.css" rel="stylesheet">
-  <?php 
- include_once "layout_style.php";
- ?>
- </head>
- <body> 
- <div class="dashboard-main-wrapper"> 
- <?php 
- include_once "layout_top_bar.php";
- include_once "layout_side_bar.php";
- ?> 
- <div class="dashboard-wrapper">
- <div class="container-fluid  dashboard-content">	
-	 
-				
- 	   <div class="row"> 
-	   <!-- ============================================================== -->
-                        <!-- Localisation form -->
-                        <!-- ============================================================== -->
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                            <div class="card">
-                                <h5 class="card-header">Liste des avenues</h5>
-								 <div class="row">
-                                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-                            <div class="card">
-                                
-                            <div class="card-body" >
-							<form id="mainForm" method="post" action="controller.php" enctype="multipart/form-data"> 
-                                <div class="form-group">
-                                    <label>Province</label>			
-                                    <select class='form-control select2' style='width: 100%;' name='province_id'  id='province_id' required>
-                                        <option selected='selected' value='' > </option>
-                                         <?php
-                                        $stmt_select = $adressEntity->read('3');
-										
-                                        while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
-                                            echo "<option value=" . $row_select["code"] . ">{$row_select["libelle"]}</option>";
-                                        }
-                                        ?></select>
-                                </div> 
-                                <div class="form-group">
-                                    <label>VILLE/TERRITOIRE</label>			
-                                    <select class='form-control select2' style='width: 100%;' name='ville_id'  id='ville_id' required>
-                                        <option selected='selected' value='' > </option>
-                                         <?php
-                                        /*$stmt_select = $adressEntity->readFilter('4',$USER_SITE_PROVINCE);
+        .btn-group-fab {
+            position: fixed;
+            width: 50px;
+            height: auto;
+            right: 20px;
+            bottom: 50px;
+        }
+
+        .btn-group-fab div {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+
+        .btn-group-fab .btn {
+            position: absolute;
+            bottom: 0;
+            border-radius: 50%;
+            display: block;
+            margin-bottom: 4px;
+            width: 40px;
+            height: 40px;
+            margin: 4px auto;
+        }
+
+        .btn-group-fab .btn-main {
+            width: 50px;
+            height: 50px;
+            right: 50%;
+            margin-right: -25px;
+            z-index: 9;
+        }
+
+        .btn-group-fab .btn-sub {
+            bottom: 0;
+            z-index: 8;
+            right: 50%;
+            margin-right: -20px;
+            -webkit-transition: all 2s;
+            transition: all 0.5s;
+        }
+
+        .btn-group-fab.active .btn-sub:nth-child(2) {
+            bottom: 60px;
+        }
+
+        .btn-group-fab.active .btn-sub:nth-child(3) {
+            bottom: 110px;
+        }
+
+        .btn-group-fab.active .btn-sub:nth-child(4) {
+            bottom: 160px;
+        }
+
+        .btn-group-fab .btn-sub:nth-child(5) {
+            bottom: 210px;
+        }
+
+        .btn-group-fab .btn-sub:nth-child(6) {
+            bottom: 260px;
+        }
+
+        .pagination {
+            float: right;
+            margin: 0 30px 5px;
+        }
+
+        .pagination li a {
+            border: none;
+            font-size: 95%;
+            width: 50px;
+            height: 30px;
+            color: #6c757d;
+            line-height: 30px;
+            border-radius: 30px !important;
+            text-align: center;
+            padding: 0;
+            background-color: #fff;
+            border: 2px solid #ddd;
+
+            .pagination li a:hover {
+                color: #FFF;
+            }
+
+            .pagination li.disabled a {
+                background-color: #000;
+            }
+
+            .pagination li.disabled i {
+                color: #eee;
+            }
+
+            .pagination li i {
+                font-size: 16px;
+            }
+
+            .page-item.disabled .page-link {
+                color: #6c757d;
+                pointer-events: none;
+                cursor: auto;
+                background-color: #000;
+                border-color: #dee2e6;
+            }
+
+            .search {
+                cursor: pointer
+            }
+    </style>
+    <link href="assets/css/select2.css" rel="stylesheet">
+    <?php
+    include_once "layout_style.php";
+    ?>
+</head>
+
+<body>
+    <div class="dashboard-main-wrapper">
+        <?php
+        include_once "layout_top_bar.php";
+        include_once "layout_side_bar.php";
+        ?>
+        <div class="dashboard-wrapper">
+            <div class="container-fluid  dashboard-content">
+
+
+                <div class="row">
+                    <!-- ============================================================== -->
+                    <!-- Localisation form -->
+                    <!-- ============================================================== -->
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="card">
+                            <h5 class="card-header">Liste des avenues</h5>
+                            <div class="row">
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="card">
+
+                                        <div class="card-body">
+                                            <form id="mainForm" method="post" action="controller.php" enctype="multipart/form-data">
+                                                <div class="form-group">
+                                                    <label>Province</label>
+                                                    <select class='form-control select2' style='width: 100%;' name='province_id' id='province_id' required>
+                                                        <option selected='selected' value=''> </option>
+                                                        <?php
+                                                        $stmt_select = $adressEntity->read('3');
+
+                                                        while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                            echo "<option value=" . $row_select["code"] . ">{$row_select["libelle"]}</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>VILLE/TERRITOIRE</label>
+                                                    <select class='form-control select2' style='width: 100%;' name='ville_id' id='ville_id' required>
+                                                        <option selected='selected' value=''> </option>
+                                                        <?php
+                                                        /*$stmt_select = $adressEntity->readFilter('4',$USER_SITE_PROVINCE);
 										
                                         while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
                                             echo "<option value=" . $row_select["code"] . ">{$row_select["libelle"]}</option>";
                                         }*/
-                                        ?></select>
-                                </div>
-                                <div class="form-group">
-                                    <label>COMMUNE/SECTEUR</label>			
-                                    <select class='form-control select2' style='width: 100%;' name='commune_id'  id='commune_id' required>
-                                       </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>QUARTIER</label>			
-                                    <select class='form-control select2' style='width: 100%;' name='quartier'  id='quartier' required>
-                                       </select>
-                                </div>  
-								
-                               
-                                </form>
-                                </div>
-								
-                            </div>
-                        </div>
-                         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-                            <div class="card">
-								<div class="card-body">
-								
-								<div class="card bg-white font-semi-bold mt-3 mb-4">
-									<div class="card-body">
-										<div class="row">
-											<div class="col-sm-12">
-												<input type="text" id="srch-term-entity" name="s" class="form-control" placeholder="Recherche...">
-											</div>
-										</div>
-									</div>
-								</div>
-								
-                                <div class="form-group">
-                                    <div class="table-responsive table-bordered table-hover" style="height:350px;">
-                                        <table class="table no-wrap p-table lignes_install ui-sortable" id="lignes_install"><thead><tr><th style="width:95%">Avenue <span class="nb_avenue"></span></th><th><a class="btn btn-xs " id="add_line"><i class="fas fa-plus"></i></a></th> </tr>
-                                            </thead>											
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>         
-                                </div>
-								</div>
-                            </div>
-                        </div>
-                       
-                        </div>
-                            </div>
-                        </div>
-                        <!-- ============================================================== -->
-                        <!-- end Localisation form -->
-                        <!-- ============================================================== -->
-						
-	   </div>
-             </div> 
-            <?php 
- 				//include_once "layout_footer.php";
- 			?>
-         </div>
-     </div>
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>COMMUNE/SECTEUR</label>
+                                                    <select class='form-control select2' style='width: 100%;' name='commune_id' id='commune_id' required>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>QUARTIER</label>
+                                                    <select class='form-control select2' style='width: 100%;' name='quartier' id='quartier' required>
+                                                    </select>
+                                                </div>
 
- 	 <?php
- 
- //	if($utilisateur->HasDroits("12_38")){ 
- 								echo  ' <div class="btn-group-fab" role="group" aria-label="FAB Menu">
+
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div class="card">
+                                        <div class="card-body">
+
+                                            <div class="card bg-white font-semi-bold mt-3 mb-4">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <input type="text" id="srch-term-entity" name="s" class="form-control" placeholder="Recherche...">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <div class="table-responsive table-bordered table-hover" style="height:350px;">
+                                                    <table class="table no-wrap p-table lignes_install ui-sortable" id="lignes_install">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:95%">Avenue <span class="nb_avenue"></span></th>
+                                                                <th><a class="btn btn-xs " id="add_line"><i class="fas fa-plus"></i></a></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ============================================================== -->
+                    <!-- end Localisation form -->
+                    <!-- ============================================================== -->
+
+                </div>
+            </div>
+            <?php
+            //include_once "layout_footer.php";
+            ?>
+        </div>
+    </div>
+
+    <?php
+
+    //	if($utilisateur->HasDroits("12_38")){ 
+    echo  ' <div class="btn-group-fab" role="group" aria-label="FAB Menu">
   <div>
     <button type="button" class="btn btn-main btn-primary has-tooltip" data-placement="left" title="Menu"> <i class="fa fa-bars"></i> </button>
   
     <button type="button" class="btn btn-sub btn-warning has-tooltip import-csv" data-placement="left" title="Importation"> <i class="fa fa-download"></i> </button>
   </div>
 </div>';
- //}
-	
-	//include_once "layout_loader.php";
- 	include_once "layout_script.php";
- 	?>
- <div class="modal fade" id="dlg_main" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
-       <div class="modal-dialog">
-     <div class="modal-content">
- 		<div class="modal-header">
- 			<h5 class="modal-title" id="dlg_title"></h5>
- 			<a href="#" class="close" data-dismiss="modal" aria-label="Close">
- 						<span aria-hidden="true">&times;</span>
- 					</a>
- 		</div>
-           <div class="modal-body">
-   <form id="dlg_frm" method="post" action="controller.php" enctype="multipart/form-data">  
- 		   <input name="code"  id="code" type="hidden"> 
- 		   <input name="view" id="view" type="hidden"> 
- 		   <input name="parent_id" id="parent_id" type="hidden"> 
-           
+    //}
 
-		<div class="form-group">
-                 <label>AVENUE</label>
-                 <div class="input-group"  style="width: 100%;" > 
-                   <input type="text" class="form-control pull-right" name="libelle" id="libelle">
-                 </div> 
-         </div>
-		 
-       <div class="modal-footer ">
-         <button type="button" class="btn btn-primary btn-lg" id="btn_save_" ><span class="glyphicon glyphicon-ok-sign"></span> Valider</button>
-       </div>
- </form>
-         </div> 
-   </div> 
-     </div>
-  </div>
-  
-   <div class="modal" id="loadMe" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="getCroppedCanvasTitle" >
-            <div class="modal-dialog modal-sm" role="document">
-                <div class="modal-content">
+    //include_once "layout_loader.php";
+    include_once "layout_script.php";
+    ?>
+    <div class="modal fade" id="dlg_main" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dlg_title"></h5>
+                    <a href="#" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <form id="dlg_frm" method="post" action="controller.php" enctype="multipart/form-data">
+                        <input name="code" id="code" type="hidden">
+                        <input name="view" id="view" type="hidden">
+                        <input name="parent_id" id="parent_id" type="hidden">
 
-                    <div class="modal-body text-center">
-                       <!-- <span class="dashboard-spinner spinner-primary spinner-xxl"></span> -->
-                        <div class="loader"></div>
-                        <div class="loader-txt">
-                            <p id="loading_msg"></p>
+
+                        <div class="form-group">
+                            <label>AVENUE</label>
+                            <div class="input-group" style="width: 100%;">
+                                <input type="text" class="form-control pull-right" name="libelle" id="libelle">
+                            </div>
                         </div>
+
+                        <div class="modal-footer ">
+                            <button type="button" class="btn btn-primary btn-lg" id="btn_save_"><span class="glyphicon glyphicon-ok-sign"></span> Valider</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="loadMe" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="getCroppedCanvasTitle">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body text-center">
+                    <!-- <span class="dashboard-spinner spinner-primary spinner-xxl"></span> -->
+                    <div class="loader"></div>
+                    <div class="loader-txt">
+                        <p id="loading_msg"></p>
                     </div>
                 </div>
             </div>
         </div>
-		
-		
-
-
-
-<div class="modal fade" id="box_import_entity" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
-      <div class="modal-dialog">
-	    <form id="frm_import_xlsform" method="post" action="controller.php" enctype="multipart/form-data"> 
-    <div class="modal-content">
-         
-		<div class="modal-header">
-			<h5 class="modal-title" id="import_title"> </h5>
-			<a href="#" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</a>
-		</div>
-          <div class="modal-body">
-		   <input name="category_id" id="category_id" type="hidden" value="13"> 
-		   <input name="_id" id="_id" type="hidden"> 
-		   <input name="view" type="hidden" value="import_adresse_entity"> 
-					   <div class="form-group">
-								<label>Fichier XLS:</label>
-								<div class="input-group"  style="width: 100%;" > 
-								  <input type="file" class="form-control pull-right" name="frm" id="frm_file">
-								</div>                
-						</div> 		 
-      <div class="modal-footer ">
-        <button type="button" class="btn btn-primary btn-lg" id="btn_import_entity" ><span class="glyphicon glyphicon-ok-sign"></span> Importer</button>
-      </div>
-        </div> 
-  </div> 
-    </form>
     </div>
- </div>	 
- <script src="assets/js/select2.min.js"></script>
- <script>
-  $(function () { 
-            
-	var actual_avenue="";        
-			var actual_commune="";        
-			var actual_quartier=""; 
-			var load_ville=false;
-			var load_commune=false;
-			var load_quartier=false;       
-			var load_avenue=false;
-	
-	
-	
-	
-	   
-/*start import */
-  $('.btn-group-fab').on('click', '.btn', function() {
-    $('.btn-group-fab').toggleClass('active');
-  });  
 
 
 
- $('.import-csv').click(function() {
-         //var curr = jQuery(this).attr("project-id");
-         //var name_actuel = jQuery(this).attr("data-name");
-         //$('#_id').val(curr);
-		 var parent_id = $('#quartier').val()!=null?$('#quartier').val():'';
-			if(parent_id == ''){
-				swal("Information", "Veuillez préciser le quartier", "error");
-				return false;
-			}
-					 $('#_id').val(parent_id);
-					
-         $('#import_title').html('IMPORTATION DES AVENUES');
-         $('#box_import_entity').modal('show');
-    });
-	
-   $('#btn_import_entity').click(function() {
-        var form = document.getElementById("frm_import_xlsform");
-        var Site = '';
-		var selected = $('#quartier').select2('data');
-		if(selected){
-			Site=selected[0].text;
-		}
-        var formData = new FormData(form);
-		  $('#box_import_entity').modal('hide');
-         $("#loading_msg").html("Importation des avenues pour le  Quartier " + Site +" en cours...");
-			$("#loadMe").modal({
-			  backdrop: "static", 
-			  keyboard: false, 
-			  show: true 
-			});	
-          $.ajax({
-                  url:"controller.php",
-                  method:"POST",
-                  data: formData,
-                  contentType:false,
-                  processData:false,
-                  cache:false,
-                  dataType:"json",
-                  success : function(result, statut){ 
-                      $("#loadMe").modal('hide');
-                            //var result = $.parseJSON(data);
-                                 if(result.error == false) {
-                                        swal({
-                                                        title: "Information",
-                                                        text: result.message,
-                                                        type: "success",
-                                                        showCancelButton: false,
-                                                        confirmButtonColor: "#00A65A",
-                                                        confirmButtonText: "Ok",
-                                                        closeOnConfirm: true,
-                                                        closeOnCancel: false
-                                                }, function (isConfirm) {
-                                                       // ClearForm();
-                                                        $('#frm_file').val('').change();
-                                                        $('#box_import_entity').modal('hide');
-                                                       // window.location.reload();
-													    $("#quartier").change();
-                                                });
-                                }else if( result.error == true) {
-                                        //swal("Information", result.message, "error");
-                                        swal({
-                                                        title: "Information",
-                                                        text: result.message,
-                                                        type: "error",
-                                                        showCancelButton: false,
-                                                        confirmButtonColor: "#DD6B55",
-                                                        confirmButtonText: "Ok",
-                                                        closeOnConfirm: true,
-                                                        closeOnCancel: false
-                                                }, function (isConfirm) {
-													  $('#box_import_entity').modal('show');
-                                                }); 
+
+
+    <div class="modal fade" id="box_import_entity" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="frm_import_xlsform" method="post" action="controller.php" enctype="multipart/form-data">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="import_title"> </h5>
+                        <a href="#" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </a>
+                    </div>
+                    <div class="modal-body">
+                        <input name="category_id" id="category_id" type="hidden" value="13">
+                        <input name="_id" id="_id" type="hidden">
+                        <input name="view" type="hidden" value="import_adresse_entity">
+                        <div class="form-group">
+                            <label>Fichier XLS:</label>
+                            <div class="input-group" style="width: 100%;">
+                                <input type="file" class="form-control pull-right" name="frm" id="frm_file">
+                            </div>
+                        </div>
+                        <div class="modal-footer ">
+                            <button type="button" class="btn btn-primary btn-lg" id="btn_import_entity"><span class="glyphicon glyphicon-ok-sign"></span> Importer</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="assets/js/select2.min.js"></script>
+    <script>
+        $(function() {
+
+            var actual_avenue = "";
+            var actual_commune = "";
+            var actual_quartier = "";
+            var load_ville = false;
+            var load_commune = false;
+            var load_quartier = false;
+            var load_avenue = false;
+
+
+
+
+
+            /*start import */
+            $('.btn-group-fab').on('click', '.btn', function() {
+                $('.btn-group-fab').toggleClass('active');
+            });
+
+
+
+            $('.import-csv').click(function() {
+                //var curr = jQuery(this).attr("project-id");
+                //var name_actuel = jQuery(this).attr("data-name");
+                //$('#_id').val(curr);
+                var parent_id = $('#quartier').val() != null ? $('#quartier').val() : '';
+                if (parent_id == '') {
+                    swal("Information", "Veuillez préciser le quartier", "error");
+                    return false;
+                }
+                $('#_id').val(parent_id);
+
+                $('#import_title').html('IMPORTATION DES AVENUES');
+                $('#box_import_entity').modal('show');
+            });
+
+            $('#btn_import_entity').click(function() {
+                var form = document.getElementById("frm_import_xlsform");
+                var Site = '';
+                var selected = $('#quartier').select2('data');
+                if (selected) {
+                    Site = selected[0].text;
+                }
+                var formData = new FormData(form);
+                $('#box_import_entity').modal('hide');
+                $("#loading_msg").html("Importation des avenues pour le  Quartier " + Site + " en cours...");
+                $("#loadMe").modal({
+                    backdrop: "static",
+                    keyboard: false,
+                    show: true
+                });
+                $.ajax({
+                    url: "controller.php",
+                    method: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    dataType: "json",
+                    success: function(result, statut) {
+                        $("#loadMe").modal('hide');
+                        //var result = $.parseJSON(data);
+                        if (result.error == false) {
+                            swal({
+                                title: "Information",
+                                text: result.message,
+                                type: "success",
+                                showCancelButton: false,
+                                confirmButtonColor: "#00A65A",
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            }, function(isConfirm) {
+                                // ClearForm();
+                                $('#frm_file').val('').change();
+                                $('#box_import_entity').modal('hide');
+                                // window.location.reload();
+                                $("#quartier").change();
+                            });
+                        } else if (result.error == true) {
+                            //swal("Information", result.message, "error");
+                            swal({
+                                title: "Information",
+                                text: result.message,
+                                type: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            }, function(isConfirm) {
+                                $('#box_import_entity').modal('show');
+                            });
+                        }
+                    },
+                    error: function(resultat, statut, erreur) {
+                        $('#box_import_entity').modal('show');
+                        //		$inputs.prop("disabled", false);
+                        $("#loadMe").modal('hide');
+                    },
+                    complete: function(resultat, statut, erreur) {
+                        $("#loadMe").modal('hide');
+
+                    }
+                });
+            });
+
+
+
+            /*  end import  */
+
+            $("#mainForm .select2").each(function() {
+                var $sel = $(this).parent();
+                $(this).select2({
+                    dropdownParent: $sel
+                });
+            });
+
+            $('form input').keydown(function(e) {
+                if (e.keyCode == 13) {
+                    var inputs = $(this).parents("form").eq(0).find(":input");
+                    if (inputs[inputs.index(this) + 1] != null) {
+                        inputs[inputs.index(this) + 1].focus();
+                    }
+                    e.preventDefault();
+                    return false;
+                }
+
+            });
+            <?php //if($utilisateur->HasDroits("12_40")){  
+            ?>
+            jQuery(document).delegate('a.delete-item', 'click', function(e) {
+                e.preventDefault();
+                var itemId = $(this).parents('tr.item-row').attr('data-id');
+                var label = $('tr.item-row[data-id="' + itemId + '"]').find('span.sn').html();
+
+                swal({
+                    title: "Information",
+                    text: "Voulez-vous supprimer l'avenue (" + label + ")?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#00A65A",
+                    confirmButtonText: "Oui",
+                    cancelButtonText: "Non",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function(isConfirm) {
+                    if (isConfirm) {
+                        var view_mode = "delete_quartier";
+                        $.ajax({
+                            url: "controller.php",
+                            method: "POST",
+                            data: {
+                                view: view_mode,
+                                code: itemId
+                            },
+                            success: function(data) {
+                                var result = $.parseJSON(data);
+                                if (result.error == 0) {
+                                    swal({
+                                        title: "Information",
+                                        text: result.message,
+                                        type: "success",
+                                        showCancelButton: false,
+                                        confirmButtonColor: "#00A65A",
+                                        confirmButtonText: "Ok",
+                                        closeOnConfirm: true,
+                                        closeOnCancel: false
+                                    }, function(isConfirm) {
+                                        //window.location.reload();
+                                        $("#quartier").change();
+                                    });
+                                } else if (result.error == 1) {
+                                    swal("Information", result.message, "error");
                                 }
-                   },
-                   error : function(resultat, statut, erreur){
-					     $('#box_import_entity').modal('show');
-                //		$inputs.prop("disabled", false);
-                            $("#loadMe").modal('hide');
-                   },
-                   complete : function(resultat, statut, erreur){ 
-                            $("#loadMe").modal('hide');
-							
-                   }
-          });
-    });
-    
+                            }
+                        });
+                    }
+                });
+            });
+            <?php //} 
+            ?>
 
 
-/*  end import  */  
-	
-    $("#mainForm .select2").each(function(){
- 		var $sel=$(this).parent();
- 		$(this).select2({
- 			dropdownParent:$sel
- 		});	 
-   }); 
-   
-   $('form input').keydown(function(e){
-     if(e.keyCode == 13){
-		 var inputs = $(this).parents("form").eq(0).find(":input");
-		 if(inputs[inputs.index(this) + 1] != null){
-			 inputs[inputs.index(this) + 1].focus();
-		 }
-		 e.preventDefault();
-		 return false;
-	 }
-  
-  });
- <?php //if($utilisateur->HasDroits("12_40")){  ?>	
-jQuery(document).delegate('a.delete-item', 'click', function(e) {
-		e.preventDefault(); 
-		var itemId = $(this).parents('tr.item-row').attr('data-id');
-		var label=$('tr.item-row[data-id="' + itemId + '"]').find('span.sn').html();     
-		 	
- 					swal({
- 										title: "Information",
- 										text: "Voulez-vous supprimer l'avenue ("+label+")?",
- 										type: "warning",
- 										showCancelButton: true,
- 										confirmButtonColor: "#00A65A",
- 										confirmButtonText: "Oui",
- 										cancelButtonText: "Non",
- 										closeOnConfirm: false,
- 										closeOnCancel: true
- 									}, function (isConfirm) {
- 										if (isConfirm) {     
- 											   var view_mode ="delete_quartier";
- 											  $.ajax({
- 												   url:"controller.php",
- 												   method:"POST",
- 									  data:{view:view_mode,code:itemId},
- 												   success:function(data)
- 												   {
- 													  var result = $.parseJSON(data);
- 																 if(result.error == 0) {
- 																	swal({
- 																title: "Information",
- 														text: result.message,
- 													type: "success",
- 														showCancelButton: false,
- 												confirmButtonColor: "#00A65A",
- 														confirmButtonText: "Ok",
- 												closeOnConfirm: true,
- 													closeOnCancel: false
- 												}, function (isConfirm) {
- 										//window.location.reload();
-										 $("#quartier").change();
- 																		});
- 								}else if( result.error == 1) {		
- 					swal("Information", result.message, "error");	
- 																}
- 												   }
- 												  });
- 										} 
- 									});
- 	});<?php //} ?>
+            $("#btn_save_").click(function() {
+                var form = document.getElementById("dlg_frm");
+                var formData = new FormData(form);
+                $.ajax({
+                    url: "controller.php",
+                    method: "POST",
+                    dataType: "json",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    success: function(result, statut) {
+                        try {
+                            if (result.error == 0) {
+                                swal({
+                                    title: "Information",
+                                    text: result.message,
+                                    type: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#00A65A",
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true,
+                                    closeOnCancel: false
+                                }, function(isConfirm) {
+                                    //ClearForm();
+                                    $("#dlg_main").modal("hide");
+                                    $("#quartier").change();
+                                    //window.location.reload();
+                                });
+                            } else if (result.error == 1) {
+                                swal({
+                                    title: "Information",
+                                    text: result.message,
+                                    type: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#DD6B55",
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true,
+                                    closeOnCancel: false
+                                }, function(isConfirm) {});
+                            }
+                        } catch (erreur) {
+                            swal({
+                                title: "Information",
+                                text: "Echec d'execution de la requete",
+                                type: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            }, function(isConfirm) {});
+                        }
+                    },
+                    error: function(resultat, statut, erreur) {
+                        swal({
+                            title: "Information",
+                            text: "Serveur non disponible",
+                            type: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        }, function(isConfirm) {});
+                    }
+                });
+            });
 
-  
- 	$("#btn_save_").click(function () {	
-  var form = document.getElementById("dlg_frm");
- 				var formData = new FormData(form);
- 				  $.ajax({
- 					   url:"controller.php",
- 					   method:"POST",
- 					   dataType:"json",
- 					  data: formData,
- 					  contentType:false,
- 					  processData:false,
- 					  cache:false,
- 					   success : function(result, statut){ 
- 						     try{
- 								  if(result.error == 0) {
- 									swal({
- 											title: "Information",
- 											text: result.message,
- 											type: "success",
- 											showCancelButton: false,
- 											confirmButtonColor: "#00A65A",
- 											confirmButtonText: "Ok",
- 											closeOnConfirm: true,
- 											closeOnCancel: false
- 										}, function (isConfirm) {
- 											//ClearForm();
- 											$("#dlg_main").modal("hide");
-											  $("#quartier").change();
- 											//window.location.reload();
- 										});
- 								}else if( result.error == 1) {
- 									swal({
- 											title: "Information",
- 											text: result.message,
- 											type: "error",
- 											showCancelButton: false,
- 											confirmButtonColor: "#DD6B55",
- 											confirmButtonText: "Ok",
- 											closeOnConfirm: true,
- 											closeOnCancel: false
- 										}, function (isConfirm) {
- 										}); 
- 								}
- 							}catch(erreur){
- 							   	swal({
- 										title: "Information",
- 										text: "Echec d'execution de la requete",
- 										type: "error",
- 										showCancelButton: false,
- 										confirmButtonColor: "#DD6B55",
- 										confirmButtonText: "Ok",
- 										closeOnConfirm: true,
- 										closeOnCancel: false
- 									}, function (isConfirm) {
- 									}); 
- 						   }
- 					   },
- 					   error : function(resultat, statut, erreur){
- 						   swal({
- 										title: "Information",
- 										text: "Serveur non disponible",
- 										type: "error",
- 										showCancelButton: false,
- 										confirmButtonColor: "#DD6B55",
- 										confirmButtonText: "Ok",
- 										closeOnConfirm: true,
- 										closeOnCancel: false
- 									}, function (isConfirm) {
- 									}); 
- 					   }
- 				  });
- 			  });
-			  
- <?php //if($utilisateur->HasDroits("12_38")){  ?>	 $("#add_line").click(function () {	
- 				 
-			var parent_id = $('#quartier').val()!=null?$('#quartier').val():'';
-			if(parent_id == ''){
-				swal("Information", "Veuillez préciser le quartier", "error");
-				return false;
-			}
-					 $('#parent_id').val(parent_id);
-					 $("#dlg_frm #view").val("create_quartier");
- 					 $("#dlg_title").html("CREATION AVENUE");
- 					  $("#dlg_main").modal("show");
- 	}); <?php //} ?>
- <?php //if($utilisateur->HasDroits("12_39")){  ?>
- 
- jQuery(document).delegate('a.edit-item', 'click', function(e) {
-		e.preventDefault(); 
-		var itemId = $(this).parents('tr.item-row').attr('data-id'); 
-		var parent_id = $(this).parents('tr.item-row').attr('parent-id'); 
-		var label=$('tr.item-row[data-id="' + itemId + '"]').find('span.sn').html();    
-		$("#dlg_main #view").val("edit_quartier");
-		$('#dlg_title').html('MODIFICATION AVENUE');				 		
-		$('#code').val(itemId);		
-		$('#libelle').val(label);
-		$('#parent_id').val(parent_id);
-		$('#dlg_main').modal('show');
-	  
-	}); 
- 
-  <?php //}  ?>  
-  
- $("#srch-term-entity").keyup(function(){
-            var val = $(this).val().toString().toLowerCase();
-                    $('#lignes_install').find('.item-row').each(function(i){
-            var row = $(this);
-            var client_label =  row.find('span.sn').html().toString().toLowerCase();
-           
- 
-			if (client_label.indexOf(val) != - 1)
-            {
-            row.show();
-                    //return false;
+            <?php //if($utilisateur->HasDroits("12_38")){  
+            ?> $("#add_line").click(function() {
+
+                var parent_id = $('#quartier').val() != null ? $('#quartier').val() : '';
+                if (parent_id == '') {
+                    swal("Information", "Veuillez préciser le quartier", "error");
+                    return false;
+                }
+                $('#parent_id').val(parent_id);
+                $("#dlg_frm #view").val("create_quartier");
+                $("#dlg_title").html("CREATION AVENUE");
+                $("#dlg_main").modal("show");
+            });
+            <?php //} 
+            ?>
+            <?php //if($utilisateur->HasDroits("12_39")){  
+            ?>
+
+            jQuery(document).delegate('a.edit-item', 'click', function(e) {
+                e.preventDefault();
+                var itemId = $(this).parents('tr.item-row').attr('data-id');
+                var parent_id = $(this).parents('tr.item-row').attr('parent-id');
+                var label = $('tr.item-row[data-id="' + itemId + '"]').find('span.sn').html();
+                $("#dlg_main #view").val("edit_quartier");
+                $('#dlg_title').html('MODIFICATION AVENUE');
+                $('#code').val(itemId);
+                $('#libelle').val(label);
+                $('#parent_id').val(parent_id);
+                $('#dlg_main').modal('show');
+
+            });
+
+            <?php //}  
+            ?>
+
+            $("#srch-term-entity").keyup(function() {
+                var val = $(this).val().toString().toLowerCase();
+                $('#lignes_install').find('.item-row').each(function(i) {
+                    var row = $(this);
+                    var client_label = row.find('span.sn').html().toString().toLowerCase();
+
+
+                    if (client_label.indexOf(val) != -1) {
+                        row.show();
+                        //return false;
+                    } else row.hide();
+                });
+
+                if (!val)
+                    $('#lignes_install').find('.item-row').each(function(i) {
+                        $(this).show();
+                    });
+            });
+            $("#province_id").on("change", function(e) {
+                var item = $(this).val();
+                load_commune = false;
+                load_quartier = false;
+                load_avenue = false;
+                $("#ville_id").html('');
+                $("#commune_id").html('');
+                $("#quartier").html('');
+                if (item != null && item.length == 0) {
+                    return false;
+                }
+                e.preventDefault();
+                $("#loading_msg").html("Chargement liste des villes/territoires en cours...");
+                $("#loadMe").modal({
+                    backdrop: "static",
+                    keyboard: false,
+                    show: true
+                });
+                $.ajax({
+                    url: "controller.php",
+                    method: "GET",
+                    data: {
+                        view: "get_ville_commune",
+                        id_: item
+                    },
+                    success: function(data, statut) {
+                        /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
+
+                        $('#loadMe').modal('hide');
+                        //$('#loadMe').hide();
+                        //$('#loadMe').attr('aria-hidden',"true");
+                        //$('.modal-backdrop').hide();
+                        //$('body').removeClass('modal-open');
+                        try {
+                            var result = $.parseJSON(data);
+                            if (result.error == 0) {
+                                $("#ville_id").html(result.data);
+                                load_commune = true;
+                                /*if(actual_commune != ""){
+                                  $("#commune_id").val(actual_commune).change();      
+                                }*/
+                                // $('#btn_save_paie').show();
+                            } else if (result.error == 1) {
+
+                                /*swal({
+                                 title: "Information",
+                                 text: result.message,
+                                 type: "error",
+                                 showCancelButton: false,
+                                 confirmButtonColor: "#DD6B55",
+                                 confirmButtonText: "Ok",
+                                 closeOnConfirm: true,
+                                 closeOnCancel: false
+                                 }, function (isConfirm) {
+                                 });*/
+                            }
+                        } catch (erreur) {
+                            swal({
+                                title: "Information",
+                                text: "Echec d'execution de la requete",
+                                type: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            }, function(isConfirm) {});
+                        }
+                    },
+                    error: function(resultat, statut, erreur) {
+                        //	$("#loadMe").modal("hide");
+                        swal({
+                            title: "Information",
+                            text: "Serveur non disponible",
+                            type: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        }, function(isConfirm) {});
+                    }
+                });
+            });
+
+            function ClearR() {
+                $('#srch-term-entity').val('');
+                $('#parent_id').val('');
+                $('#code').val('');
+                $('#libelle').val('');
             }
-            else  row.hide(); 
+
+            function ClearRows() {
+                $('#lignes_install tbody tr').each(function(index) {
+                    var itemId = $(this).attr('data-id');
+                    ctr = 0;
+                    $('tr.item-row[data-id="' + itemId + '"]').remove();
+                });
+            }
+
+            $("#ville_id").on("change", function(e) {
+                var item = $(this).val();
+                load_quartier = false;
+                load_avenue = false;
+                $("#commune_id").html('');
+                $("#quartier").html('');
+                ClearRows();
+                if (load_commune == false && item != null && item.length == 0) {
+                    return false;
+                }
+                e.preventDefault();
+                $("#loading_msg").html("Chargement liste des communes en cours...");
+                $("#loadMe").modal({
+                    backdrop: "static",
+                    keyboard: false,
+                    show: true
+                });
+                $.ajax({
+                    url: "controller.php",
+                    method: "GET",
+                    data: {
+                        view: "get_ville_commune",
+                        id_: item
+                    },
+                    success: function(data, statut) {
+                        /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
+
+                        $('#loadMe').modal('hide');
+                        //$('#loadMe').hide();
+                        //$('#loadMe').attr('aria-hidden',"true");
+                        //$('.modal-backdrop').hide();
+                        //$('body').removeClass('modal-open');
+                        try {
+                            var result = $.parseJSON(data);
+                            if (result.error == 0) {
+                                $("#commune_id").html(result.data);
+                                load_quartier = true;
+                                /*if(actual_commune != ""){
+                                  $("#commune_id").val(actual_commune).change();      
+                                }	*/
+                                // $('#btn_save_paie').show();
+                            } else if (result.error == 1) {
+
+                                /*swal({
+                                 title: "Information",
+                                 text: result.message,
+                                 type: "error",
+                                 showCancelButton: false,
+                                 confirmButtonColor: "#DD6B55",
+                                 confirmButtonText: "Ok",
+                                 closeOnConfirm: true,
+                                 closeOnCancel: false
+                                 }, function (isConfirm) {
+                                 });*/
+                            }
+                        } catch (erreur) {
+                            swal({
+                                title: "Information",
+                                text: "Echec d'execution de la requete",
+                                type: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            }, function(isConfirm) {});
+                        }
+                    },
+                    error: function(resultat, statut, erreur) {
+                        //	$("#loadMe").modal("hide");
+                        swal({
+                            title: "Information",
+                            text: "Serveur non disponible",
+                            type: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        }, function(isConfirm) {});
+                    }
+                });
             });
-			
-            if (!val)
-                    $('#lignes_install').find('.item-row').each(function(i){
-            $(this).show();
+
+
+            $("#commune_id").on("change", function(e) {
+                load_avenue = false;
+                ClearRows();
+                var item = $(this).val();
+                if (load_quartier == false || item != null && item.length == 0) {
+                    return false;
+                }
+                e.preventDefault();
+                $("#loading_msg").html("Chargement liste des quartiers en cours...");
+                $("#loadMe").modal({
+                    backdrop: "static",
+                    keyboard: false,
+                    show: true
+                });
+                $("#quartier").html('');
+                $.ajax({
+                    url: "controller.php",
+                    method: "GET",
+                    data: {
+                        view: "get_commune_quartier",
+                        id_: item
+                    },
+                    success: function(data, statut) {
+                        /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
+
+                        $('#loadMe').modal('hide');
+                        //$('#loadMe').hide();
+                        //$('#loadMe').attr('aria-hidden',"true");
+                        //$('.modal-backdrop').hide();
+                        //$('body').removeClass('modal-open');
+                        try {
+                            var result = $.parseJSON(data);
+                            if (result.error == 0) {
+                                $("#quartier").html(result.data);
+                                load_avenue = true;
+                                /* if(actual_quartier != ""){
+                                   $("#quartier").val(actual_quartier).change();      
+                                 }*/
+                                // $('#btn_save_paie').show();
+                            } else if (result.error == 1) {
+
+                                /*swal({
+                                 title: "Information",
+                                 text: result.message,
+                                 type: "error",
+                                 showCancelButton: false,
+                                 confirmButtonColor: "#DD6B55",
+                                 confirmButtonText: "Ok",
+                                 closeOnConfirm: true,
+                                 closeOnCancel: false
+                                 }, function (isConfirm) {
+                                 });*/
+                            }
+                        } catch (erreur) {
+                            swal({
+                                title: "Information",
+                                text: "Echec d'execution de la requete",
+                                type: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                                closeOnCancel: false
+                            }, function(isConfirm) {});
+                        }
+                    },
+                    error: function(resultat, statut, erreur) {
+                        //	$("#loadMe").modal("hide");
+                        swal({
+                            title: "Information",
+                            text: "Serveur non disponible",
+                            type: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        }, function(isConfirm) {});
+                    }
+                });
             });
-            });	
- $("#province_id").on("change", function(e){
-                    var item = $(this).val();
-					load_commune = false;
-					load_quartier = false;
-					load_avenue = false;
-                    $("#ville_id").html(''); 
-                    $("#commune_id").html(''); 
-                    $("#quartier").html(''); 
-                     if(item != null && item.length == 0)
-                      {
-                          return false;
-                      }
-                    e.preventDefault();
-                    $("#loading_msg").html("Chargement liste des villes/territoires en cours...");
-                    $("#loadMe").modal({
-                        backdrop: "static",
-                        keyboard: false,
-                        show: true
-                    });
-                    $.ajax({
-                        url: "controller.php",
-                        method: "GET",
-                        data: {view: "get_ville_commune", id_: item},
-                        success: function(data, statut) {
-                            /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
 
-                            $('#loadMe').modal('hide');
-                            //$('#loadMe').hide();
-                            //$('#loadMe').attr('aria-hidden',"true");
-                            //$('.modal-backdrop').hide();
-                            //$('body').removeClass('modal-open');
-                            try {
-                                var result = $.parseJSON(data);
-                                if (result.error == 0) {
-                                    $("#ville_id").html(result.data);					
-									load_commune = true;
-                                    /*if(actual_commune != ""){
-                                      $("#commune_id").val(actual_commune).change();      
-                                    }*/				
-                                    // $('#btn_save_paie').show();
-                                } else if (result.error == 1) {
+            $("#quartier").on("change", function(e) {
+                var item = $(this).val();
+                ClearRows();
+                if (load_avenue == false || item != null && item.length == 0) {
+                    return false;
+                }
+                e.preventDefault();
+                $("#loading_msg").html("Chargement liste des avenues en cours...");
+                $("#loadMe").modal({
+                    backdrop: "static",
+                    keyboard: false,
+                    show: true
+                });
+                //  $("#adresse").html('');
+                $.ajax({
+                    url: "controller.php",
+                    method: "GET",
+                    data: {
+                        view: "get_adress_json",
+                        id_: item
+                    },
+                    success: function(data, statut) {
+                        /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
 
-                                    /*swal({
-                                     title: "Information",
-                                     text: result.message,
-                                     type: "error",
-                                     showCancelButton: false,
-                                     confirmButtonColor: "#DD6B55",
-                                     confirmButtonText: "Ok",
-                                     closeOnConfirm: true,
-                                     closeOnCancel: false
-                                     }, function (isConfirm) {
-                                     });*/
-                                }
-                            } catch (erreur) {
-                                swal({
-                                    title: "Information",
-                                    text: "Echec d'execution de la requete",
-                                    type: "error",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#DD6B55",
-                                    confirmButtonText: "Ok",
-                                    closeOnConfirm: true,
-                                    closeOnCancel: false
-                                }, function(isConfirm) {
+                        $('#loadMe').modal('hide');
+                        //$('#loadMe').hide();
+                        //$('#loadMe').attr('aria-hidden',"true");
+                        //$('.modal-backdrop').hide();
+                        //$('body').removeClass('modal-open');
+                        try {
+                            var result = $.parseJSON(data);
+                            $('#lignes_install tbody').html('');
+                            $('#lignes_install thead').find("span.nb_avenue").html("(0)");
+                            if (result.count > 0) {
+                                var lignes_install = $('#lignes_install tbody');
+                                $('#lignes_install thead').find("span.nb_avenue").html("(" + result.count + ")");
+
+                                $.each(result.data, function(k, it) {
+                                    lignes_install.append('<tr class="item-row" data-id="' + it.code + '" parent-id="' + item + '"><td style="width:95%"><span class="sn">' + it.libelle + '</span></td><td><a class="btn btn-xs edit-item"><i class="fas fa-pencil-alt"></i></a><a class="btn btn-xs delete-item"><i class="fas fa-trash"></i></a></td></tr>');
+
                                 });
+                            } else if (result.error == 0) {
+
+                                /*swal({
+                                 title: "Information",
+                                 text: result.message,
+                                 type: "error",
+                                 showCancelButton: false,
+                                 confirmButtonColor: "#DD6B55",
+                                 confirmButtonText: "Ok",
+                                 closeOnConfirm: true,
+                                 closeOnCancel: false
+                                 }, function (isConfirm) {
+                                 });*/
                             }
-                        },
-                        error: function(resultat, statut, erreur) {
-                            //	$("#loadMe").modal("hide");
+                        } catch (erreur) {
                             swal({
                                 title: "Information",
-                                text: "Serveur non disponible",
+                                text: "Echec d'execution de la requete",
                                 type: "error",
                                 showCancelButton: false,
                                 confirmButtonColor: "#DD6B55",
                                 confirmButtonText: "Ok",
                                 closeOnConfirm: true,
                                 closeOnCancel: false
-                            }, function(isConfirm) {
-                            });
+                            }, function(isConfirm) {});
                         }
-                    });
+                    },
+                    error: function(resultat, statut, erreur) {
+                        //	$("#loadMe").modal("hide");
+                        swal({
+                            title: "Information",
+                            text: "Serveur non disponible",
+                            type: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        }, function(isConfirm) {});
+                    }
                 });
-
- function ClearR(){
-	  $('#srch-term-entity').val('');
-	   $('#parent_id').val('');
-	$('#code').val('');		
-		$('#libelle').val('');	
-	}
-  function ClearRows(){
-		$('#lignes_install tbody tr').each(function(index) {					
-			var itemId = $(this).attr('data-id');
-			ctr =0;
-			$('tr.item-row[data-id="' + itemId + '"]').remove();
-		});
-	}
-
- $("#ville_id").on("change", function(e){
-                    var item = $(this).val();
-					load_quartier = false;
-					load_avenue = false;
-                    $("#commune_id").html(''); 
-                    $("#quartier").html(''); 
-					ClearRows();
-                     if(load_commune == false && item != null && item.length == 0)
-                      {
-                          return false;
-                      }
-                    e.preventDefault();
-                    $("#loading_msg").html("Chargement liste des communes en cours...");
-                    $("#loadMe").modal({
-                        backdrop: "static",
-                        keyboard: false,
-                        show: true
-                    });
-                    $.ajax({
-                        url: "controller.php",
-                        method: "GET",
-                        data: {view: "get_ville_commune", id_: item},
-                        success: function(data, statut) {
-                            /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
-
-                            $('#loadMe').modal('hide');
-                            //$('#loadMe').hide();
-                            //$('#loadMe').attr('aria-hidden',"true");
-                            //$('.modal-backdrop').hide();
-                            //$('body').removeClass('modal-open');
-                            try {
-                                var result = $.parseJSON(data);
-                                if (result.error == 0) {
-                                    $("#commune_id").html(result.data);					
-									load_quartier = true;
-                                    /*if(actual_commune != ""){
-                                      $("#commune_id").val(actual_commune).change();      
-                                    }	*/			
-                                    // $('#btn_save_paie').show();
-                                } else if (result.error == 1) {
-
-                                    /*swal({
-                                     title: "Information",
-                                     text: result.message,
-                                     type: "error",
-                                     showCancelButton: false,
-                                     confirmButtonColor: "#DD6B55",
-                                     confirmButtonText: "Ok",
-                                     closeOnConfirm: true,
-                                     closeOnCancel: false
-                                     }, function (isConfirm) {
-                                     });*/
-                                }
-                            } catch (erreur) {
-                                swal({
-                                    title: "Information",
-                                    text: "Echec d'execution de la requete",
-                                    type: "error",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#DD6B55",
-                                    confirmButtonText: "Ok",
-                                    closeOnConfirm: true,
-                                    closeOnCancel: false
-                                }, function(isConfirm) {
-                                });
-                            }
-                        },
-                        error: function(resultat, statut, erreur) {
-                            //	$("#loadMe").modal("hide");
-                            swal({
-                                title: "Information",
-                                text: "Serveur non disponible",
-                                type: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#DD6B55",
-                                confirmButtonText: "Ok",
-                                closeOnConfirm: true,
-                                closeOnCancel: false
-                            }, function(isConfirm) {
-                            });
-                        }
-                    });
-                });
-
-
-                $("#commune_id").on("change", function(e){
-					load_avenue = false; 
-					ClearRows();                  
-				   var item = $(this).val();
-                     if(load_quartier == false ||  item != null && item.length == 0)
-                      {
-                          return false;
-                      }
-                    e.preventDefault();
-                    $("#loading_msg").html("Chargement liste des quartiers en cours...");
-                    $("#loadMe").modal({
-                        backdrop: "static",
-                        keyboard: false,
-                        show: true
-                    });
-                    $("#quartier").html('');
-                    $.ajax({
-                        url: "controller.php",
-                        method: "GET",
-                        data: {view: "get_commune_quartier", id_: item},
-                        success: function(data, statut) {
-                            /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
-
-                            $('#loadMe').modal('hide');
-                            //$('#loadMe').hide();
-                            //$('#loadMe').attr('aria-hidden',"true");
-                            //$('.modal-backdrop').hide();
-                            //$('body').removeClass('modal-open');
-                            try {
-                                var result = $.parseJSON(data);
-                                if (result.error == 0) {
-                                    $("#quartier").html(result.data);
-									load_avenue = true;
-                                   /* if(actual_quartier != ""){
-                                      $("#quartier").val(actual_quartier).change();      
-                                    }*/
-                                    // $('#btn_save_paie').show();
-                                } else if (result.error == 1) {
-
-                                    /*swal({
-                                     title: "Information",
-                                     text: result.message,
-                                     type: "error",
-                                     showCancelButton: false,
-                                     confirmButtonColor: "#DD6B55",
-                                     confirmButtonText: "Ok",
-                                     closeOnConfirm: true,
-                                     closeOnCancel: false
-                                     }, function (isConfirm) {
-                                     });*/
-                                }
-                            } catch (erreur) {
-                                swal({
-                                    title: "Information",
-                                    text: "Echec d'execution de la requete",
-                                    type: "error",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#DD6B55",
-                                    confirmButtonText: "Ok",
-                                    closeOnConfirm: true,
-                                    closeOnCancel: false
-                                }, function(isConfirm) {
-                                });
-                            }
-                        },
-                        error: function(resultat, statut, erreur) {
-                            //	$("#loadMe").modal("hide");
-                            swal({
-                                title: "Information",
-                                text: "Serveur non disponible",
-                                type: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#DD6B55",
-                                confirmButtonText: "Ok",
-                                closeOnConfirm: true,
-                                closeOnCancel: false
-                            }, function(isConfirm) {
-                            });
-                        }
-                    });
-                });
-
-                $("#quartier").on("change", function(e){                 
-				   var item = $(this).val();				   
-					ClearRows();
-                     if(load_avenue == false ||  item != null && item.length == 0)
-                      {
-                          return false;
-                      }
-                    e.preventDefault();
-                    $("#loading_msg").html("Chargement liste des avenues en cours...");
-                    $("#loadMe").modal({
-                        backdrop: "static",
-                        keyboard: false,
-                        show: true
-                    });
-                  //  $("#adresse").html('');
-                    $.ajax({
-                        url: "controller.php",
-                        method: "GET",
-                        data: {view: "get_adress_json", id_: item},
-                        success: function(data, statut) {
-                            /*  $("#loadMe").modal("hide").on('hidden.bs.modal', functionThatEndsUpDestroyingTheDOM);*/
-
-                            $('#loadMe').modal('hide');
-                            //$('#loadMe').hide();
-                            //$('#loadMe').attr('aria-hidden',"true");
-                            //$('.modal-backdrop').hide();
-                            //$('body').removeClass('modal-open');
-                            try {
-                                var result = $.parseJSON(data);
-								$('#lignes_install tbody').html('');
-									 $('#lignes_install thead').find("span.nb_avenue").html("(0)");
-                                if (result.count > 0) {
-									var lignes_install = $('#lignes_install tbody');
-									 $('#lignes_install thead').find("span.nb_avenue").html("("+result.count+")");
-		
-                                     $.each(result.data,function (k, it){
-											lignes_install.append('<tr class="item-row" data-id="'+it.code+'" parent-id="'+item+'"><td style="width:95%"><span class="sn">'+it.libelle+'</span></td><td><a class="btn btn-xs edit-item"><i class="fas fa-pencil-alt"></i></a><a class="btn btn-xs delete-item"><i class="fas fa-trash"></i></a></td></tr>');
-		
-										} );
-                                } else if (result.error == 0) {
-
-                                    /*swal({
-                                     title: "Information",
-                                     text: result.message,
-                                     type: "error",
-                                     showCancelButton: false,
-                                     confirmButtonColor: "#DD6B55",
-                                     confirmButtonText: "Ok",
-                                     closeOnConfirm: true,
-                                     closeOnCancel: false
-                                     }, function (isConfirm) {
-                                     });*/
-                                }
-                            } catch (erreur) {
-                                swal({
-                                    title: "Information",
-                                    text: "Echec d'execution de la requete",
-                                    type: "error",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#DD6B55",
-                                    confirmButtonText: "Ok",
-                                    closeOnConfirm: true,
-                                    closeOnCancel: false
-                                }, function(isConfirm) {
-                                });
-                            }
-                        },
-                        error: function(resultat, statut, erreur) {
-                            //	$("#loadMe").modal("hide");
-                            swal({
-                                title: "Information",
-                                text: "Serveur non disponible",
-                                type: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#DD6B55",
-                                confirmButtonText: "Ok",
-                                closeOnConfirm: true,
-                                closeOnCancel: false
-                            }, function(isConfirm) {
-                            });
-                        }
-                    });
-                });
-          
+            });
 
 
 
-  })
- </script>
- </body> 
- </html>	
+
+        })
+    </script>
+</body>
+
+</html>

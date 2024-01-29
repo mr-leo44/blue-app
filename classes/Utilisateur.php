@@ -287,8 +287,13 @@ class Utilisateur
 		$stmt = $this->conn->prepare($query);
 		$user_id = (strip_tags($user_id));
 		$stmt->bindParam(1, $user_id);
-		$stmt->execute();
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		$cacher = new Cacher();
+		$row = $cacher->get(['utilisateur-get-user-detail-name', $user_id], function () use ($stmt) {
+			$stmt->execute();
+			return $stmt->fetch(PDO::FETCH_ASSOC);
+		});
+
 		return $row['nom_complet'];
 	}
 	function GetUserDetailINFO($user_id)
@@ -300,8 +305,12 @@ class Utilisateur
 		$stmt = $this->conn->prepare($query);
 		$user_id = (strip_tags($user_id));
 		$stmt->bindParam(1, $user_id);
-		$stmt->execute();
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		$cacher = new Cacher();
+		$row = $cacher->get(['utilisateur-get-user-detail-info', $user_id], function () use ($stmt) {
+			$stmt->execute();
+			return $stmt->fetch(PDO::FETCH_ASSOC);
+		});
 		return $row;
 	}
 
@@ -392,6 +401,7 @@ INNER JOIN t_utilisateurs ON t_utilisateurs.id_group = ts_group_user.id_group OR
 					{$from_record_num}, {$records_per_page}";
 
 		$stmt = $this->conn->prepare($query);
+		
 		$stmt->execute();
 		return $stmt;
 	}
@@ -590,7 +600,7 @@ INNER JOIN t_utilisateurs ON t_utilisateurs.id_group = ts_group_user.id_group OR
 		$query = "SELECT code_utilisateur,nom_utilisateur,nom_complet	FROM " . $this->table_name . "
 			WHERE coalesce(chef_equipe_id,'') != ''";
 		$stmt = $this->conn->prepare($query);
-		$stmt->bindParam(':id_u', $id_u);
+		// $stmt->bindParam(':id_u', $id_u);
 		$stmt->execute();
 		return $stmt;
 	}
@@ -630,8 +640,13 @@ INNER JOIN t_utilisateurs ON t_utilisateurs.id_group = ts_group_user.id_group OR
 		$stmt = $this->conn->prepare($query);
 		$id = (strip_tags($id));
 		$stmt->bindParam(1, $id);
-		$stmt->execute();
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		$cacher = new Cacher();
+		$row = $cacher->get(['utilisateur-read-detail', $id], function () use ($stmt) {
+			$stmt->execute();
+			return $stmt->fetch(PDO::FETCH_ASSOC);
+		});
+
 		return  $row;
 	}
 

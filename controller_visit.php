@@ -1,4 +1,6 @@
 <?php
+require_once './vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once "core.php";
@@ -235,32 +237,83 @@ switch ($view) {
 		$search_item = isset($_GET['s']) ? $_GET['s'] : '';
 		$du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";
 		$au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
+
+		$cacher = new Cacher();
+
+		$cacher->setPrefix("journal-visite");
+		$cacheMetaData = [$search_item, $search_term, $du, $au, $from_record_num, $records_per_page, $utilisateur->site_id, $filtre];
+
 		if ($view_mode == "date_only") {
-			$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+			$cacheKey = ["search-advanced-date-only", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$du,
+				$au,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre
+			) {
+				$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		} else if ($view_mode == "advanced_search") {
-			$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+			$cacheKey = ["search-advanced", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$du,
+				$au,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+				$search_item
+			) {
+				$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		} else if ($view_mode == "search") {
-			$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+			$cacheKey = ["search", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+				$search_term
+			) {
+				$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		} else {
-			$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll($utilisateur, $filtre);
+			$cacheKey = ["read-all", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+			) {
+				$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll($utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		$paginate_now->page = $page;
 		$paginate_now->total_rows = $total_rows;
@@ -276,7 +329,7 @@ switch ($view) {
 
 		if ($utilisateur->HasDroits("10_40")) {
 			$num_line = 0;
-			while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			foreach ($stmt as  $row_) {
 
 				$date_identif = "";
 				$date_titre = "Date visite";
@@ -378,19 +431,12 @@ switch ($view) {
 			}
 		}
 
-
-
-
 		$result .=  $paginate_now->Paginate($view_mode);
 		$result_array['data'] = $result;
 		$result_array['count'] = $total_rows;
 		echo json_encode($result_array);
 		// paging buttons
 		//  include_once 'layout_paging.php';
-
-
-
-
 
 		/*}else{
 				DroitsNotGranted();

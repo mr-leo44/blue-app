@@ -7,6 +7,7 @@ $page_root = "province.php";
 $active = "province";
 $parambase = " active";
 
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once "core.php";

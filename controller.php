@@ -15,6 +15,7 @@ date_default_timezone_set('Africa/Kinshasa');
 // session_set_cookie_params(0, $dirname, $_SERVER['HTTP_HOST'], $https, true);
 // session_start(); 
 require_once './vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once "core.php";
@@ -2473,18 +2474,82 @@ exit();*/
 		$search_item = isset($_GET['s']) ? $_GET['s'] : '';
 		$du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";
 		$au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
+
+		$cacher = new Cacher();
+
+		$cacher->setPrefix("identification");
+		$cacheMetaData = [$search_item, $search_term, $du, $au, $from_record_num, $records_per_page, $utilisateur->site_id, $filtre];
+
 		if ($view_mode == "date_only") {
-			$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+			$cacheKey = ["search-advanced-date-only", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$du,
+				$au,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre
+			) {
+				$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		} else if ($view_mode == "advanced_search") {
-			$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+			$cacheKey = ["search-advanced", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$du,
+				$au,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+				$search_item
+			) {
+				$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		} else if ($view_mode == "search") {
-			$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+			$cacheKey = ["search", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+				$search_term
+			) {
+				$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		} else {
-			$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll($utilisateur, $filtre);
+			$cacheKey = ["read-all", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+			) {
+				$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll($utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
 		}
 
 		$paginate_now->page = $page;
@@ -2499,7 +2564,7 @@ exit();*/
 
 		if ($utilisateur->HasDroits("10_40")) {
 			$num_line = 0;
-			while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			foreach ($stmt as  $row_) {
 				$date_identif = "";
 				$date_titre = "Date identification";
 				$num_line++;
@@ -2637,23 +2702,11 @@ exit();*/
 			}
 		}
 
-
-
-
 		$result .=  $paginate_now->Paginate($view_mode);
 		$result_array['data'] = $result;
 		$result_array['count'] = $total_rows;
 		echo json_encode($result_array);
-		// paging buttons
-		//  include_once 'layout_paging.php';
 
-
-
-
-
-		/*}else{
-				DroitsNotGranted();
-			}*/
 		break;
 	case "desaffect_compteur_in_installation":
 
@@ -2927,20 +2980,83 @@ exit();*/
 		$du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";
 		$au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
 
-		if ($view_mode == "date_only") {
-			$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
-		} else if ($view_mode == "advanced_search") {
-			$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
-		} else if ($view_mode == "search") {
-			$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
-		} else {
-			$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
-			$total_rows = $item->countAll($utilisateur, $filtre);
-		}
+		$cacher = new Cacher();
 
+		$cacher->setPrefix("installation");
+		$cacheMetaData = [$search_item, $search_term, $du, $au, $from_record_num, $records_per_page, $utilisateur->site_id, $filtre];
+
+		if ($view_mode == "date_only") {
+			$cacheKey = ["search-advanced-date-only", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$du,
+				$au,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre
+			) {
+				$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
+		} else if ($view_mode == "advanced_search") {
+			$cacheKey = ["search-advanced", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$du,
+				$au,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+				$search_item
+			) {
+				$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
+		} else if ($view_mode == "search") {
+			$cacheKey = ["search", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+				$search_term
+			) {
+				$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
+		} else {
+			$cacheKey = ["read-all", ...$cacheMetaData];
+
+			[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+				$item,
+				$from_record_num,
+				$records_per_page,
+				$utilisateur,
+				$filtre,
+			) {
+				$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll($utilisateur, $filtre);
+
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return [$stmt, $total_rows];
+			});
+		}
+		// dump($stmt);
 		$paginate_now->page = $page;
 		$paginate_now->total_rows = $total_rows;
 		$paginate_now->records_per_page = $records_per_page;
@@ -2950,7 +3066,8 @@ exit();*/
 		$result = "";
 		if ($utilisateur->HasDroits("10_90")) {
 			$num_line = 0;
-			while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			// while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			foreach ($stmt as $row_) {
 				$num_line++;
 
 				$desaffecte = "";
@@ -3050,8 +3167,13 @@ exit();*/
 				$query = "SELECT t_utilisateurs.code_utilisateur,t_utilisateurs.nom_complet,t_log_installation_users.ref_inst_ FROM t_log_installation_users INNER JOIN t_utilisateurs ON t_log_installation_users.ref_user = t_utilisateurs.code_utilisateur where t_log_installation_users.ref_inst_=:ref_inst_";
 				$stmt_inst_suppl = $db->prepare($query);
 				$stmt_inst_suppl->bindValue(":ref_inst_", $row_["id_install"]);
-				$stmt_inst_suppl->execute();
-				$ro = $stmt_inst_suppl->fetchAll(PDO::FETCH_ASSOC);
+
+				// $cacher = new Cacher();
+				$ro = $cacher->get(['installateurs-supplementaires', $row_["id_install"]], function () use ($stmt_inst_suppl) {
+					$stmt_inst_suppl->execute();
+					return  $stmt_inst_suppl->fetchAll(PDO::FETCH_ASSOC);
+				});
+
 				if (count($ro) > 0) {
 					$result .= '<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 									<div class="card">
@@ -3520,18 +3642,82 @@ exit();*/
 			$search_item = isset($_GET['s']) ? $_GET['s'] : '';
 			$du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";
 			$au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
+
+			$cacher = new Cacher();
+
+			$cacher->setPrefix("control");
+			$cacheMetaData = [$search_item, $search_term, $du, $au, $from_record_num, $records_per_page, $utilisateur->site_id, $filtre];
+
 			if ($view_mode == "date_only") {
-				$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
-				$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+				$cacheKey = ["search-advanced-date-only", ...$cacheMetaData];
+
+				[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+					$item,
+					$du,
+					$au,
+					$from_record_num,
+					$records_per_page,
+					$utilisateur,
+					$filtre
+				) {
+					$stmt = $item->search_advanced_DateOnly($du, $au, $from_record_num, $records_per_page, $utilisateur, $filtre);
+					$total_rows = $item->countAll_BySearch_advanced_DateOnly($du, $au, $utilisateur, $filtre);
+
+					$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					return [$stmt, $total_rows];
+				});
 			} else if ($view_mode == "advanced_search") {
-				$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
-				$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+				$cacheKey = ["search-advanced", ...$cacheMetaData];
+
+				[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+					$item,
+					$du,
+					$au,
+					$from_record_num,
+					$records_per_page,
+					$utilisateur,
+					$filtre,
+					$search_item
+				) {
+					$stmt = $item->search_advanced($du, $au, $search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
+					$total_rows = $item->countAll_BySearch_advanced($du, $au, $search_item, $utilisateur, $filtre);
+
+					$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					return [$stmt, $total_rows];
+				});
 			} else if ($view_mode == "search") {
-				$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
-				$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+				$cacheKey = ["search", ...$cacheMetaData];
+
+				[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+					$item,
+					$from_record_num,
+					$records_per_page,
+					$utilisateur,
+					$filtre,
+					$search_term
+				) {
+					$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+					$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
+
+					$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					return [$stmt, $total_rows];
+				});
 			} else {
-				$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
-				$total_rows = $item->countAll($utilisateur, $filtre);
+				$cacheKey = ["read-all", ...$cacheMetaData];
+
+				[$stmt, $total_rows] = $cacher->get($cacheKey, function () use (
+					$item,
+					$from_record_num,
+					$records_per_page,
+					$utilisateur,
+					$filtre,
+				) {
+					$stmt = $item->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
+					$total_rows = $item->countAll($utilisateur, $filtre);
+
+					$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					return [$stmt, $total_rows];
+				});
 			}
 
 			$paginate_now->page = $page;
@@ -3542,7 +3728,8 @@ exit();*/
 
 			$result = "";
 			$num_line = 0;
-			while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			foreach ($stmt as $row_) {
+				// while ($row_ = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$num_line++;
 
 
@@ -3661,10 +3848,6 @@ exit();*/
 		$result_array['count'] = $total_rows;
 		echo json_encode($result_array);
 		break;
-
-
-
-
 
 	case "get_site_article":
 		if ($utilisateur->HasDroits("12_51")) {

@@ -5,9 +5,12 @@ $page_title = "Accueil";
 $active = "dashboard";
 $parambase = "";
 
+require_once './vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 //loading Classes filess
 Autoloader::Load('classes');
+
 
 /*
 include_once 'include/database_pdo.php';
@@ -29,7 +32,10 @@ $dashview = new Dashviewer($db);
 
 
 
+$cacher = new Cacher();
+$cacher->setPrefix("dashboard");
 //$utilisateur->code_utilisateur=$_SESSION['uSession'];
+
 if ($utilisateur->is_logged_in() == false) {
 	$utilisateur->redirect('login.php');
 }
@@ -39,11 +45,6 @@ $utilisateur->readOne();
 //echo ($utilisateur->GetUserFilterInstallation());//and code_installateur in ('007','005','008','009')
 //echo ($utilisateur->GetUserFilterIdentification());//and identificateur in ('007','005','008','009')
 //echo ($utilisateur->GetUserFilterControl());//and controleur in ('007','005','008','009')
-
-//
-
-
-
 
 
 $province = isset($_POST['province']) ? $_POST['province'] : '';
@@ -59,12 +60,8 @@ if (isset($_POST['site']) && isset($_POST['Du']) && isset($_POST['Au'])) {
 	$site_classe->GetDetailIN();
 	$message = "Production " . $site_classe->intitule_site . " DU " . $_POST['Du'] . " AU " . $_POST['Au'];
 }
-/*
-function ClientToDbDateFormat($c_date){	
-		$n_date=str_ireplace('/','-',$c_date);
-		$f_dt=date('Y-m-d',strtotime($n_date));
-		return $f_dt;
-	}*/
+
+
 ?>
 
 
@@ -157,10 +154,11 @@ function ClientToDbDateFormat($c_date){
 			box-shadow: none !important;
 			transition: .3s;
 		}
-		.navbar.bg-white.white{
-			background: #fff!important;
+
+		.navbar.bg-white.white {
+			background: #fff !important;
 		}
-		
+
 		.navbar::before {
 			content: '';
 			position: absolute;
@@ -173,14 +171,17 @@ function ClientToDbDateFormat($c_date){
 		.navbar .nav-item.dropdown span {
 			color: #fff !important;
 		}
-		.navbar.bg-white.white .nav-item.dropdown span{
-			color: var(--colorTitle)!important;
+
+		.navbar.bg-white.white .nav-item.dropdown span {
+			color: var(--colorTitle) !important;
 		}
-		.navbar.bg-white.white .item-site{
-			color: #38d594!important;
-			background: #f2fff2!important;
-			border: 1px solid #38d594!important;
+
+		.navbar.bg-white.white .item-site {
+			color: #38d594 !important;
+			background: #f2fff2 !important;
+			border: 1px solid #38d594 !important;
 		}
+
 		.item-site {
 			border-color: transparent;
 			color: #fff;
@@ -197,7 +198,6 @@ function ClientToDbDateFormat($c_date){
 
 <body>
 
-	<!-- graphic  file:///C:/Program%20Files%20(x86)/EasyPHP-DevServer-14.1VC11/data/localweb/template/concept-master%20(1)/concept-master/dashboard-sales.html ============================================================== -->
 	<!-- main wrapper -->
 	<!-- ============================================================== -->
 	<div class="dashboard-main-wrapper">
@@ -271,16 +271,25 @@ function ClientToDbDateFormat($c_date){
 																	$multi_access = true;
 																}
 																//$site_array=$site_classe->GetAllSiteAccessibleForUser($utilisateur->code_utilisateur,$multi_access); 
-																$site_array = $site_classe->GetAllSiteAccessibleForUser($utilisateur);
+																// dd(['get-all-site-accessible-for-user', $utilisateur->code_utilisateur]);
+																$cacheKey = ['get-all-site-accessible-for-user', $utilisateur->code_utilisateur];
+																$site_array = $cacher->get($cacheKey, function ()  use ($site_classe, $utilisateur) {
+																	$stmt =  $site_classe->GetAllSiteAccessibleForUser($utilisateur);
+																	return $stmt->fetchAll(PDO::FETCH_ASSOC);
+																});
+																// dump($site_array);
+																// $site_array =  $stmt;
+
 																$deja = false;
-																$nbre_site_ = $site_array->rowCount();
+																// $nbre_site_ = $site_array->rowCount();
+																$nbre_site_ = count($site_array);
 																// if(
 																//$site =USER_SITE_ID;
 																$first_site  = $USER_SITE_ID;
 																if ($multi_access == false) {
 																	echo "<option selected='selected' value='{$USER_SITE_ID}'>{$USER_SITENAME}</option>";
 																}
-																while ($row_ = $site_array->fetch(PDO::FETCH_ASSOC)) {
+																foreach ($site_array as $row_) {
 																	//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
 																	if ($deja == false) {
 																		$deja = true;
@@ -378,10 +387,16 @@ function ClientToDbDateFormat($c_date){
 										</div>
 										<h5>
 											<?php
+
+
 											if ($site == $MULTI_ACCESS_SITE_CODE) {
-												echo $dashview->GetAll_CompteurIdentified($utilisateur, $du, $au);
+												echo $cacher->get(['get-all-compteur-identified', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au) {
+													return $dashview->GetAll_CompteurIdentified($utilisateur, $du, $au);
+												});
 											} else {
-												echo $dashview->GetSite_CompteurIdentified($utilisateur, $site, $du, $au);
+												echo $cacher->get(['get-site-compteur-identified', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return $dashview->GetSite_CompteurIdentified($utilisateur, $site, $du, $au);
+												});
 											}
 
 											?>
@@ -393,9 +408,13 @@ function ClientToDbDateFormat($c_date){
 											<div class="metric-value d-inline-block">
 												<h1 class="mb-1 text-white"><?php
 																			if ($site == $MULTI_ACCESS_SITE_CODE) {
-																				echo $dashview->GetAll_CompteurIdentified($utilisateur, $du, $au);
+																				echo $cacher->get(['get-all-compteur-identified', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+																					return  $dashview->GetAll_CompteurIdentified($utilisateur, $du, $au);
+																				});
 																			} else {
-																				echo $dashview->GetSite_CompteurIdentified($utilisateur, $site, $du, $au);
+																				echo $cacher->get(['get-site-compteur-identified', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+																					return  $dashview->GetSite_CompteurIdentified($utilisateur, $site, $du, $au);
+																				});
 																			}
 
 																			?></h1>
@@ -426,9 +445,13 @@ function ClientToDbDateFormat($c_date){
 											<?php
 
 											if ($site == $MULTI_ACCESS_SITE_CODE) {
-												echo $dashview->GetAll_CompteurInstalled($utilisateur, $du, $au);
+												echo $cacher->get(['get-all-compteur-installed', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return $dashview->GetAll_CompteurInstalled($utilisateur, $du, $au);
+												});
 											} else {
-												echo $dashview->GetSite_CompteurInstalled($utilisateur, $site, $du, $au);
+												echo $cacher->get(['get-site-compteur-installed', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return  $dashview->GetSite_CompteurInstalled($utilisateur, $site, $du, $au);
+												});
 											}
 											?>
 										</h5>
@@ -465,9 +488,13 @@ function ClientToDbDateFormat($c_date){
 
 
 											if ($site == $MULTI_ACCESS_SITE_CODE) {
-												echo $dashview->GetAll_CompteurControled($utilisateur, $du, $au);
+												echo $cacher->get(['get-all-compteur-controlled', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return  $dashview->GetAll_CompteurControled($utilisateur, $du, $au);
+												});
 											} else {
-												echo $dashview->GetSite_CompteurControled($utilisateur, $site, $du, $au);
+												echo $cacher->get(['get-site-compteur-controlled', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return $dashview->GetSite_CompteurControled($utilisateur, $site, $du, $au);
+												});
 											}
 											?>
 										</h5>
@@ -501,9 +528,13 @@ function ClientToDbDateFormat($c_date){
 
 
 											if ($site == $MULTI_ACCESS_SITE_CODE) {
-												echo $dashview->GetAll_CompteurReplaced($utilisateur, $du, $au);
+												echo $cacher->get(['get-all-compteur-replaced', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return $dashview->GetAll_CompteurReplaced($utilisateur, $du, $au);
+												});
 											} else {
-												echo $dashview->GetSite_CompteurReplaced($utilisateur, $site, $du, $au);
+												echo $cacher->get(['get-site-compteur-replaced', $utilisateur->code_utilisateur, $du, $au], function () use ($dashview, $utilisateur, $du, $au, $site) {
+													return $dashview->GetSite_CompteurReplaced($utilisateur, $site, $du, $au);
+												});
 											}
 											?>
 										</h5>
@@ -525,13 +556,17 @@ function ClientToDbDateFormat($c_date){
 							<?php
 
 							if ($site == $MULTI_ACCESS_SITE_CODE) {
-								$synt = $dashview->GetAll_CVS_SYNTHE_Par_Date($utilisateur, $du, $au, $USER_SITE_PROVINCE);
-								//var_dump($synt);
-								//exit();
+								$synt =  $cacher->get(['get-all-cvs-synthe-par-date', $utilisateur->code_utilisateur, $du, $au, $USER_SITE_PROVINCE], function () use ($dashview, $utilisateur, $du, $au, $site, $USER_SITE_PROVINCE) {
+									return $dashview->GetAll_CVS_SYNTHE_Par_Date($utilisateur, $du, $au, $USER_SITE_PROVINCE);
+								});
+
 								$nbre_synthese = $synt["nbre_total"];
 								$synthese = $synt["sites"];
 							} else {
-								$synthese = $dashview->GetSite_CVS_SYNTHE_Par_Date($utilisateur, $site, $du, $au, $USER_SITE_PROVINCE);
+								$synthese =  $cacher->get(['get-site-cvs-synthe-par-date', $utilisateur->code_utilisateur, $du, $au, $USER_SITE_PROVINCE], function () use ($dashview, $utilisateur, $du, $au, $site, $USER_SITE_PROVINCE) {
+									return $dashview->GetSite_CVS_SYNTHE_Par_Date($utilisateur, $site, $du, $au, $USER_SITE_PROVINCE);
+								});
+
 								$nbre_synthese = count($synthese);
 							}
 							?>
@@ -726,8 +761,7 @@ function ClientToDbDateFormat($c_date){
 			if ($(this).scrollTop() > 40) {
 				$(".navbar").addClass('white');
 
-			}
-			else {
+			} else {
 				$(".navbar").removeClass('white');
 			}
 

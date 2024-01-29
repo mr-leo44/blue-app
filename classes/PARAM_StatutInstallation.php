@@ -22,8 +22,13 @@ class PARAM_StatutInstallation
     $stmt = $this->connection->prepare($query);
     $this->code = strip_tags($this->code);
     $stmt->bindParam(1, $this->code);
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $cacher = new Cacher();
+    $row = $cacher->get(['param-status-installation-get-detail', $this->code], function () use ($stmt) {
+      $stmt->execute();
+      return $stmt->fetch(PDO::FETCH_ASSOC);
+    });
+
     return $row;
   }
   function read()

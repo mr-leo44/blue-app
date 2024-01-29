@@ -5,6 +5,9 @@ $page_title = "Historiques visites PA";
 $home_page = "dashboard.php";
 $active = "log_visit_pa";
 $parambase = "";
+
+require_once 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';

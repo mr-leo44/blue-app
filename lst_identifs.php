@@ -17,6 +17,9 @@ $page_title = "Liste des identifications effectuées";
 $home_page = "dashboard.php";
 $active = "abonnes";
 $parambase = "";
+
+require_once 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';
@@ -327,7 +330,8 @@ $utilisateur->readOne();
                                                         $stmt_chief = $utilisateur->GetCurrentUserChief($utilisateur); //->code_utilisateur,$utilisateur->id_organisme,$utilisateur->chef_equipe_id);
                                                     }
 
-                                                    while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+                                                    $chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+                                                    foreach ($chief_rows as $row_chief) {
                                                         echo "<option value=t_main_data.chef_equipe='" . $row_chief["code_utilisateur"] . "'> Chef équipe - " . $row_chief["nom_complet"] . "</option>";
                                                     }
 
@@ -335,7 +339,9 @@ $utilisateur->readOne();
                                                     $stmt_chief = null;
                                                     if ($utilisateur->id_service_group ==  '3') {  //Administration
                                                         $stmt_chief = $utilisateur->GetAll_OrganeUserListForAdmin();
-                                                        while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+
+                                                        $chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+                                                        foreach ($chief_rows as $row_chief) {
                                                             echo "<option value=t_main_data.identificateur='" . $row_chief["code_utilisateur"] . "'>Identificateur - " . $row_chief["nom_complet"] . "</option>";
                                                         }
                                                     } else {
@@ -345,7 +351,9 @@ $utilisateur->readOne();
                                                             echo "<option value=t_main_data.identificateur='" . $utilisateur->code_utilisateur . "'>Identificateur - " . $utilisateur->nom_complet . "</option>";
                                                         }
                                                     }
-                                                    while ($row_chief = $stmt_chief->fetch(PDO::FETCH_ASSOC)) {
+
+                                                    $chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+                                                    foreach ($chief_rows as $row_chief) {
                                                         echo "<option value=t_main_data.identificateur='" . $row_chief["code_utilisateur"] . "'>Identificateur - " . $row_chief["nom_complet"] . "</option>";
                                                     }
 
@@ -353,26 +361,32 @@ $utilisateur->readOne();
                                                     $provinces = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
                                                     foreach ($provinces as $province) {
                                                         $stmt_select = $commune->GetProvinceAllCommune($province['code']);
-                                                        while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                        $rows = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+
+                                                        foreach ($rows as $row_select) {
                                                             echo "<option value=e_commune.code='" . $row_select["code"] . "'>Commune - " . $row_select["libelle"] . "</option>";
                                                         }
 
 
                                                         $stmt_select = $commune->GetProvinceAllCVS($province['code']);
-                                                        while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                        $rows = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+
+                                                        foreach ($rows as $row_select) {
                                                             echo "<option value=t_param_cvs.code='" . $row_select["code"] . "'>CVS - " . $row_select["libelle"] . "</option>";
                                                         }
                                                     }
 
                                                     $stmt_select = $site->GetAll();
-                                                    while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
+                                                    $rows = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+                                                    foreach ($rows as $row_select) {
                                                         echo "<option value=t_main_data.ref_site_identif='" . $row_select["code"] . "'>Site - " . $row_select["libelle"] . "</option>";
                                                     }
 
-
                                                     if ($utilisateur->id_service_group ==  '3' || $utilisateur->HasGlobalAccess()) {  //Administration
                                                         $stmt_ = $organisme->read();
-                                                        while ($row_gp = $stmt_->fetch(PDO::FETCH_ASSOC)) {
+
+                                                        $row_gps = $stmt_->fetchAll(PDO::FETCH_ASSOC);
+                                                        foreach ($row_gps as $row_gp) {
                                                             echo "<option value=id_equipe_identification='{$row_gp["ref_organisme"]}'>Organisme - {$row_gp["denomination"]}</option>";
                                                         }
                                                     } else {

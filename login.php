@@ -1,6 +1,8 @@
 <?php
 $page_title = "Authentification";
 //require_once 'config.php';
+require_once './vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 //Autoloader::Load(FS_PATH.'/classes');
 Autoloader::Load('classes');
@@ -130,12 +132,12 @@ if ($utilisateur->is_logged_in() == true) {
 											<div class="btn-see-password">
 												<i class="fas fa-eye"></i>
 												<i class="fas fa-eye-slash"></i>
-                                            </div>
+											</div>
 										</div>
 										<div class="col-12">
-										<button class="btn btn-login"  type="submit">
-											Se connecter
-										</button>
+											<button class="btn btn-login" type="submit">
+												Se connecter
+											</button>
 
 										</div>
 									</div>
@@ -178,21 +180,21 @@ if ($utilisateur->is_logged_in() == true) {
 	<script src="assets/js/jquery-3.3.1.min.js"></script>
 	<script src="assets/js/bootstrap.bundle.js"></script>
 	<script>
-        const btn_show_password = document.querySelectorAll(".btn-see-password")
-        console.log(btn_show_password);
-        btn_show_password.forEach(btn => {
-            $(btn).click(function() {
-                console.log($(this).parent().children().eq(1).attr('type'));
-                if ($(this).parent().find($('.password')).attr('type') === 'password') {
-                    $(this).parent().find($('.password')).attr('type', 'text')
-                    $(this).addClass('clicked')
-                } else {
-                    $(this).parent().find($('.password')).attr('type', 'password')
-                    $(this).removeClass('clicked')
-                }
-            })
-        });
-    </script>
+		const btn_show_password = document.querySelectorAll(".btn-see-password")
+		console.log(btn_show_password);
+		btn_show_password.forEach(btn => {
+			$(btn).click(function() {
+				console.log($(this).parent().children().eq(1).attr('type'));
+				if ($(this).parent().find($('.password')).attr('type') === 'password') {
+					$(this).parent().find($('.password')).attr('type', 'text')
+					$(this).addClass('clicked')
+				} else {
+					$(this).parent().find($('.password')).attr('type', 'password')
+					$(this).removeClass('clicked')
+				}
+			})
+		});
+	</script>
 </body>
 
 <?php

@@ -1,4 +1,6 @@
 <?php
+
+
 class Site
 {
 
@@ -198,8 +200,12 @@ class Site
         $stmt = $this->conn->prepare($query);
         $this->code_site = htmlspecialchars(strip_tags($this->code_site));
         $stmt->bindParam(1, $this->code_site);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $cacher = new Cacher();
+        $row = $cacher->get(['site-get-detail-in', $this->code_site], function () use ($stmt) {
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        });
 
         if (isset($row['code_site'])) {
             $this->code_site = $row['code_site'];
@@ -238,7 +244,7 @@ class Site
     function GetAllSiteAccessibleForUser($user_context, $multi = false)
     {
         $query = "SELECT t_param_site_production.code_site,t_param_site_production.intitule_site,t_param_site_production.annule,t_utilisateur_site_accessible.code_user
-FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param_site_production.code_site = t_utilisateur_site_accessible.code_site WHERE t_utilisateur_site_accessible.code_user=:code_user";
+            FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param_site_production.code_site = t_utilisateur_site_accessible.code_site WHERE t_utilisateur_site_accessible.code_user=:code_user";
         //$code_user=(strip_tags($code_user));
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":code_user", $user_context->code_utilisateur);

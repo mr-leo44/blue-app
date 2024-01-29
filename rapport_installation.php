@@ -5,6 +5,7 @@ $page_title = "Rapport installation";
 $active = "rpt_install";
 $parambase = "";
 
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';
@@ -127,7 +128,6 @@ function ClientToDbDateFormat($c_date){
 
 <body>
 
-	<!-- graphic  file:///C:/Program%20Files%20(x86)/EasyPHP-DevServer-14.1VC11/data/localweb/template/concept-master%20(1)/concept-master/dashboard-sales.html ============================================================== -->
 	<!-- main wrapper -->
 	<!-- ============================================================== -->
 	<div class="dashboard-main-wrapper">

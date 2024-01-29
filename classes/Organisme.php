@@ -166,15 +166,24 @@ class Organisme
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row;
   }
+
   function GetDetailIN()
   {
     $query = "SELECT * FROM " . $this->table_name . " WHERE ref_organisme = ? 	LIMIT 0,1";
     $stmt = $this->connection->prepare($query);
     $this->ref_organisme = strip_tags($this->ref_organisme);
     $stmt->bindParam(1, $this->ref_organisme);
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $this->denomination = strip_tags($row["denomination"]);
+
+    $cacher = new Cacher();
+
+    $row = $cacher->get(['organisme-get-detail-in', $this->ref_organisme], function () use ($stmt) {
+      $stmt->execute();
+      return $stmt->fetch(PDO::FETCH_ASSOC);
+    });
+
+    if (isset($row["denomination"])) {
+      $this->denomination = strip_tags($row["denomination"]);
+    }
   }
   function read()
   {

@@ -11,12 +11,14 @@ $page_title = "Liste des contrôles";
 $home_page = "dashboard.php";
 $active = "lst_control";
 $parambase = "";
+header('Content-type: text/html;charset=utf-8');
 
+require_once 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';
 
-header('Content-type: text/html;charset=utf-8');
 $database = new Database();
 $db = $database->getConnection();
 $Abonne = new Identification($db);
@@ -3467,7 +3469,7 @@ $utilisateur->readOne();
 
 		$(document).ready(function() {
 			var show = $("#show").val();
-			// displayRecords(show, 1,'');  // DEACTIVATE
+			displayRecords(show, 1, ''); // DEACTIVATE
 
 
 			jQuery(document).delegate('a.page-link', 'click', function(e) {

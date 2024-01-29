@@ -234,8 +234,14 @@ class AdresseEntity
 	{
 		$stmt = $this->connection->prepare('SELECT id,quartier_id,commune_id,ville_id,province_id,numero,avenue  FROM t_log_adresses where id=:id');
 		$stmt->bindValue(":id", $_id);
-		$stmt->execute();
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		$cacher = new Cacher();
+
+		$row = $cacher->get(['adresseEntity-get-adress-info-text', $_id], function () use ($stmt) {
+			$stmt->execute();
+			return $stmt->fetch(PDO::FETCH_ASSOC);
+		});
+
 		$this->code = 	$row['ville_id'];
 		$ville_id = $this->GetDetail();
 
@@ -359,8 +365,13 @@ class AdresseEntity
 		$stmt = $this->connection->prepare($query);
 		$this->code = strip_tags($this->code);
 		$stmt->bindParam(1, $this->code);
-		$stmt->execute();
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		$cacher = new Cacher();
+		$row = $cacher->get(['adresseEntity-get-detail', $this->code], function () use ($stmt) {
+			$stmt->execute();
+			return $stmt->fetch(PDO::FETCH_ASSOC);
+		});
+
 		return $row;
 	}
 

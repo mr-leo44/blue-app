@@ -4,6 +4,7 @@ $page_title = "Liste des identifications effectuées";
 $home_page = "dashboard.php";
 $active = "abonnes";
 $parambase = "";
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';
@@ -112,160 +113,160 @@ $stmt->execute();
 
 
 
-$items= $stmt->fetchAll(PDO::FETCH_ASSOC);
+$items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // $lst_user_chief ="";
 // echo count($items);
 
 $query = "SELECT code FROM t_param_adresse_entity_prepare  where code=:code";
 $stmt_select = $db->prepare($query);
 
- $query = "INSERT INTO t_param_adresse_entity_prepare  SET code=:code,n_user_create=:n_user_create,category_id=:category_id,parent_id=:parent_id,libelle=:libelle,datesys=:datesys";
-			   $stmt_insert = $db->prepare($query); 
-			   
-			   
-			   		 $query = "UPDATE t_param_adresse_entity_prepare  SET n_user_update=:n_user_update,category_id=:category_id,parent_id=:parent_id,libelle=:libelle where code=:code";
-			   $stmt_update = $db->prepare($query); 
-			   
-foreach($items as $row){
-	 set_time_limit(0);
-// $stmt_insert->bindParam(":code", $row['code']);
-// $stmt_insert->bindParam(":datesys", $row['datesys']);
-// $stmt_insert->bindParam(":n_user_create", $row['n_user_create']); 
-// $stmt_insert->bindParam(":category_id", $row['category_id']); 
-// $stmt_insert->bindParam(":parent_id", $row['parent_id']); 
-// $stmt_insert->bindParam(":libelle", $row['libelle']); 
-// $stmt_insert->execute();
+$query = "INSERT INTO t_param_adresse_entity_prepare  SET code=:code,n_user_create=:n_user_create,category_id=:category_id,parent_id=:parent_id,libelle=:libelle,datesys=:datesys";
+$stmt_insert = $db->prepare($query);
+
+
+$query = "UPDATE t_param_adresse_entity_prepare  SET n_user_update=:n_user_update,category_id=:category_id,parent_id=:parent_id,libelle=:libelle where code=:code";
+$stmt_update = $db->prepare($query);
+
+foreach ($items as $row) {
+	set_time_limit(0);
+	// $stmt_insert->bindParam(":code", $row['code']);
+	// $stmt_insert->bindParam(":datesys", $row['datesys']);
+	// $stmt_insert->bindParam(":n_user_create", $row['n_user_create']); 
+	// $stmt_insert->bindParam(":category_id", $row['category_id']); 
+	// $stmt_insert->bindParam(":parent_id", $row['parent_id']); 
+	// $stmt_insert->bindParam(":libelle", $row['libelle']); 
+	// $stmt_insert->execute();
 	ProcessData($row);
-	$row_chief = GenerateUserTree($row['code']); 
-			if(count($row_chief)>0){
-				//$lst_user_chief .= ",";
-				foreach ($row_chief as $item) {
-					ProcessData($item);
-									
-				// $stmt_insert->bindParam(":code", $item['code']);
-				// $stmt_insert->bindParam(":datesys", $item['datesys']);
-				// $stmt_insert->bindParam(":n_user_create", $item['n_user_create']); 
-				// $stmt_insert->bindParam(":category_id", $item['category_id']); 
-				// $stmt_insert->bindParam(":parent_id", $item['parent_id']); 
-				// $stmt_insert->bindParam(":libelle", $item['libelle']); 
-				// $stmt_insert->execute();
-						//$lst_user_chief .= "'" . $item["code_utilisateur"] . "',";
-						//$lst_user_chief .= "'" . $item . "',";
-					}
-			}
-	
-	
+	$row_chief = GenerateUserTree($row['code']);
+	if (count($row_chief) > 0) {
+		//$lst_user_chief .= ",";
+		foreach ($row_chief as $item) {
+			ProcessData($item);
+
+			// $stmt_insert->bindParam(":code", $item['code']);
+			// $stmt_insert->bindParam(":datesys", $item['datesys']);
+			// $stmt_insert->bindParam(":n_user_create", $item['n_user_create']); 
+			// $stmt_insert->bindParam(":category_id", $item['category_id']); 
+			// $stmt_insert->bindParam(":parent_id", $item['parent_id']); 
+			// $stmt_insert->bindParam(":libelle", $item['libelle']); 
+			// $stmt_insert->execute();
+			//$lst_user_chief .= "'" . $item["code_utilisateur"] . "',";
+			//$lst_user_chief .= "'" . $item . "',";
+		}
+	}
 }
 echo 'finish';
 
 
-    function ProcessData($DataSet) {		
-        global $db;	
-        global $stmt_select;	
-        global $stmt_insert;	
-		set_time_limit(0);
-		$stmt_select->bindParam(':code', $DataSet['code']); 
-			$stmt_select->execute();			
-			$row_ = $stmt_select->fetch(PDO::FETCH_ASSOC);
-			if(!$row_){						 
-				$stmt_insert->bindParam(":code", $DataSet['code']);
-				$stmt_insert->bindParam(":datesys", $DataSet['datesys']);
-				$stmt_insert->bindParam(":n_user_create", $DataSet['n_user_create']); 
-				$stmt_insert->bindParam(":category_id", $DataSet['category_id']); 
-				$stmt_insert->bindParam(":parent_id", $DataSet['parent_id']); 
-				$stmt_insert->bindParam(":libelle", $DataSet['libelle']); 
-				$stmt_insert->execute();
-			}			
+function ProcessData($DataSet)
+{
+	global $db;
+	global $stmt_select;
+	global $stmt_insert;
+	set_time_limit(0);
+	$stmt_select->bindParam(':code', $DataSet['code']);
+	$stmt_select->execute();
+	$row_ = $stmt_select->fetch(PDO::FETCH_ASSOC);
+	if (!$row_) {
+		$stmt_insert->bindParam(":code", $DataSet['code']);
+		$stmt_insert->bindParam(":datesys", $DataSet['datesys']);
+		$stmt_insert->bindParam(":n_user_create", $DataSet['n_user_create']);
+		$stmt_insert->bindParam(":category_id", $DataSet['category_id']);
+		$stmt_insert->bindParam(":parent_id", $DataSet['parent_id']);
+		$stmt_insert->bindParam(":libelle", $DataSet['libelle']);
+		$stmt_insert->execute();
 	}
-	
-    function GenerateUserTree($user_code) {
-		
-        global $db;	
-        global $stmt_insert;	
-		 set_time_limit(0);
-		$context_tree=array();
-		 $query = "SELECT code,category_id,parent_id,libelle,n_user_create,datesys,n_user_update,date_update 
-FROM t_param_adresse_entity WHERE (code = :id_u)";	 
-				$stmt = $db->prepare( $query );
-				$stmt->bindParam(':id_u', $user_code); 
-				$stmt->execute(); 
-			$row_chief = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			if(count($row_chief)>0){
-				foreach ($row_chief as $item) {
-						 // $context_tree[]=$item['code'];
-						 
-	ProcessData($item);
-				// $stmt_insert->bindParam(":code", $item['code']);
-				// $stmt_insert->bindParam(":datesys", $item['datesys']);
-				// $stmt_insert->bindParam(":n_user_create", $item['n_user_create']); 
-				// $stmt_insert->bindParam(":category_id", $item['category_id']); 
-				// $stmt_insert->bindParam(":parent_id", $item['parent_id']); 
-				// $stmt_insert->bindParam(":libelle", $item['libelle']); 
-				// $stmt_insert->execute();
-					GetParentUserAllChild($item,$context_tree);
-					}
-			}
-			 
-		return $context_tree;
-	}
-	
-	
-	
-    function GetParentUserAllChild($user_context,&$context_tree){
-		
-        global $db;	
-        global $stmt_insert;	
-		 set_time_limit(0);
-					$query = "SELECT code,category_id,parent_id,libelle,n_user_create,datesys,n_user_update,date_update 
-FROM t_param_adresse_entity	WHERE (parent_id = :id_u)";	 
-				$stmt = $db->prepare( $query );
-				// $this->code_utilisateur=(strip_tags($this->code_utilisateur));
-				$stmt->bindParam(':id_u', $user_context['code']); 
-				$stmt->execute(); 
-				$rows= $stmt->fetchAll(PDO::FETCH_ASSOC);	
-				foreach($rows as $item){
-					// $context_tree[]=$item['code'];
-					// $stmt_insert->bindParam(":code", $item['code']);
-				// $stmt_insert->bindParam(":datesys", $item['datesys']);
-				// $stmt_insert->bindParam(":n_user_create", $item['n_user_create']); 
-				// $stmt_insert->bindParam(":category_id", $item['category_id']); 
-				// $stmt_insert->bindParam(":parent_id", $item['parent_id']); 
-				// $stmt_insert->bindParam(":libelle", $item['libelle']); 
-				// $stmt_insert->execute();
-				
-	ProcessData($item);
-					GetParentUserAllChild($item,$context_tree);
-				}		
-				 
-			
+}
+
+function GenerateUserTree($user_code)
+{
+
+	global $db;
+	global $stmt_insert;
+	set_time_limit(0);
+	$context_tree = array();
+	$query = "SELECT code,category_id,parent_id,libelle,n_user_create,datesys,n_user_update,date_update 
+FROM t_param_adresse_entity WHERE (code = :id_u)";
+	$stmt = $db->prepare($query);
+	$stmt->bindParam(':id_u', $user_code);
+	$stmt->execute();
+	$row_chief = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	if (count($row_chief) > 0) {
+		foreach ($row_chief as $item) {
+			// $context_tree[]=$item['code'];
+
+			ProcessData($item);
+			// $stmt_insert->bindParam(":code", $item['code']);
+			// $stmt_insert->bindParam(":datesys", $item['datesys']);
+			// $stmt_insert->bindParam(":n_user_create", $item['n_user_create']); 
+			// $stmt_insert->bindParam(":category_id", $item['category_id']); 
+			// $stmt_insert->bindParam(":parent_id", $item['parent_id']); 
+			// $stmt_insert->bindParam(":libelle", $item['libelle']); 
+			// $stmt_insert->execute();
+			GetParentUserAllChild($item, $context_tree);
+		}
 	}
 
-    function uniqUid($table, $key_fld) {
-        //uniq gives 13 CHARS BUT YOU COULD ADJUST IT TO YOUR NEEDS
-        $bytes = md5(mt_rand());
-        //Phase 2 verification existance avant retour code
-       if (VerifierExistance($key_fld, $bytes, $table)) {
-            $bytes = uniqUid($table, $key_fld);
-        }
-        return $bytes;
-        //return substr(bin2hex($bytes),0,$len);
-    }
+	return $context_tree;
+}
 
-    function VerifierExistance($pKey, $NoGenerated, $table) {
-        global $db;	
-        $retour = false;
-        $sql = "select $pKey from $table where $pKey=:NoGenerated";
-        $stmt = $db->prepare($sql);
-        //$stmt->bindParam(':$pKey', $genNB, PDO::PARAM_STR);
-        //$stmt->bindValue(":pKey", $pKey);			
-        $stmt->bindValue(":NoGenerated", $NoGenerated);
-        //$stmt->bindValue(":table", $table);
-        $stmt->execute();
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $retour = true;
-        } else {
-            $retour = false;
-        }
-        return $retour;
-    }
-?>
+
+
+function GetParentUserAllChild($user_context, &$context_tree)
+{
+
+	global $db;
+	global $stmt_insert;
+	set_time_limit(0);
+	$query = "SELECT code,category_id,parent_id,libelle,n_user_create,datesys,n_user_update,date_update 
+FROM t_param_adresse_entity	WHERE (parent_id = :id_u)";
+	$stmt = $db->prepare($query);
+	// $this->code_utilisateur=(strip_tags($this->code_utilisateur));
+	$stmt->bindParam(':id_u', $user_context['code']);
+	$stmt->execute();
+	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	foreach ($rows as $item) {
+		// $context_tree[]=$item['code'];
+		// $stmt_insert->bindParam(":code", $item['code']);
+		// $stmt_insert->bindParam(":datesys", $item['datesys']);
+		// $stmt_insert->bindParam(":n_user_create", $item['n_user_create']); 
+		// $stmt_insert->bindParam(":category_id", $item['category_id']); 
+		// $stmt_insert->bindParam(":parent_id", $item['parent_id']); 
+		// $stmt_insert->bindParam(":libelle", $item['libelle']); 
+		// $stmt_insert->execute();
+
+		ProcessData($item);
+		GetParentUserAllChild($item, $context_tree);
+	}
+}
+
+function uniqUid($table, $key_fld)
+{
+	//uniq gives 13 CHARS BUT YOU COULD ADJUST IT TO YOUR NEEDS
+	$bytes = md5(mt_rand());
+	//Phase 2 verification existance avant retour code
+	if (VerifierExistance($key_fld, $bytes, $table)) {
+		$bytes = uniqUid($table, $key_fld);
+	}
+	return $bytes;
+	//return substr(bin2hex($bytes),0,$len);
+}
+
+function VerifierExistance($pKey, $NoGenerated, $table)
+{
+	global $db;
+	$retour = false;
+	$sql = "select $pKey from $table where $pKey=:NoGenerated";
+	$stmt = $db->prepare($sql);
+	//$stmt->bindParam(':$pKey', $genNB, PDO::PARAM_STR);
+	//$stmt->bindValue(":pKey", $pKey);			
+	$stmt->bindValue(":NoGenerated", $NoGenerated);
+	//$stmt->bindValue(":table", $table);
+	$stmt->execute();
+	if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		$retour = true;
+	} else {
+		$retour = false;
+	}
+	return $retour;
+}

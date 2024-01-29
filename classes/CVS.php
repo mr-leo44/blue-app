@@ -262,8 +262,13 @@ class CVS
     $stmt = $this->connection->prepare($query);
     $this->code = strip_tags($this->code);
     $stmt->bindParam(1, $this->code);
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $cacher = new Cacher();
+    $row = $cacher->get(['cvs-get-detail-in', $this->code], function () use ($stmt) {
+      $stmt->execute();
+      return $stmt->fetch(PDO::FETCH_ASSOC);
+    });
+    
     $this->code = $row['code'];
     $this->libelle = $row['libelle'];
   }

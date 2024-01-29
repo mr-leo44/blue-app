@@ -21,6 +21,7 @@ $home_page = "dashboard.php";
 $active = "rpt_control_maps";
 $parambase = "";
 
+require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
 Autoloader::Load('classes');
 include_once 'core.php';

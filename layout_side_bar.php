@@ -243,6 +243,13 @@
                         </li> <?php } ?>
                     <?php if ($utilisateur->HasDroits("10_330")) { ?>
                         <li class="nav-divider">
+                            MIGRATION
+                        </li>
+                        <?php if ($utilisateur->HasDroits("10_350")) { ?>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $active == "migration" ? " active" : ""; ?>" href="migration.php">Importer les données</a>
+                            </li> <?php }   ?>
+                        <li class="nav-divider">
                             REPORTING
                         </li>
                         <?php if ($utilisateur->HasDroits("10_340")) { ?>
