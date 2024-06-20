@@ -5786,32 +5786,86 @@ DroitsNotGranted();
 
 	case "delete_assign_control":
 		/*if($utilisateur->HasDroits("12_24"))
-			{	*/
-		if ($_POST) {
-			try {
-				$k_value = isset($_POST["k"]) ? $_POST["k"] : "[]";
-				$ids_ = json_decode($k_value);
+		
+		{	*/
+		$utilisateur = new Utilisateur($db);
+		$Abonne = new PARAM_Assign($db);
+		$Abonne->type_assignation = '1';
+		$ids_ =  [];
 
-				foreach ($ids_ as $id_) {
-					$item = new PARAM_Assign($db);
-					$item->type_assignation = '1';
-					$item->id_ = $id_;
+		if ($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['query']) and !empty($_POST['query'])) {
+			$query_data = json_decode($_POST['query']);
 
-					if ($item->Supprimer()) {
-						$result_array["message_$id_"] = "Annulation effectuée avec succès";
-					} else {
-						$result_array["message_$id_"] = "L'opération n'a pas pu être effectuée";
-					}
-				}
-				$result_array["error"] = 0;
-			} catch (Exception $e) {
-				$result_array["error"] = 1;
-				$result_array["message"] = "L'opération n'a pas pu être effectuée";
+			$method = $query_data->method;
+			$params = $query_data->params;
+
+			if ($method == 'readAll') {
+				$code_utilisateur = $query_data->params[2]->code_utilisateur;
+				$utilisateur->code_utilisateur = $code_utilisateur;
+				$utilisateur->readOne();
+
+				$stmt = $Abonne->readAll(
+					$params[0],
+					$params[1],
+					$utilisateur,
+					$params[3]
+				);
+			} else if ($method == 'searchWithoutDate') {
+				$code_utilisateur = $query_data->params[3]->code_utilisateur;
+				$utilisateur->code_utilisateur = $code_utilisateur;
+				$utilisateur->readOne();
+
+				$stmt = $Abonne->searchWithoutDate(
+					$params[0],
+					$params[1],
+					$params[2],
+					$utilisateur,
+					$params[4]
+				);
+			} else if ($method == 'search') {
+				$code_utilisateur = $query_data->params[5]->code_utilisateur;
+				$utilisateur->code_utilisateur = $code_utilisateur;
+				$utilisateur->readOne();
+
+				$stmt = $Abonne->search(
+					$params[0],
+					$params[1],
+					$params[2],
+					$params[3],
+					$params[4],
+					$utilisateur,
+					$params[6],
+				);
 			}
-
-			$result_array["message"] = "Annulation effectuée avec succès";
-			echo json_encode($result_array);
+			$items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($items as $item) {
+				$ids_[] = $item['id_assign'];
+			}
+		} else if ($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['k'])) {
+			$k_value =  $_POST["k"];
+			$ids_ = json_decode($k_value);
 		}
+
+		try {
+			foreach ($ids_ as $id_) {
+				$item = new PARAM_Assign($db);
+				$item->type_assignation = '1';
+				$item->id_ = $id_;
+
+				if ($item->Supprimer()) {
+					$result_array["message_$id_"] = "Annulation effectuée avec succès";
+				} else {
+					$result_array["message_$id_"] = "L'opération n'a pas pu être effectuée";
+				}
+			}
+			$result_array["error"] = 0;
+		} catch (Exception $e) {
+			$result_array["error"] = 1;
+			$result_array["message"] = "L'opération n'a pas pu être effectuée";
+		}
+
+		$result_array["message"] = "Annulation effectuée avec succès";
+		echo json_encode($result_array);
 		break;
 
 		/*  END CONTROL ASSIGN   */

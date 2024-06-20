@@ -38,7 +38,7 @@ $utilisateur->readOne();
 $category_id = '10'; //Avenue
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <style>

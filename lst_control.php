@@ -65,7 +65,7 @@ if ($utilisateur->is_logged_in() == false) {
 $utilisateur->readOne();
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<style>

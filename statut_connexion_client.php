@@ -47,7 +47,7 @@ if ($search_term == "") {
 $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<style>

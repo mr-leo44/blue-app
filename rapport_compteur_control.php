@@ -27,7 +27,7 @@ $utilisateur->readOne();
 
 
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<link href="assets/css/select2.css" rel="stylesheet">

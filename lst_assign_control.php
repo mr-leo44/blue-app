@@ -100,6 +100,7 @@ $collapsed = "collapsed";
 $records_per_page = 30;
 
 $filtre = '';
+$query_data = [];
 
 if (isset($_GET['filtre-search']) && count($_GET['filtre-search']) > 0) {
     $est_installer = array();
@@ -288,23 +289,45 @@ if (isset($_GET['filtre-search']) && count($_GET['filtre-search']) > 0) {
 }
 $du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";
 $au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
+
 if ($search_term == '' and $du == "" and $au == "") {
     $stmt = $Abonne->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
     $total_rows = $Abonne->countAll($utilisateur, $filtre);
+
+    $query_data = [
+        "method" => "readAll",
+        "params" => [
+            $from_record_num, $total_rows, $utilisateur, $filtre
+        ]
+    ];
 } else if ($search_term and $du == "" and $au == "") {
     $page_url .= "s={$search_term}&";
     $stmt = $Abonne->searchWithoutDate($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
     $total_rows = $Abonne->countAll_BySearchWithoutDate($search_term, $utilisateur, $filtre);
+
+    $query_data = [
+        "method" => "searchWithoutDate",
+        "params" => [
+            $search_term, $from_record_num, $total_rows, $utilisateur, $filtre
+        ]
+    ];
 } else {
     $page_url .= "s={$search_term}&";
     $stmt = $Abonne->search($du, $au, $search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+
     $total_rows = $Abonne->countAll_BySearch($du, $au, $search_term, $utilisateur, $filtre);
+    $query_data = [
+        "method" => "search",
+        "params" => [
+            $du, $au, $search_term, $from_record_num, $total_rows, $utilisateur, $filtre
+        ]
+    ];
 }
 $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 //}
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <style>
@@ -620,11 +643,15 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                                         </div>
                                                         <button type="submit" name="search" id="btn_search" class="mx-2 btn btn-primary"><i class="fa fa-search"></i>
                                                         </button>
-                                                        <button style="display: none;" id="delete-cancel-checkboxes" class="btn mx-2 btn-danger">Désactiver l'annulation</button>
-                                                        <button style="display: none;" id="select-all-checkboxes" class="btn btn-warning mr-2">Tout séléctionner</button>
-                                                        <div id="remove-assignments-container"> </div>
+
 
                                                         <button id="add-cancel-checkboxes" class="btn  btn-warning">Activer l'annulation</button>
+                                                        <div class="w-100 d-flex mt-2">
+                                                            <div id="remove-assignments-container"> </div>
+                                                            <button style="display: none;" id="delete-cancel-checkboxes" class="btn mx-2 btn-danger">Désactiver l'annulation</button>
+                                                            <button style="display: none;" id="select-all-checkboxes" class="btn btn-warning mr-2">Tout séléctionner</button>
+                                                            <button style="display: none;" id="delete-all-assignments" class="btn btn-dark">Tout annuler - <?php echo $total_rows . ' Elément(s)'; ?></button>
+                                                        </div>
                                                     </div>
                                                 </form>
 
@@ -975,9 +1002,6 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
             </form>
         </div>
 
-
-
-
         <!--  <script type="text/javascript" src="assets/js/webcam-easy.min.js"></script>  -->
 
         <script src="assets/js/select2.min.js"></script>
@@ -1002,9 +1026,6 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                 placeholder: "Filtre CVS, Equipe installation, ....",
                 multiple: true
             });
-
-
-
 
             jQuery(document).delegate('a.close', 'click', function(e) {
                 e.preventDefault();
@@ -1185,10 +1206,12 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
             <?php if ($utilisateur->HasDroits("10_490")) {
             ?>
 
-                function cancelAssignements(data = []) {
+                function cancelAssignements(data = [], query = null) {
                     let textMessage = ""
 
-                    if (data.length == 1) {
+                    if (query != null) {
+                        textMessage = `Voulez-vous vraiment supprimer ces <?php echo $total_rows . ' Elément(s)'; ?> ou assignations des compteurs ?`
+                    } else if (data.length == 1) {
                         textMessage = `Voulez-vous annuler l'assignation du compteur ( ${data[0]} )?`
                     } else if (data.length > 1) {
                         textMessage = `${data.length} elements à supprimer. \n Voulez-vous annuler l(es) assignation(s) de(s) compteur(s) ?`
@@ -1214,7 +1237,8 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                                 method: "POST",
                                 data: {
                                     view: view_mode,
-                                    k: JSON.stringify(data)
+                                    k: JSON.stringify(data),
+                                    query: query
                                 },
                                 success: function(data) {
                                     var result = $.parseJSON(data);
@@ -1318,6 +1342,10 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                 $('#add-cancel-checkboxes').toggle()
             }
 
+            function toggleDeleteAllAssignments() {
+                $('#delete-all-assignments').toggle()
+            }
+
             function toggleSelectAllCheckboxesButton() {
                 $("#select-all-checkboxes").toggle()
             }
@@ -1332,9 +1360,16 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                     event.preventDefault()
                     event.stopImmediatePropagation()
 
-                    cancelAssignements(checkboxes_list)
+                    cancelAssignements(checkboxes_list, null)
                 })
             }
+
+            $("#delete-all-assignments").click(function() {
+                event.preventDefault()
+                event.stopImmediatePropagation()
+
+                cancelAssignements([], `<?php echo json_encode($query_data); ?>`)
+            })
 
             // function selectAllCheckboxes() {
             $("#select-all-checkboxes").click(function() {
@@ -1353,6 +1388,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                 event.stopImmediatePropagation()
 
                 toggleAddCancelCheckboxesButton()
+                toggleDeleteAllAssignments()
                 toggleSelectAllCheckboxesButton()
                 toggleDeleteSelectedCheckbosesButton()
 
@@ -1419,6 +1455,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                 event.stopImmediatePropagation()
 
                 toggleAddCancelCheckboxesButton()
+                toggleDeleteAllAssignments()
                 toggleDeleteSelectedCheckbosesButton()
                 deleteSelectedCheckboxes()
             })

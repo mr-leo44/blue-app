@@ -45,7 +45,7 @@ if ($search_term == '') {
 $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <style>
@@ -472,10 +472,10 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
                 <div class="modal-body">
                     <form <?php //if($utilisateur->HasDroits("12_56")){  
                             ?> action="controller.php" method="post" id="frm_law" <?php //}  
-                                                                                                                                ?>>
+                                                                                    ?>>
                         <?php //if($utilisateur->HasDroits("12_56")){  
                         ?><input type="hidden" name="view" id="view" value="grant_site" /><?php //}  
-                                                                                                                                            ?>
+                                                                                            ?>
                         <input type="hidden" name="k_m" id="view_id" value="" />
 
                         <ul class="list-group" id="search_results">

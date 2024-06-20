@@ -70,7 +70,7 @@ function ClientToDbDateFormat($c_date){
 
 
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<style>

@@ -124,7 +124,7 @@ if (isset($_GET['Du']) && isset($_GET['Au'])) {
 
 
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <style>

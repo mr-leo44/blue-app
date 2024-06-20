@@ -71,7 +71,7 @@ $utilisateur->readOne();
 $controlleurs = [];
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <style>

@@ -66,7 +66,7 @@ if (isset($_POST['site']) && isset($_POST['Du']) && isset($_POST['Au'])) {
 
 
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<style>

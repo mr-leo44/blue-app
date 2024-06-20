@@ -38,7 +38,7 @@ $utilisateur->readOne();
 
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<style>
