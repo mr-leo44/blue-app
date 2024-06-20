@@ -121,6 +121,8 @@ function ClientToDbDateFormat($c_date)
     height: 120px;
 }*/
 	</style>
+	<link href="assets/css/select2.css" rel="stylesheet">
+
 	<?php
 	include_once "layout_style.php";
 	?>
@@ -199,9 +201,9 @@ function ClientToDbDateFormat($c_date)
 															</select>
 														</div>
 														<div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
-															<label for="validationCustom04">Site</label>
+															<label for="validationCustom04">Sites</label>
 															<div class="form-group">
-																<select class="form-control" id="site" name="site" required>
+																<select class="form-control" id="site" name="site[]" required>
 																	<!-- 				<option value='ALL'>Toutes</option>  -->
 																	<?php
 																	$site_array = $site_classe->GetSiteAccessibleForProvince($utilisateur->code_utilisateur, $province);
@@ -293,7 +295,12 @@ function ClientToDbDateFormat($c_date)
 	<?php
 	include_once "layout_script.php";
 	?>
+	<script src="assets/js/select2.min.js"></script>
 	<script>
+		$('#site').select2({
+			placeholder: "Sites",
+			multiple: true
+		});
 		jQuery(document).ready(function($) {
 			'use strict';
 			if ($("#datetimepicker4").length) {

@@ -99,8 +99,8 @@ if ($search_term == '') {
     $total_rows = $Abonne->countAll($utilisateur);
 } else {
     $page_url .= "s={$search_term}&";
-    $stmt = $Abonne->search($search_term, $from_record_num, $records_per_page, $utilisateur);
-    $total_rows = $Abonne->countAll_BySearch($search_term, $utilisateur);
+    $stmt = $Abonne->searchWithoutDate( $search_term, $from_record_num, $records_per_page, $utilisateur);
+    $total_rows = $Abonne->countAll_BySearchWithoutDate( $search_term, $utilisateur);
 }
 $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 //}

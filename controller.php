@@ -5762,20 +5762,24 @@ DroitsNotGranted();
 		/*  START CONTROL ASSIGN    */
 
 	case "get_control_assign":
-		/*if($utilisateur->HasDroits("12_34"))
-	{ */
+
 		if ($_GET) {
-			$item = new PARAM_Assign($db);
-			//$result_array["error"]=0;
-			$item->type_assignation = '1';
-			$result_array = $item->GetOrganeControlAssigned($utilisateur);
-			//$site_array=$stmt->fetchAll(PDO::FETCH_ASSOC);				
-			//$result_array["data"]=$site_array;
-			echo json_encode($result_array);
+			$cacher = new Cacher();
+			$cacher->setPrefix("get-control-assign");
+
+			$data = $cacher->get([$utilisateur->site_id], function () use (
+				$db,
+				$utilisateur,
+			) {
+				$item = new PARAM_Assign($db);
+				$item->type_assignation = '1';
+				$result_array = $item->GetOrganeControlAssigned($utilisateur);
+				return json_encode($result_array);
+			});
+
+			echo $data;
 		}
-		/*}else{
-		  DroitsNotGranted();
-	} */
+
 		break;
 
 

@@ -122,6 +122,8 @@ function ClientToDbDateFormat($c_date){
     height: 120px;
 }*/
 	</style>
+	<link href="assets/css/select2.css" rel="stylesheet">
+
 	<?php
 	include_once "layout_style.php";
 	?>
@@ -189,9 +191,9 @@ function ClientToDbDateFormat($c_date){
 													<div class="form-row">
 
 														<div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
-															<label for="validationCustom04">Site</label>
+															<label for="validationCustom04">Sites</label>
 															<div class="form-group">
-																<select class="form-control" id="site" name="site" required>
+																<select class="form-controls site-filter" id="site-1" name="site[]" required>
 																	<!-- 				<option value='ALL'>Toutes</option>  -->
 																	<?php
 																	$multi_access = false;
@@ -205,52 +207,19 @@ function ClientToDbDateFormat($c_date){
 																	// if(
 																	//$site =USER_SITE_ID;
 																	$first_site  = $USER_SITE_ID;
+
 																	if ($multi_access == false) {
 																		echo "<option selected='selected' value='{$USER_SITE_ID}'>{$USER_SITENAME}</option>";
-																	}
-																	while ($row_ = $site_array->fetch(PDO::FETCH_ASSOC)) {
-																		//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-																		if ($deja == false) {
-																			$deja = true;
-																			if ($multi_access == true) {
-																				$first_site = $MULTI_ACCESS_SITE_CODE;
-																				if ($site == $first_site) {
-																					echo "<option selected='selected' value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																				} else {
-																					echo "<option value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																				}
-																			} else {
-																				$first_site = $row_["code_site"];
-																			}
-																		}
+																	} else {
+																		$sites = $site_array->fetchAll(PDO::FETCH_ASSOC);
+																		// var_dump($sites); die();
+																		echo "<option selected value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
 
-																		if ($site == $row_["code_site"]) {
-																			echo "<option selected='selected' value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-																		} else {
+																		foreach ($sites as  $row_) {
 																			echo "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
 																		}
 																	}
-																	if ($nbre_site_ == 0) {
-																		if ($multi_access == true) {
-																			$first_site = $MULTI_ACCESS_SITE_CODE;
-																			// if($site == $first_site){
-																			if ($site == $first_site || $site == NULL) {
-																				echo "<option selected='selected' value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																			} else {
-																				echo "<option value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																			}
-																		}
-																	}
-																	//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
 
-
-
-																	if ($site == NULL) {
-																		$site = $first_site;
-																		$site_classe->code_site = $first_site;
-																		$site_classe->GetDetailIN();
-																		//$message="Production ".$site_classe->intitule_site." DU ".$du_." AU ".$au_;
-																	}
 																	?></select>
 															</div>
 														</div>
@@ -320,13 +289,6 @@ function ClientToDbDateFormat($c_date){
 									<!-- ============================================================== -->
 								</div>
 							</div>
-
-
-
-
-
-
-
 						</div>
 					<?php				} ?>
 					<!-- ============================================================== -->
@@ -354,9 +316,9 @@ function ClientToDbDateFormat($c_date){
 													<div class="form-row">
 
 														<div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
-															<label for="validationCustom04">Site</label>
+															<label for="validationCustom04">Sites</label>
 															<div class="form-group">
-																<select class="form-control" id="site" name="site" required>
+																<select class="form-control site-filter" id="site-2" name="site[]" required>
 																	<!-- 				<option value='ALL'>Toutes</option>  -->
 																	<?php
 																	$multi_access = false;
@@ -370,51 +332,17 @@ function ClientToDbDateFormat($c_date){
 																	// if(
 																	//$site =USER_SITE_ID;
 																	$first_site  = $USER_SITE_ID;
+
 																	if ($multi_access == false) {
 																		echo "<option selected='selected' value='{$USER_SITE_ID}'>{$USER_SITENAME}</option>";
-																	}
-																	while ($row_ = $site_array->fetch(PDO::FETCH_ASSOC)) {
-																		//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-																		if ($deja == false) {
-																			$deja = true;
-																			if ($multi_access == true) {
-																				$first_site = $MULTI_ACCESS_SITE_CODE;
-																				if ($site == $first_site) {
-																					echo "<option selected='selected' value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																				} else {
-																					echo "<option value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																				}
-																			} else {
-																				$first_site = $row_["code_site"];
-																			}
-																		}
+																	} else {
+																		$sites = $site_array->fetchAll(PDO::FETCH_ASSOC);
+																		// var_dump($sites); die();
+																		echo "<option selected value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
 
-																		if ($site == $row_["code_site"]) {
-																			echo "<option selected='selected' value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-																		} else {
+																		foreach ($sites as  $row_) {
 																			echo "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
 																		}
-																	}
-																	if ($nbre_site_ == 0) {
-																		if ($multi_access == true) {
-																			$first_site = $MULTI_ACCESS_SITE_CODE;
-																			// if($site == $first_site){
-																			if ($site == $first_site || $site == NULL) {
-																				echo "<option selected='selected' value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																			} else {
-																				echo "<option value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																			}
-																		}
-																	}
-																	//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-
-
-
-																	if ($site == NULL) {
-																		$site = $first_site;
-																		$site_classe->code_site = $first_site;
-																		$site_classe->GetDetailIN();
-																		//$message="Production ".$site_classe->intitule_site." DU ".$du_." AU ".$au_;
 																	}
 																	?></select>
 															</div>
@@ -518,9 +446,9 @@ function ClientToDbDateFormat($c_date){
 													<div class="form-row">
 
 														<div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-2">
-															<label for="validationCustom04">Site</label>
+															<label for="validationCustom04">Sites</label>
 															<div class="form-group">
-																<select class="form-control" id="site" name="site" required>
+																<select class="form-control site-filter" id="site-3" name="site[]" required>
 																	<!-- 				<option value='ALL'>Toutes</option>  -->
 																	<?php
 																	$multi_access = false;
@@ -534,51 +462,17 @@ function ClientToDbDateFormat($c_date){
 																	// if(
 																	//$site =USER_SITE_ID;
 																	$first_site  = $USER_SITE_ID;
+
 																	if ($multi_access == false) {
 																		echo "<option selected='selected' value='{$USER_SITE_ID}'>{$USER_SITENAME}</option>";
-																	}
-																	while ($row_ = $site_array->fetch(PDO::FETCH_ASSOC)) {
-																		//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-																		if ($deja == false) {
-																			$deja = true;
-																			if ($multi_access == true) {
-																				$first_site = $MULTI_ACCESS_SITE_CODE;
-																				if ($site == $first_site) {
-																					echo "<option selected='selected' value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																				} else {
-																					echo "<option value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																				}
-																			} else {
-																				$first_site = $row_["code_site"];
-																			}
-																		}
+																	} else {
+																		$sites = $site_array->fetchAll(PDO::FETCH_ASSOC);
+																		// var_dump($sites); die();
+																		echo "<option selected value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
 
-																		if ($site == $row_["code_site"]) {
-																			echo "<option selected='selected' value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-																		} else {
+																		foreach ($sites as  $row_) {
 																			echo "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
 																		}
-																	}
-																	if ($nbre_site_ == 0) {
-																		if ($multi_access == true) {
-																			$first_site = $MULTI_ACCESS_SITE_CODE;
-																			// if($site == $first_site){
-																			if ($site == $first_site || $site == NULL) {
-																				echo "<option selected='selected' value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																			} else {
-																				echo "<option value='{$MULTI_ACCESS_SITE_CODE}'>{$MULTI_ACCESS_SITE_LABEL}</option>";
-																			}
-																		}
-																	}
-																	//$options.= "<option value='{$row_["code_site"]}'>{$row_["intitule_site"]}</option>";
-
-
-
-																	if ($site == NULL) {
-																		$site = $first_site;
-																		$site_classe->code_site = $first_site;
-																		$site_classe->GetDetailIN();
-																		//$message="Production ".$site_classe->intitule_site." DU ".$du_." AU ".$au_;
 																	}
 																	?></select>
 															</div>
@@ -695,6 +589,18 @@ function ClientToDbDateFormat($c_date){
 
 	<script src="assets/js/select2.min.js"></script>
 	<script>
+		$('#site-1').select2({
+			placeholder: "Sites",
+			multiple: true
+		});
+		$('#site-2').select2({
+			placeholder: "Sites",
+			multiple: true
+		});
+		$('#site-3').select2({
+			placeholder: "Sites",
+			multiple: true
+		});
 		jQuery(document).ready(function($) {
 			'use strict';
 

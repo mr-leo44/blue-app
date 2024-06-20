@@ -289,12 +289,13 @@ class Utilisateur
 		$stmt->bindParam(1, $user_id);
 
 		$cacher = new Cacher();
+
 		$row = $cacher->get(['utilisateur-get-user-detail-name', $user_id], function () use ($stmt) {
 			$stmt->execute();
 			return $stmt->fetch(PDO::FETCH_ASSOC);
 		});
 
-		return $row['nom_complet'];
+		return isset($row['nom_complet']) ? $row['nom_complet'] : '';
 	}
 	function GetUserDetailINFO($user_id)
 	{
@@ -401,7 +402,7 @@ INNER JOIN t_utilisateurs ON t_utilisateurs.id_group = ts_group_user.id_group OR
 					{$from_record_num}, {$records_per_page}";
 
 		$stmt = $this->conn->prepare($query);
-		
+
 		$stmt->execute();
 		return $stmt;
 	}

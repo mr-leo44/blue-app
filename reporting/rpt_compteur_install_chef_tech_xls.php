@@ -85,11 +85,12 @@ $au_=isset($_POST['Au']) ? ($_POST['Au']) : "";
 $chef_item=isset($_POST['chef_item']) ? ($_POST['chef_item']) : ""; 
 $utilisateur->is_logged_in();
 $utilisateur->readOne();
-if($site == ($MULTI_ACCESS_SITE_CODE . '')){
+
+if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 	$liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
-}else{
-	$liste_site[] = $site;
-} 
+} else {
+	$liste_site = $site;
+}
 
  
 $query_installateurs_suppl = "SELECT t_utilisateurs.code_utilisateur,t_utilisateurs.nom_complet,t_log_installation_users.ref_inst_ FROM t_log_installation_users INNER JOIN t_utilisateurs ON t_log_installation_users.ref_user = t_utilisateurs.code_utilisateur where t_log_installation_users.ref_inst_=:ref_inst_";

@@ -2910,6 +2910,7 @@ $utilisateur->readOne();
 				}
 
 				// formWData.append("observation", $("#observation").val());
+				formWData.append("numero_serie_cpteur", $("#numero_serie_cpteur").val());
 				formWData.append("diagnostics_general", $("#diagnostics_general").val());
 				formWData.append("avis_client", $("#avis_client").val());
 				//var cas_de_fraude = $("#cas_de_fraude_chk").prop('checked')?"Oui":"Non";

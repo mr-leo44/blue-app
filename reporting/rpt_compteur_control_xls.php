@@ -107,10 +107,11 @@ $du_ = isset($_POST['Du']) ? ($_POST['Du']) : "";
 $au_ = isset($_POST['Au']) ? ($_POST['Au']) : "";
 $utilisateur->is_logged_in();
 $utilisateur->readOne();
-if ($site == ($MULTI_ACCESS_SITE_CODE . '')) {
+
+if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 	$liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
 } else {
-	$liste_site[] = $site;
+	$liste_site = $site;
 }
 
 $ctr_cvs = 0;

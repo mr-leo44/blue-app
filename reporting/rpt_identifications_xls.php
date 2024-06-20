@@ -103,10 +103,10 @@ $au_ = isset($_POST['Au']) ? ($_POST['Au']) : "";
 $utilisateur->is_logged_in();
 $utilisateur->readOne();
 
-if ($site == ($MULTI_ACCESS_SITE_CODE . '')) {
+if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
     $liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
 } else {
-    $liste_site[] = $site;
+    $liste_site = $site;
 }
 
 
@@ -184,7 +184,7 @@ foreach ($liste_site as $site_item) {
     foreach ($cvs_list as $cvs_item) {
 
         $nbre_install = $cls_report->getCVS_IdentificationCount($cvs_item["code"], $du, $au);
-        // $nbre_replace = $cls_report->getCVS_IdentificationCount($cvs_item["code"], $du, $au);
+        $nbre_replace = $cls_report->getCVS_CompteursReplaceDefectueuxPeriodeCount($cvs_item["code"], $du, $au);
 
         $Total_replaced += $nbre_replace;
         $Total_install += $nbre_install;

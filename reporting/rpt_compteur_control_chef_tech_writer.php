@@ -1,6 +1,6 @@
 <?php
 
-set_include_path( get_include_path().PATH_SEPARATOR."..");
+set_include_path(get_include_path() . PATH_SEPARATOR . "..");
 include_once("libs/xlsxwriter.class.php");
 
 include_once 'loader/init.php';
@@ -14,59 +14,56 @@ $database = new Database();
 $db = $database->getConnection();
 $utilisateur = new Utilisateur($db);
 //$droits = new Droits();
-$cls_report = new CLS_Reporting($db); 
-$Installation = new Installation($db); 
-$adresseItem = new AdresseEntity($db); 
-$cvs = new CVS($db); 
-$marquecompteur = new MarqueCompteur($db); 
-$typeFraude = new PARAM_TypeFraude($db); 
+$cls_report = new CLS_Reporting($db);
+$Installation = new Installation($db);
+$adresseItem = new AdresseEntity($db);
+$cvs = new CVS($db);
+$marquecompteur = new MarqueCompteur($db);
+$typeFraude = new PARAM_TypeFraude($db);
 
-$site_classe = new Site($db); 
+$site_classe = new Site($db);
 $liste_site = array();
-$header_bg_color = "#ECF2FE";// "#5969ff";//eee6ff
-$site=isset($_POST['site']) ? $_POST['site'] : NULL;
-$du=isset($_POST['Du']) ? Utils::ClientToDbDateFormat($_POST['Du']) : "";
-$au=isset($_POST['Au']) ? Utils::ClientToDbDateFormat($_POST['Au']) : ""; 
-$du_=isset($_POST['Du']) ?($_POST['Du']) : "";
-$au_=isset($_POST['Au']) ? ($_POST['Au']) : ""; 
-$chef_item=isset($_POST['chef_item']) ? ($_POST['chef_item']) : ""; 
+$header_bg_color = "#ECF2FE"; // "#5969ff";//eee6ff
+$site = isset($_POST['site']) ? $_POST['site'] : NULL;
+$du = isset($_POST['Du']) ? Utils::ClientToDbDateFormat($_POST['Du']) : "";
+$au = isset($_POST['Au']) ? Utils::ClientToDbDateFormat($_POST['Au']) : "";
+$du_ = isset($_POST['Du']) ? ($_POST['Du']) : "";
+$au_ = isset($_POST['Au']) ? ($_POST['Au']) : "";
+$chef_item = isset($_POST['chef_item']) ? ($_POST['chef_item']) : "";
 $utilisateur->is_logged_in();
 $utilisateur->readOne();
-if($site == ($MULTI_ACCESS_SITE_CODE . '')){
-	$liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
-}else{
-	$liste_site[] = $site;
-} 
 
-	$ctr_cvs = 0;
+if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
+	$liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
+} else {
+	$liste_site = $site;
+}
+
+$ctr_cvs = 0;
 // $objPHPExcel = new PHPExcel();
-  // $array = array();
+// $array = array();
 $writer = new XLSXWriter();
-$writer->setAuthor('Blue-App'); 
+$writer->setAuthor('Blue-App');
 $sheetName = "";
-foreach($liste_site as $site_item){
+foreach ($liste_site as $site_item) {
 	$site_classe->code_site = $site_item;
 	$site_classe->GetDetailIN();
 	//$USER_SITENAME = $site_classe->intitule_site;
-	
+
 	$user_list = $cls_report->getChiefTechnician($chef_item);
-	 $rowNumber = 7; //start in row 1
-	
-	
-	
-	
-	
-// $objPHPExcel->setActiveSheetIndex(0);
-// $newsheet =   $objPHPExcel->getActiveSheet();
-//DEBUT SYNTHESE
+	$rowNumber = 7; //start in row 1
 
-//$newsheet->setTitle("SYNTHESE");
-$sheetName = 'SYNTHESE';
-$writer->addRowAt($sheetName, $rowNumber);
-$row = array('','TABLEAU SYNTHESE  du '. $du_ .' au '. $au_); 
+	// $objPHPExcel->setActiveSheetIndex(0);
+	// $newsheet =   $objPHPExcel->getActiveSheet();
+	//DEBUT SYNTHESE
 
-$writer->writeSheetRow($sheetName, $row);
-/*
+	//$newsheet->setTitle("SYNTHESE");
+	$sheetName = 'SYNTHESE';
+	$writer->addRowAt($sheetName, $rowNumber);
+	$row = array('', 'TABLEAU SYNTHESE  du ' . $du_ . ' au ' . $au_);
+
+	$writer->writeSheetRow($sheetName, $row);
+	/*
 	$newsheet ->mergeCells('B'.$rowNumber.':H'.$rowNumber);
 	cellStyle($newsheet,'B'.$rowNumber, 14);
 	$newsheet->setCellValue('B'.$rowNumber,'TABLEAU SYNTHESE  du '. $du_ .' au '. $au_);
@@ -79,317 +76,313 @@ $writer->writeSheetRow($sheetName, $row);
 	$rowNumber++;
 	$rowNumber++;
 	$rowNumber++;
-	$Total_general=0; 
-	$Total_fraude=0; 
-	$col='A';
+	$Total_general = 0;
+	$Total_fraude = 0;
+	$col = 'A';
 	//ITERATION DATA IINSTALL FOR CURRENT SITE 
-	
-$writer->addRowAt($sheetName, $rowNumber);
-			$newsheet->setCellValue($col.$rowNumber, 'N°'); 
-			cellBorder($newsheet,$col.$rowNumber);
-			$col++;
-			$newsheet->setCellValue($col.$rowNumber, 'Techniciens'); 
-			cellBorder($newsheet,$col.$rowNumber);
-			$col++;
-	
-			$newsheet->setCellValue($col.$rowNumber, 'Contrôlés '); 
-			cellBorder($newsheet,$col.$rowNumber);
-			$col++;
-			$newsheet->setCellValue($col.$rowNumber, 'Fraudes'); 
-			cellBorder($newsheet,$col.$rowNumber); 
-	
-		$ctr_tech=0;
-	foreach($user_list as $user_item){	
-	$ctr_tech++;
+
+	$writer->addRowAt($sheetName, $rowNumber);
+	$newsheet->setCellValue($col . $rowNumber, 'N°');
+	cellBorder($newsheet, $col . $rowNumber);
+	$col++;
+	$newsheet->setCellValue($col . $rowNumber, 'Techniciens');
+	cellBorder($newsheet, $col . $rowNumber);
+	$col++;
+
+	$newsheet->setCellValue($col . $rowNumber, 'Contrôlés ');
+	cellBorder($newsheet, $col . $rowNumber);
+	$col++;
+	$newsheet->setCellValue($col . $rowNumber, 'Fraudes');
+	cellBorder($newsheet, $col . $rowNumber);
+
+	$ctr_tech = 0;
+	foreach ($user_list as $user_item) {
+		$ctr_tech++;
 		//RECUPERATION LISTE DES COMPTEURS INSTALLES PAR LE USER CURRENT  AND GIVEN PERIOD 
-		$nbre_control = $cls_report->getSite_CompteursControlPeriodeCountUser($user_item['code_utilisateur'], $site_item, $du, $au);		
-		$nbre_fraude = $cls_report->getSite_CompteursFraudePeriodeCountUser($user_item['code_utilisateur'], $site_item, $du, $au);	
-		 
-	 $Total_general += $nbre_control;
-	 $Total_fraude += $nbre_fraude;
-			$col='A';
-			$rowNumber++;
-			$newsheet->setCellValue($col.$rowNumber,$ctr_tech); 
-			cellBorder($newsheet,$col.$rowNumber);
-			cellStyle($newsheet,$col.$rowNumber,10);
-			
-			$col++;	
-			$newsheet->setCellValue($col.$rowNumber,$user_item['nom_complet']); 
-			cellBorder($newsheet,$col.$rowNumber);
-			cellStyle($newsheet,$col.$rowNumber,10);
-			
-			$col++;	
-			$newsheet->setCellValue($col.$rowNumber,$nbre_control . ' '); 
-			cellBorder($newsheet,$col.$rowNumber);
-			
-			$col++;	
-			$newsheet->setCellValue($col.$rowNumber,$nbre_fraude . ' '); 
-			cellBorder($newsheet,$col.$rowNumber);
-			 
-			
-			//$col++;	
+		$nbre_control = $cls_report->getSite_CompteursControlPeriodeCountUser($user_item['code_utilisateur'], $site_item, $du, $au);
+		$nbre_fraude = $cls_report->getSite_CompteursFraudePeriodeCountUser($user_item['code_utilisateur'], $site_item, $du, $au);
+
+		$Total_general += $nbre_control;
+		$Total_fraude += $nbre_fraude;
+		$col = 'A';
+		$rowNumber++;
+		$newsheet->setCellValue($col . $rowNumber, $ctr_tech);
+		cellBorder($newsheet, $col . $rowNumber);
+		cellStyle($newsheet, $col . $rowNumber, 10);
+
+		$col++;
+		$newsheet->setCellValue($col . $rowNumber, $user_item['nom_complet']);
+		cellBorder($newsheet, $col . $rowNumber);
+		cellStyle($newsheet, $col . $rowNumber, 10);
+
+		$col++;
+		$newsheet->setCellValue($col . $rowNumber, $nbre_control . ' ');
+		cellBorder($newsheet, $col . $rowNumber);
+
+		$col++;
+		$newsheet->setCellValue($col . $rowNumber, $nbre_fraude . ' ');
+		cellBorder($newsheet, $col . $rowNumber);
+
+
+		//$col++;	
 	}
-	
+
 	$rowNumber++;
-	$newsheet->setCellValue('C'.$rowNumber,$Total_general . ' '); 
-	cellBorder($newsheet,'C'.$rowNumber); 	
-	$newsheet->setCellValue($col.$rowNumber,$Total_fraude . ' '); 
-	cellBorder($newsheet,  $col.$rowNumber); 
-	$rowNumber = $rowNumber + 3;	
-	
-	
+	$newsheet->setCellValue('C' . $rowNumber, $Total_general . ' ');
+	cellBorder($newsheet, 'C' . $rowNumber);
+	$newsheet->setCellValue($col . $rowNumber, $Total_fraude . ' ');
+	cellBorder($newsheet,  $col . $rowNumber);
+	$rowNumber = $rowNumber + 3;
 }
 //FIN SYNTHESE  
 
-foreach($liste_site as $site_item){
-	
+foreach ($liste_site as $site_item) {
+
 	$site_classe->code_site = $site_item;
 	$site_classe->GetDetailIN();
 	//$USER_SITENAME = $site_classe->intitule_site;
- 	$user_list = $cls_report->getChiefTechnician($chef_item);
-	$chef_item_name = $utilisateur->GetUserDetailName($chef_item);	
-	
- 
- 
-$rowNumber = 1; //start in row 1
+	$user_list = $cls_report->getChiefTechnician($chef_item);
+	$chef_item_name = $utilisateur->GetUserDetailName($chef_item);
 
-$col = 'A'; // start at column A
-			$newsheet = $objPHPExcel->createSheet();
-$newsheet->setCellValue("A1",  "LISTE DES COMPTEURS CONTROLES PAR TECHNICIEN");
-cellStyle($newsheet,'A1', 14);
-$cell = 'Période : du '. $du_ .' au '. $au_;   
-$rowNumber++;
- $newsheet->setCellValue($col.$rowNumber,$cell);
-cellStyle($newsheet,$col.$rowNumber, 13);
-$rowNumber +=2;
 
-$newsheet->setCellValue($col.$rowNumber,"Chef d'équipe : " . $chef_item_name);
-cellStyle($newsheet,$col.$rowNumber, 13);
-$rowNumber+=2;
 
-  // Rename worksheet
-$newsheet->setTitle('Détails');
+	$rowNumber = 1; //start in row 1
 
-			
-				$headers_=array("","Quartier","CVS","Adresse (Avenue et N°)","Noms et Postnoms","PA (POC)","Tarif","Marque","Numéro de compteur","Date installation","N° Scellé cpt 1","N° Scellé coffret 2","Date de pose scellé","Scellé compteur brisé 1","Scellé coffret brisé 2","Scellé cpt existant 1","Scellé coffret existant 2","Numéro série compteur trouvé","Etat de fraude","Raison de la fraude", "Etat du compteur","Date de dernier ticket rentré","Qté des derniers Kwh rentrés","Crédit restant","Tarif contrôle","Autocollant placé (Contrôleur)","Observation");
-  $newsheet->getColumnDimension('B')->setAutoSize(true); // Content adaptation 
-$newsheet->getColumnDimension('C')->setAutoSize(true); // Content adaptation 
-$newsheet->getColumnDimension('D')->setAutoSize(true); // Content adaptation 
-			
+	$col = 'A'; // start at column A
+	$newsheet = $objPHPExcel->createSheet();
+	$newsheet->setCellValue("A1",  "LISTE DES COMPTEURS CONTROLES PAR TECHNICIEN");
+	cellStyle($newsheet, 'A1', 14);
+	$cell = 'Période : du ' . $du_ . ' au ' . $au_;
+	$rowNumber++;
+	$newsheet->setCellValue($col . $rowNumber, $cell);
+	cellStyle($newsheet, $col . $rowNumber, 13);
+	$rowNumber += 2;
+
+	$newsheet->setCellValue($col . $rowNumber, "Chef d'équipe : " . $chef_item_name);
+	cellStyle($newsheet, $col . $rowNumber, 13);
+	$rowNumber += 2;
+
+	// Rename worksheet
+	$newsheet->setTitle('Détails');
+
+
+	$headers_ = array("", "Quartier", "CVS", "Adresse (Avenue et N°)", "Noms et Postnoms", "PA (POC)", "Tarif", "Marque", "Numéro de compteur", "Date installation", "N° Scellé cpt 1", "N° Scellé coffret 2", "Date de pose scellé", "Scellé compteur brisé 1", "Scellé coffret brisé 2", "Scellé cpt existant 1", "Scellé coffret existant 2", "Numéro série compteur trouvé", "Etat de fraude", "Raison de la fraude", "Etat du compteur", "Date de dernier ticket rentré", "Qté des derniers Kwh rentrés", "Crédit restant", "Tarif contrôle", "Autocollant placé (Contrôleur)", "Observation");
+	$newsheet->getColumnDimension('B')->setAutoSize(true); // Content adaptation 
+	$newsheet->getColumnDimension('C')->setAutoSize(true); // Content adaptation 
+	$newsheet->getColumnDimension('D')->setAutoSize(true); // Content adaptation 
+
 
 	//ITERATION DATA IINSTALL FOR CURRENT SITE
-	foreach($user_list as $user_item){
-	
+	foreach ($user_list as $user_item) {
+
 		//RECUPERATION LISTE DES COMPTEURS CONTROLES POUR LE CURRENT CVS AND GIVEN PERIOD 
-		$data_ = $cls_report->getSite_CompteursControlUser($user_item['code_utilisateur'], $site_item, $du, $au);		
+		$data_ = $cls_report->getSite_CompteursControlUser($user_item['code_utilisateur'], $site_item, $du, $au);
 		$nb_data_ = count($data_);
-		if($nb_data_ > 0){
-				
+		if ($nb_data_ > 0) {
 
-                       /* <h5 class="mb-3">CVS :</h5>                                            
+
+			/* <h5 class="mb-3">CVS :</h5>                                            
                                             <h4 class="text-dark mb-1"><?php echo $cvs_item["libelle"]; ?></h4>*/
-		
-// $rowNumber = 1; //start in row 1
 
-$col = 'A'; // start at column A
+			// $rowNumber = 1; //start in row 1
 
-$newsheet->setCellValue($col.$rowNumber,"Technicien : " . $user_item['nom_complet'] . "(". $nb_data_ . " Compteurs)" );
-cellStyle($newsheet,$col.$rowNumber, 14); 
-$rowNumber++;
+			$col = 'A'; // start at column A
 
-
-
-//ENTETES PRINCIPALES
- 
-cellStyle($newsheet,'A'.$rowNumber, 10);
-$newsheet->setCellValue('A'.$rowNumber,"N°"); 
-cellAlign($newsheet,'A'.$rowNumber, 'C');
-cellColor($newsheet,'A'.$rowNumber, 'ffc107'); 
+			$newsheet->setCellValue($col . $rowNumber, "Technicien : " . $user_item['nom_complet'] . "(" . $nb_data_ . " Compteurs)");
+			cellStyle($newsheet, $col . $rowNumber, 14);
+			$rowNumber++;
 
 
-$colons = array('B','C','D','E','F','G');
-foreach($colons as $mycol){
-cellBorder($newsheet,$mycol.$rowNumber);
-cellStyle($newsheet,$mycol.$rowNumber, 10);
-cellAlign($newsheet,$mycol.$rowNumber, 'C');
-cellColor($newsheet,$mycol.$rowNumber, '17a2b8');	
-$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
-}
+
+			//ENTETES PRINCIPALES
+
+			cellStyle($newsheet, 'A' . $rowNumber, 10);
+			$newsheet->setCellValue('A' . $rowNumber, "N°");
+			cellAlign($newsheet, 'A' . $rowNumber, 'C');
+			cellColor($newsheet, 'A' . $rowNumber, 'ffc107');
 
 
-$colons = array('H','I','J','K','L','M');
-foreach($colons as $mycol){
-cellBorder($newsheet,$mycol.$rowNumber);
-cellStyle($newsheet,$mycol.$rowNumber, 10);
-cellAlign($newsheet,$mycol.$rowNumber, 'C');
-cellColor($newsheet,$mycol.$rowNumber, 'ffc107');	
-
-$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
-}
-
-$colons = array('N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA');
-foreach($colons as $mycol){
-cellBorder($newsheet,$mycol.$rowNumber);
-cellStyle($newsheet,$mycol.$rowNumber, 10);
-cellAlign($newsheet,$mycol.$rowNumber, 'C');
-cellColor($newsheet,$mycol.$rowNumber, '007bff');	
-$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
-}
- 
+			$colons = array('B', 'C', 'D', 'E', 'F', 'G');
+			foreach ($colons as $mycol) {
+				cellBorder($newsheet, $mycol . $rowNumber);
+				cellStyle($newsheet, $mycol . $rowNumber, 10);
+				cellAlign($newsheet, $mycol . $rowNumber, 'C');
+				cellColor($newsheet, $mycol . $rowNumber, '17a2b8');
+				$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
+			}
 
 
-//end ENTETES PRINCIPALES
+			$colons = array('H', 'I', 'J', 'K', 'L', 'M');
+			foreach ($colons as $mycol) {
+				cellBorder($newsheet, $mycol . $rowNumber);
+				cellStyle($newsheet, $mycol . $rowNumber, 10);
+				cellAlign($newsheet, $mycol . $rowNumber, 'C');
+				cellColor($newsheet, $mycol . $rowNumber, 'ffc107');
+
+				$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
+			}
+
+			$colons = array('N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA');
+			foreach ($colons as $mycol) {
+				cellBorder($newsheet, $mycol . $rowNumber);
+				cellStyle($newsheet, $mycol . $rowNumber, 10);
+				cellAlign($newsheet, $mycol . $rowNumber, 'C');
+				cellColor($newsheet, $mycol . $rowNumber, '007bff');
+				$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
+			}
 
 
-    foreach($headers_ as $cell) {
-        $newsheet->setCellValue($col.$rowNumber,$cell);
-        $col++;
-    }
-	$rowNumber++;
 
-				  $ctr_context =1;
-			foreach($data_ as $row_){
-	$col = 'A'; // start at column A
-    			
-				$cvs->code=$row_["cvs_id"];
-					  $cvs->GetDetailIN();
+			//end ENTETES PRINCIPALES
+
+
+			foreach ($headers_ as $cell) {
+				$newsheet->setCellValue($col . $rowNumber, $cell);
+				$col++;
+			}
+			$rowNumber++;
+
+			$ctr_context = 1;
+			foreach ($data_ as $row_) {
+				$col = 'A'; // start at column A
+
+				$cvs->code = $row_["cvs_id"];
+				$cvs->GetDetailIN();
 				$E_item = $adresseItem->GetAdressInfo($row_["adresse_id"]);
 				$numero =  $E_item['numero'];
 				$avenue =  $adresseItem->GetLabel($E_item['avenue']);
 				$quartier_ = $adresseItem->GetLabel($E_item['quartier_id']);
-				
-				$newsheet->setCellValue($col.$rowNumber,$ctr_context);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$quartier_);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$cvs->libelle);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				
-				$newsheet->setCellValue($col.$rowNumber,$avenue . ' ' . $numero);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["nom_client_blue"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["p_a"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["tarif_identif"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				 
 
-  //RECUPERATION INFOS FOUND INSTALL DURING CONTROLES
-$row_install = $Installation->GetDetail_Light($row_["ref_last_install_found"]);
- $marquecompteur->code=$row_install["marque_compteur"];
-					  $marquecompteur->GetDetailIN(); 
- 
-							
+				$newsheet->setCellValue($col . $rowNumber, $ctr_context);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
 
-				$newsheet->setCellValue($col.$rowNumber,$marquecompteur->libelle);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_install["numero_compteur"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_install["date_fin_installation_fr"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_install["scelle_un_cpteur"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_install["scelle_deux_coffret"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_install["date_pose_scelle_fr"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["scelle_compteur_poser"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["scelle_coffret_poser"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["scelle_cpt_existant"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["scelle_coffret_existant"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["numero_serie_cpteur"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["cas_de_fraude"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				 
-  
-			$typeFraude->code=$row_["type_fraude"];
-			$typeFraude->GetDetailIN();
+				$newsheet->setCellValue($col . $rowNumber, $quartier_);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
 
-			
-				$newsheet->setCellValue($col.$rowNumber,$typeFraude->libelle);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-			
-				$newsheet->setCellValue($col.$rowNumber,$row_["etat_du_compteur"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-			
-				$newsheet->setCellValue($col.$rowNumber,$row_["date_de_dernier_ticket_rentre"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["qte_derniers_kwh_rentre"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["credit_restant"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["tarif_controle"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["autocollant_place_controleur"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				
-				$newsheet->setCellValue($col.$rowNumber,$row_["observation"]);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; 
-				 $rowNumber++;
-					   
-					 $ctr_context++;
+				$newsheet->setCellValue($col . $rowNumber, $cvs->libelle);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
 
+
+				$newsheet->setCellValue($col . $rowNumber, $avenue . ' ' . $numero);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["nom_client_blue"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["p_a"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["tarif_identif"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+
+
+				//RECUPERATION INFOS FOUND INSTALL DURING CONTROLES
+				$row_install = $Installation->GetDetail_Light($row_["ref_last_install_found"]);
+				$marquecompteur->code = $row_install["marque_compteur"];
+				$marquecompteur->GetDetailIN();
+
+
+
+				$newsheet->setCellValue($col . $rowNumber, $marquecompteur->libelle);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_install["numero_compteur"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_install["date_fin_installation_fr"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_install["scelle_un_cpteur"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_install["scelle_deux_coffret"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_install["date_pose_scelle_fr"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["scelle_compteur_poser"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["scelle_coffret_poser"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["scelle_cpt_existant"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["scelle_coffret_existant"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["numero_serie_cpteur"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["cas_de_fraude"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+
+				$typeFraude->code = $row_["type_fraude"];
+				$typeFraude->GetDetailIN();
+
+
+				$newsheet->setCellValue($col . $rowNumber, $typeFraude->libelle);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["etat_du_compteur"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["date_de_dernier_ticket_rentre"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["qte_derniers_kwh_rentre"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["credit_restant"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["tarif_controle"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["autocollant_place_controleur"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+
+				$newsheet->setCellValue($col . $rowNumber, $row_["observation"]);
+				cellBorder($newsheet, $col . $rowNumber);
+				$col++;
+				$rowNumber++;
+
+				$ctr_context++;
 			}
-$rowNumber +=3;
-        }
-		 
+			$rowNumber += 3;
+		}
 	}
 }
 
@@ -400,6 +393,3 @@ header('Cache-Control: max-age=0');
 
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 $objWriter->save('php://output');
-
-
-?>

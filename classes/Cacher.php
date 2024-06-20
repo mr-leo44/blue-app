@@ -10,11 +10,13 @@ class Cacher
     private $cache;
     private $prefix = "";
     private $disable;
+    private int $expireAt;
 
     public function __construct()
     {
         $this->cache = new FilesystemAdapter();
-        $this->disable =  filter_var($_ENV['ENABLE_CACHE'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        $this->expireAt = isset($_ENV['CACHE_EXPIRE_AT']) ? intval($_ENV['CACHE_EXPIRE_AT']) : 60;
+        $this->disable =  filter_var($_ENV['ENABLE_CACHE'] ?? false, FILTER_VALIDATE_BOOLEAN);
     }
 
     public function setPrefix(string $prefix)
@@ -31,7 +33,7 @@ class Cacher
         $finalKey = implode('-', [$this->prefix, ...$cacheKey]);
 
         $value = $this->cache->get($finalKey, function (ItemInterface $item) use ($callback) {
-            $item->expiresAfter(2000);
+            $item->expiresAfter($this->expireAt);
             return $callback();
         });
         return $value;

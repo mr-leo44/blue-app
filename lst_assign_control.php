@@ -291,6 +291,10 @@ $au = isset($_GET['Au']) ? Utils::ClientToDbDateFormat($_GET['Au']) : "";
 if ($search_term == '' and $du == "" and $au == "") {
     $stmt = $Abonne->readAll($from_record_num, $records_per_page, $utilisateur, $filtre);
     $total_rows = $Abonne->countAll($utilisateur, $filtre);
+} else if ($search_term and $du == "" and $au == "") {
+    $page_url .= "s={$search_term}&";
+    $stmt = $Abonne->searchWithoutDate($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
+    $total_rows = $Abonne->countAll_BySearchWithoutDate($search_term, $utilisateur, $filtre);
 } else {
     $page_url .= "s={$search_term}&";
     $stmt = $Abonne->search($du, $au, $search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
