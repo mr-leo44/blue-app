@@ -508,8 +508,21 @@ i{
     border-bottom: none;
     
 }
+.dashboard-header .navbar::before {
+			content: '';
+			position: absolute;
+			width: 264px;
+			height: 100%;
+			background: #fff;
+			z-index: -1;
+}
 .navbar-brand{
     img{
         width: 120px;
     }
+}
+@media(min-width:768px){
+    .navbar::before {
+			width: 100%;
+		}
 }

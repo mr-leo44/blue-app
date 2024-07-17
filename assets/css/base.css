@@ -1212,6 +1212,17 @@ Top Header
 
 .dashboard-header {}
 
+.icon-menu {
+    gap: 3px;
+
+    span {
+        background-color: var(--colorTitle);
+        width: 20px;
+        height: 2px;
+        border-radius: 5px;
+    }
+}
+
 .dashboard-header .navbar {
     padding: 0px;
     border-bottom: 1px solid #e6e6f2;

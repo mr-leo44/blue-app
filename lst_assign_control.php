@@ -602,7 +602,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 
                                                                         $stmt_select = $communeEntity->GetProvinceAllCVS($province['code']);
                                                                         while ($row_select = $stmt_select->fetch(PDO::FETCH_ASSOC)) {
-                                                                            echo "<option value=t_main_data.cvs_id,='" . $row_select["code"] . "'>CVS - " . $row_select["libelle"] . "</option>";
+                                                                            echo "<option value=t_main_data.cvs_id='" . $row_select["code"] . "'>CVS - " . $row_select["libelle"] . "</option>";
                                                                         }
                                                                     }
 

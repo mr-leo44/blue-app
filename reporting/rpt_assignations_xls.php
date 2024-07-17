@@ -108,6 +108,7 @@ if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 } else {
     $liste_site = $site;
 }
+// dd($liste_site);
 
 
 $query_installateurs_suppl = "SELECT t_utilisateurs.code_utilisateur,t_utilisateurs.nom_complet,t_log_installation_users.ref_inst_ FROM t_log_installation_users INNER JOIN t_utilisateurs ON t_log_installation_users.ref_user = t_utilisateurs.code_utilisateur where t_log_installation_users.ref_inst_=:ref_inst_";

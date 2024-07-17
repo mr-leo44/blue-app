@@ -9,13 +9,17 @@ $UseNativeGPS  = 1; //isset($_GET['mobile'])?$_GET['mobile']:'';
         <a class="navbar-brand" href="index.php<?php echo $is_mobile; ?>">
             <img src="assets/imgs/logo-blue-app.svg" alt="">
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse " id="navbarSupportedContent">
-
+        </button> -->
+        <div class="d-flex justify-content-end align-items-center" style="flex: 0 0 auto;">
+            <button class="navbar-toggler btn btn-primary" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <div class="d-flex flex-column gap-2 icon-menu">
+                    &#8801;
+                </div>
+            </button>
             <ul class="navbar-nav ml-auto navbar-right-top align-items-center">
-                <li class="nav-item">
+                <li class="nav-item d-none d-lg-flex">
                     <div class="item-site">
                         <i class="fas fa-map-marker mr-2"></i>
                         <?php echo $USER_SITENAME; ?>
@@ -33,5 +37,6 @@ $UseNativeGPS  = 1; //isset($_GET['mobile'])?$_GET['mobile']:'';
                 </li>
             </ul>
         </div>
+
     </nav>
 </div>

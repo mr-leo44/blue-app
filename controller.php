@@ -1783,6 +1783,9 @@ switch ($view) {
 			}
 
 			if ($utilisateur->HasDroits("10_80")) {
+				if (strtolower($data['data']['compteur_desaffecte']) == "1") {
+					$result .=  '<a id="reaffect-compteur" href="#" class="btn btn-outline-dark float-right ml-2" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Réaffecter le compteur</a>';
+				}
 				$result .=  '<a href="#" class="btn btn-outline-danger float-right delete-install" data-name-install="' . $data["data"]["nom_client_blue"] . '" data-id-install="' . $data["data"]["id_install"] . '">Supprimer</a>';
 			}
 
@@ -2526,13 +2529,13 @@ exit();*/
 				$records_per_page,
 				$utilisateur,
 				$filtre,
-				$search_term
+				$search_item
 			) {
-				$stmt = $item->search($search_term, $from_record_num, $records_per_page, $utilisateur, $filtre);
-				$total_rows = $item->countAll_BySearch($search_term, $utilisateur, $filtre);
-
-				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
-				return [$stmt, $total_rows];
+				$stmt = $item->search($search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
+				$total_rows = $item->countAll_BySearch($search_item, $utilisateur, $filtre);
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+				// dd($stmt, count($stmt));
+				return [$stmt, count($stmt)];
 			});
 		} else {
 			$cacheKey = ["read-all", ...$cacheMetaData];
@@ -2552,7 +2555,8 @@ exit();*/
 			});
 		}
 
-		$paginate_now->page = $page;
+		// dd((int)$page, $total_rows, $records_per_page, $range, $page_url );
+		$paginate_now->page = (int)$page;
 		$paginate_now->total_rows = $total_rows;
 		$paginate_now->records_per_page = $records_per_page;
 		$paginate_now->range_ = $range;
@@ -2727,6 +2731,27 @@ exit();*/
 		} else {
 			$result['error'] = 1;
 			$result['message'] = "Impossible de désaffecter ce compteur de cette installation ! ";
+		}
+
+		echo json_encode($result);
+
+		break;
+	case "reaffect_compteur_in_installation":
+
+		$id_install = isset($_GET['q']) ? $_GET['q'] : "";
+
+		$query = "UPDATE t_log_installation SET compteur_desaffecte = 0, motif_desaffectation = null WHERE id_install = :id_install";
+		$stmt = $db->prepare($query);
+		$stmt->bindValue(":id_install", $id_install);
+
+		$res = $stmt->execute();
+
+		if ($res) {
+			$result["error"] = 0;
+			$result["message"] = "Le compteur a été réaffecté";
+		} else {
+			$result['error'] = 1;
+			$result['message'] = "Impossible de réaffecter le compteur de cette installation ! ";
 		}
 
 		echo json_encode($result);
@@ -3072,14 +3097,15 @@ exit();*/
 
 				$desaffecte = "";
 				$motif_desaffecte = "";
-				if ($row_["compteur_desaffecte"] == '1') {
+				if (isset($row_['compteur_desaffecte']) && $row_["compteur_desaffecte"] == '1') {
 					$desaffecte .= ' <span class="badge badge-dark">Compteur désaffecté</span>';
 
-					if ($row_['motif_desaffectation']) {
-						$motif_desaffecte .= ' <span class="badge badge-warning"> <strong>MOTIF : </strong> ' . $row_['motif_desaffectation'] . '</>';
-					} else {
-						$motif_desaffecte .= ' <span class="badge badge-warning">Aucun motif</span>';
+					$motif = "Aucun";
+					if (isset($row_['motif_desaffectation']) && $row_['motif_desaffectation']) {
+						$motif = $row_['motif_desaffectation'];
 					}
+
+					$motif_desaffecte .= ' <span class="badge badge-warning"> <strong>MOTIF : </strong> ' . $motif . '</>';
 				}
 				$result .= '<div class="control-row card bg-white">
 								<div class="card-header d-flex">

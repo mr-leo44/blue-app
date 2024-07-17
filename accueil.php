@@ -159,14 +159,7 @@ if (isset($_POST['site']) && isset($_POST['Du']) && isset($_POST['Au'])) {
 			background: #fff !important;
 		}
 
-		.navbar::before {
-			content: '';
-			position: absolute;
-			width: 19.3%;
-			height: 100%;
-			background: #fff;
-			z-index: -1;
-		}
+		
 
 		.navbar .nav-item.dropdown span {
 			color: #fff !important;

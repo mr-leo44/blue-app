@@ -84,17 +84,17 @@ if ($utilisateur->is_logged_in() == true) {
 </head>
 
 <body>
-	<div class="block-login">
+	<div class="block-login d-flex d-lg-block flex-column justify-content-center">
 		<div class="container-fluid">
 			<div class="row justify-content-center align-items-center">
-				<div class="col-lg-6 pl-0">
+				<div class="col-lg-6 pl-0 d-none d-lg-block">
 					<div class="bg-">
 						<img src="assets/imgs/logo-white.png" alt="">
 					</div>
 				</div>
 				<div class="col-lg-6">
 					<div class="row justify-content-center">
-						<div class="col-xxl-7 col-lg-8">
+						<div class="col-xxl-7 col-lg-8 col-md-7">
 							<div class="card card-login">
 								<div class="text-center">
 									<h1>Connexion</h1>
