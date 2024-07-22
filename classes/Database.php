@@ -1,8 +1,12 @@
 <?php
 require_once dirname(__DIR__) .  '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__), '.env.local');
-$dotenv->load();
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__), '.env.local');
+    $dotenv->load();
+} catch (Exception $e) {
+    // print("Error loading.env file: " . $e->getMessage());
+}
 class Database
 {
 
