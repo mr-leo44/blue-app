@@ -194,7 +194,7 @@ class Compteurs
     }
 
 
-    function VerifyCompteurInfo($numero_serie, $user_context, $sendTicketDemand = false)
+    function VerifyCompteurInfo($numero_serie, $user_context, $sendTicketDemand = false, $control_ticket_type = null)
     {
         $stmt = $this->connection->prepare('SELECT ref_produit_series,serial_number,sts_serial_number,order_number,manufacturer_ref,site_id_affectation  FROM t_param_liste_compteurs where serial_number=:numero_serie');
         $stmt->bindValue(':numero_serie', $numero_serie);
@@ -329,6 +329,7 @@ class Compteurs
                                 cvs_id=:cvs_id,
                                 nom_client=:nom_client,
                                 adresse_id=:adresse,
+                                from_control_type=:from_control_type,
                                 from_control=:from_control";
                             $stmt = $this->connection->prepare($query);
 
@@ -345,6 +346,7 @@ class Compteurs
                             $stmt->bindValue(":nom_client", $installation['nom_client']);
                             $stmt->bindValue(":adresse", $installation['adresse_id']);
                             $stmt->bindValue(":from_control", 1);
+                            $stmt->bindValue(":from_control_type", $control_ticket_type ?? null);
 
 
                             if ($stmt->execute()) {

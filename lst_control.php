@@ -1658,8 +1658,18 @@ $utilisateur->readOne();
 							<div class="input-group">
 								<input type="text" class="form-control pull-right" name="serial_number_verify" id="serial_number_verify" style="width: 300px;">
 							</div>
-
+							<label>Type de ticket contrôle</label>
+							<select class="form-control" required name="control_type" id="control_type">
+								<option disabled>Choisir le type</option>
+								<option value="Ticket Achats">Ticket Achats</option>
+								<option value="Ticket Anti-fraude">Ticket Anti-fraude</option>
+								<option value="Ticket Adresse Incorrecte">Ticket Adresse Incorrecte</option>
+								<option value="Ticket Date Installation">Ticket Date Installation</option>
+								<option value="Nombre de compteurs dans une adresse">Nombre de compteurs dans une adresse</option>
+								<option value="Ticket autre">Ticket Autre</option>
+							</select>
 						</div>
+
 						<div class="text-center">
 							<button id="btn_submit_verify_compteur" type="button" class="btn btn-success btn-fill float-right">Confirmer</button>
 						</div>
@@ -1713,8 +1723,13 @@ $utilisateur->readOne();
 
 		$("#btn_submit_verify_compteur").click(function(e) {
 			var item = $('#serial_number_verify').val() != null ? $('#serial_number_verify').val() : '';
+			var control_type = $('#control_type').val() != null ? $('#control_type').val() : '';
 			if (item == '') {
 				swal("Information", "Veuillez saisir le numéro série du compteur", "error");
+				return false;
+			}
+			if (control_type = '') {
+				swal("Information", "Veuillez saisir le type de contrôle à effectuer !", "error")
 				return false;
 			}
 			var form = document.getElementById("frm_verify_compteur");

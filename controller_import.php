@@ -221,9 +221,7 @@ function extractionCompteurControlXLS($user)
 	$path_info_detail = pathinfo($_FILES['file']['name']);
 	$nom_fichier = $path_info_detail['filename'];
 	$file_name = $user->code_utilisateur . '_' . md5(uniqid(rand(), true)) . '.' . $ext;
-	// $group->n_user_create =$utilisateur->code_utilisateur; 
 
-	// $file_name =  md5(uniqid(rand(), true)). '.' . $ext;
 	$filePath .= $file_name; //$_FILES['file']['name'];
 	if (move_uploaded_file($_FILES['file']['tmp_name'], $filePath)) {
 		$result_array["error"] = 0;
@@ -238,8 +236,6 @@ function extractionCompteurControlXLS($user)
 
 	// DECLARATION
 	//DateCreation	NIF	CodeCategorie	NDepot	NAFONEM	NAFINSS	NAFINPP	RaisonSociale	Sigle	Exercice	Mois	LibelleCategorie	Nombre	Brutes	Nettes	Taux	MontantIPR	MontantIERE	DroitTotalDu	DateDepot	NbreNat	NbreExp	BrutesNat	BrutesExp
-
-	//$cls_ese_inpp = new XLS_DATA_DGI($this->pdo, $ext);
 	$message = array();
 	$messages = array();
 	if (isset($_FILES['file'])) {
@@ -247,36 +243,15 @@ function extractionCompteurControlXLS($user)
 		try {
 			$Spreadsheet = new SpreadsheetReader($filePath);
 			$sheetNames = [];
-
 			$Sheets = $Spreadsheet->Sheets();
 
-			// $sheets_a_traiter = ["DeclarationCalcul","AttestationPaiement","VentillationPaiement"];
-			// var_dump($Sheets);
-			// exit;
-			/*
-foreach ($Sheets as $Index => $Name)
-		{
-			$sheetNames[$Name]=$Index;
-		}*/
-			// echo '<h2>Parsing Result</h2>';
-			// echo '<table border="1" cellpadding="3" style="border-collapse: collapse">';
-
-			//	$dim = $xlsx->dimension();
-			//	$cols = $dim[0];
 			$ctr_duplicate = 0;
 			$success_insert = 0;
 			$error_count = 0;
 			$lst_duplicate = array();
 
-			//$this->pdo->beginTransaction();
-
-			//DeclarationCalcul  
-			// $query = "SELECT ndepot FROM t_declaration WHERE ndepot=:ndepot";
-			// $Spreadsheet -> ChangeSheet($sheetNames['DeclarationCalcul']);
 			$Spreadsheet->ChangeSheet(0);
 
-			// var_dump($sheetNames);
-			// exit;
 			//PREPARATION LISTES DES CHEFS CONTROLEURS BASES AU CONTEXTE UTILISATEUR
 
 			//PREPARATION LISTES DES CONTROLEURS BASES AU CONTEXTE UTILISATEUR

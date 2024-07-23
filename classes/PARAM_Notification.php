@@ -344,7 +344,7 @@ class PARAM_Notification
   function read()
   {
 
-    $query = "SELECT ref_log,ref_identif,DATE_FORMAT(datesys,'%d/%m/%Y %H:%i:%S')  as datesys_fr,DATE_FORMAT(date_creation_ticket,'%d/%m/%Y %H:%i:%S')  as date_creation_ticket_fr,num_compteur,cvs_id,nom_client,adresse_id,commentaire,statuts_notification,n_user_vu,annule,n_user_annule,motif_annulation,date_synchro,is_sync,code_province,id_site,date_annule,activated,date_vu,type_notification,numero_ticket,date_creation_ticket,n_user_create_ticket,tarif,ref_transaction, from_control FROM " . $this->table_name . " where t_param_notification_log.type_notification='" . $this->type_notification . "' ORDER BY datesys " . $this->sort_type;
+    $query = "SELECT ref_log,ref_identif,DATE_FORMAT(datesys,'%d/%m/%Y %H:%i:%S')  as datesys_fr,DATE_FORMAT(date_creation_ticket,'%d/%m/%Y %H:%i:%S')  as date_creation_ticket_fr,num_compteur,cvs_id,nom_client,adresse_id,commentaire,statuts_notification,n_user_vu,annule,n_user_annule,motif_annulation,date_synchro,is_sync,code_province,id_site,date_annule,activated,date_vu,type_notification,numero_ticket,date_creation_ticket,n_user_create_ticket,tarif,ref_transaction, from_control, from_control_type FROM " . $this->table_name . " where t_param_notification_log.type_notification='" . $this->type_notification . "' ORDER BY datesys " . $this->sort_type;
     $stmt = $this->connection->prepare($query);
     $stmt->execute();
     return $stmt;
@@ -382,6 +382,7 @@ class PARAM_Notification
       t_param_notification_log.n_user_create_ticket,
       t_param_notification_log.tarif,
       t_param_notification_log.from_control,
+      t_param_notification_log.from_control_type,
       t_param_notification_log.ref_transaction,
       t_main_data.id_,
       t_param_cvs.libelle,
@@ -438,6 +439,7 @@ t_param_notification_log.numero_ticket,
 t_param_notification_log.date_creation_ticket,
 t_param_notification_log.n_user_create_ticket,
 t_param_notification_log.from_control,
+t_param_notification_log.from_control_type,
 t_param_notification_log.tarif,
 t_param_notification_log.ref_transaction,
 t_main_data.id_,

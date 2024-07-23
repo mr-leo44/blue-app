@@ -2533,7 +2533,7 @@ exit();*/
 			) {
 				$stmt = $item->search($search_item, $from_record_num, $records_per_page, $utilisateur, $filtre);
 				$total_rows = $item->countAll_BySearch($search_item, $utilisateur, $filtre);
-				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+				$stmt = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				// dd($stmt, count($stmt));
 				return [$stmt, count($stmt)];
 			});
@@ -7224,7 +7224,8 @@ DroitsNotGranted();
 			$item = new Compteurs($db);
 			$numero_serie = isset($_POST["serial_number_verify"]) ? $_POST["serial_number_verify"] : "";
 			$verify_fiche_identif = isset($_POST["verify_fiche_identif"]) ? $_POST["verify_fiche_identif"] : "";
-			$result_array = $item->VerifyCompteurInfo($numero_serie, $utilisateur, true);
+			$control_type = isset($_POST["control_type"]) ? $_POST["control_type"] : null;
+			$result_array = $item->VerifyCompteurInfo($numero_serie, $utilisateur, true, $control_type);
 
 			echo json_encode($result_array);
 		}

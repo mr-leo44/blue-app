@@ -114,7 +114,6 @@ if (isset($_GET['Du']) && isset($_GET['Au'])) {
         $stmt = $Abonne->search($search_term, $from_record_num, $records_per_page, $utilisateur, $where);
         $total_rows = $Abonne->countAll_BySearch($search_term, $utilisateur, $where);
     }
-
     $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 }
 
@@ -548,6 +547,16 @@ if (isset($_GET['Du']) && isset($_GET['Au'])) {
 
                                                                     ?>
                                                                 </div>
+                                                                <?php if ($row_['from_control'] && isset($row_['from_control_type'])) : ?>
+                                                                    <div class="text-dark">
+                                                                        <strong> Type de contrôle :</strong>
+                                                                        <?php
+                                                                        if (isset($row_['from_control_type'])) {
+                                                                            echo "<span  class='mt-2 badge badge-primary'>" . $row_['from_control_type'] . "</span>";
+                                                                        }
+                                                                        ?>
+                                                                    </div>
+                                                                <?php endif; ?>
 
                                                                 <div class="font-medium text-primary client-ticket"><?php echo $row_["numero_ticket"];
                                                                                                                     if (isset($row_["date_creation_ticket"])) {
