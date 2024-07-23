@@ -497,11 +497,14 @@ class Compteurs
             if (in_array($ext, $allowedExtensions)) {
                 $file_size = $_FILES['frm']['size'] / 1024;
                 if ($file_size < 1024) { //Ko
-                    $file = "uploads/" . $_FILES['frm']['name'];
-                    $isUploaded = copy($_FILES['frm']['tmp_name'], $file);
+                    // $file = "uploads/" . $_FILES['frm']['name'];
+                    $file = $_FILES['frm']['tmp_name'];
+                    // $isUploaded = copy($_FILES['frm']['tmp_name'], $file);
+                    $isUploaded = false;
+                    if (isset($_FILES['frm']['tmp_name'])) {
+                        $isUploaded = $_FILES['frm']["error"] == 0;
+                    }
                     if ($isUploaded) {
-                        /* include("db.php");
-                    include("Classes/PHPExcel/IOFactory.php");*/
                         try {
 
                             /** Create a new Reader of the type defined in $inputFileType **/
@@ -624,14 +627,6 @@ class Compteurs
                                 $result["data"] = $e->getMessage();
                             }
                         }
-                        // At last we will execute the dynamically created query an save it into the database
-                        //mysqli_query($con, $query);
-                        /* if(mysqli_affected_rows($con) > 0) {    
-                        echo '<span class="msg">Database table updated!</span>';
-                    } else {
-                        echo '<span class="msg">Can\'t update database table! try again.</span>';
-                    } */
-
                         /*Free memory when you are done with a file*/
                         $objPHPExcel->disconnectWorksheets();
                         unset($objPHPExcel);
