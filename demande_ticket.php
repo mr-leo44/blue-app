@@ -549,10 +549,14 @@ if (isset($_GET['Du']) && isset($_GET['Au'])) {
                                                                 </div>
                                                                 <?php if ($row_['from_control'] && isset($row_['from_control_type'])) : ?>
                                                                     <div class="text-dark">
-                                                                        <strong> Type de contrôle :</strong>
+                                                                        <strong> Type(s) de contrôle :</strong>
                                                                         <?php
                                                                         if (isset($row_['from_control_type'])) {
-                                                                            echo "<span  class='mt-2 badge badge-primary'>" . $row_['from_control_type'] . "</span>";
+                                                                            $control_types = explode(',', $row_['from_control_type']);
+
+                                                                            foreach ($control_types as $control_type) {
+                                                                                echo "<span  class='mt-2 badge badge-primary'>" . $control_type . "</span>";
+                                                                            }
                                                                         }
                                                                         ?>
                                                                     </div>

@@ -1659,7 +1659,7 @@ $utilisateur->readOne();
 								<input type="text" class="form-control pull-right" name="serial_number_verify" id="serial_number_verify" style="width: 300px;">
 							</div>
 							<label>Type de ticket contrôle</label>
-							<select class="form-control" required name="control_type" id="control_type">
+							<select multiple class="form-control" required name="control_type[]" id="control_type">
 								<option disabled>Choisir le type</option>
 								<option value="Ticket Achats">Ticket Achats</option>
 								<option value="Ticket Anti-fraude">Ticket Anti-fraude</option>
@@ -1729,7 +1729,7 @@ $utilisateur->readOne();
 				return false;
 			}
 			if (control_type = '') {
-				swal("Information", "Veuillez saisir le type de contrôle à effectuer !", "error")
+				swal("Information", "Veuillez saisir le(s) type(s) de contrôle à effectuer !", "error")
 				return false;
 			}
 			var form = document.getElementById("frm_verify_compteur");

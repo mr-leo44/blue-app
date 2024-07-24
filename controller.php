@@ -7224,7 +7224,9 @@ DroitsNotGranted();
 			$item = new Compteurs($db);
 			$numero_serie = isset($_POST["serial_number_verify"]) ? $_POST["serial_number_verify"] : "";
 			$verify_fiche_identif = isset($_POST["verify_fiche_identif"]) ? $_POST["verify_fiche_identif"] : "";
-			$control_type = isset($_POST["control_type"]) ? $_POST["control_type"] : null;
+			$control_types = isset($_POST["control_type"]) ? $_POST["control_type"] : null;
+
+			$control_type = implode(",", $control_types);
 			$result_array = $item->VerifyCompteurInfo($numero_serie, $utilisateur, true, $control_type);
 
 			echo json_encode($result_array);
