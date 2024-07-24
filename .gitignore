@@ -9,3 +9,7 @@ composer.phar
 compose.yml
 .docker
 database.sql
+pictures
+pictures_temp
+temp_data
+tickets
