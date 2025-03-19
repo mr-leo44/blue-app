@@ -170,19 +170,28 @@ FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param
 
 
 	public function getCVS_CompteursInstallPeriodeCount($cvs, $du, $au)
-	{
-		$query = "SELECT Count(*) AS nbre FROM t_log_installation
-		INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
-		INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id where (DATE_FORMAT(t_log_installation.date_fin_installation,'%Y-%m-%d')  between :du and :au) and t_main_data.cvs_id = :id_cvs and t_main_data.annule = :annule and t_log_installation.statut_installation=1 and t_log_installation.is_draft_install=0 and t_log_installation.type_installation=0"; //Install	
-		$st = $this->connection->prepare($query);
-		$st->bindValue(":id_cvs", $cvs);
-		$st->bindValue(":du", $du);
-		$st->bindValue(":au", $au);
-		$st->bindValue(":annule", Utils::$Valid);
-		$st->execute();
-		$result = $st->fetch(PDO::FETCH_ASSOC);
-		return	$result["nbre"];
-	}
+{
+    $query = "SELECT COUNT(*) AS nbre 
+              FROM t_log_installation
+              INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
+              WHERE t_log_installation.date_fin_installation BETWEEN :du AND :au
+                AND t_main_data.cvs_id = :id_cvs
+                AND t_main_data.annule = :annule
+                AND t_log_installation.statut_installation = 1
+                AND t_log_installation.is_draft_install = 0
+                AND t_log_installation.type_installation = 0";
+
+    $st = $this->connection->prepare($query);
+    $st->bindValue(":id_cvs", $cvs);
+    $st->bindValue(":du", $du);
+    $st->bindValue(":au", $au);
+    $st->bindValue(":annule", Utils::$Valid);
+    $st->execute();
+
+    $result = $st->fetch(PDO::FETCH_ASSOC);
+    return $result["nbre"];
+}
+
 
 	public function getSite_CompteursInstallPeriodeCountUser($user, $site, $du, $au)
 	{
@@ -296,21 +305,51 @@ else 0 end) end) as nbre_scelle FROM t_log_installation
 	}
 
 	public function getCVS_CompteursReplacePeriodeCount($cvs, $du, $au)
-	{
-		$query = "SELECT Count(*) AS nbre FROM t_log_installation
-		INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
-		INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id where (DATE_FORMAT(t_log_installation.date_fin_installation,'%Y-%m-%d')  between :du and :au) and t_main_data.cvs_id = :id_cvs and t_main_data.annule = :annule and t_log_installation.statut_installation=1 and t_log_installation.is_draft_install=0 and t_log_installation.type_installation=1"; //Replace	
-		$st = $this->connection->prepare($query);
-		$st->bindValue(":id_cvs", $cvs);
-		$st->bindValue(":du", $du);
-		$st->bindValue(":au", $au);
-		$st->bindValue(":annule", Utils::$Valid);
-		$st->execute();
-		$result = $st->fetch(PDO::FETCH_ASSOC);
-		return	$result["nbre"];
-	}
+{
+    $query = "SELECT COUNT(*) AS nbre 
+              FROM t_log_installation
+              INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
+              WHERE t_log_installation.date_fin_installation BETWEEN :du AND :au
+                AND t_main_data.cvs_id = :id_cvs
+                AND t_main_data.annule = :annule
+                AND t_log_installation.statut_installation = 1
+                AND t_log_installation.is_draft_install = 0
+                AND t_log_installation.type_installation = 1";
+
+    $st = $this->connection->prepare($query);
+    $st->bindValue(":id_cvs", $cvs);
+    $st->bindValue(":du", $du);
+    $st->bindValue(":au", $au);
+    $st->bindValue(":annule", Utils::$Valid);
+    $st->execute();
+
+    $result = $st->fetch(PDO::FETCH_ASSOC);
+    return $result["nbre"];
+}
 
 
+public function getCVS_CompteursInstallAndReplacePeriodeCount($cvs, $du, $au)
+{
+    $query = "SELECT 
+                 SUM(CASE WHEN t_log_installation.type_installation = 0 THEN 1 ELSE 0 END) AS nbre_install,
+                 SUM(CASE WHEN t_log_installation.type_installation = 1 THEN 1 ELSE 0 END) AS nbre_replace
+              FROM t_log_installation
+              INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
+              WHERE t_log_installation.date_fin_installation BETWEEN :du AND :au
+                AND t_main_data.cvs_id = :id_cvs
+                AND t_main_data.annule = :annule
+                AND t_log_installation.statut_installation = 1
+                AND t_log_installation.is_draft_install = 0";
+
+    $st = $this->connection->prepare($query);
+    $st->bindValue(":id_cvs", $cvs);
+    $st->bindValue(":du", $du);
+    $st->bindValue(":au", $au);
+    $st->bindValue(":annule", Utils::$Valid);
+    $st->execute();
+
+    return $st->fetch(PDO::FETCH_ASSOC);
+}
 
 
 	public function getCVS_CompteursControlPeriodeCount($cvs, $du, $au)

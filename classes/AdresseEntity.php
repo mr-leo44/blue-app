@@ -1,8 +1,7 @@
 <?php
 
-//var_dump(FS_PATH);
 
-//require_once FS_PATH.'utils/PHPExcel-1.8/Classes/PHPExcel.php';
+use PhpOffice\PhpSpreadsheet\IOFactory;
 class AdresseEntity
 {
 
@@ -11,11 +10,11 @@ class AdresseEntity
 		$this->connection = $db;
 	}
 	/* public $code;
-  public $libelle;
-  public $annule;
-  public $n_user_annule;
-  public $motif_annulation;
-  public $date_synchro;*/
+	public $libelle;
+	public $annule;
+	public $n_user_annule;
+	public $motif_annulation;
+	public $date_synchro;*/
 	public $is_sync;
 	private $table_name = 't_param_adresse_entity';
 
@@ -78,12 +77,13 @@ class AdresseEntity
 
 	function GetAdressInfo($_id)
 	{
-		$stmt = $this->connection->prepare('SELECT id,quartier_id,commune_id,ville_id,province_id,numero,avenue  FROM t_log_adresses where id=:id');
+		$stmt = $this->connection->prepare('SELECT id, quartier_id, commune_id, ville_id, province_id, numero, avenue FROM t_log_adresses WHERE id=:id');
 		$stmt->bindValue(":id", $_id);
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		return $row;
 	}
+
 
 	function GetAdressMenage($_id)
 	{
@@ -611,7 +611,7 @@ class AdresseEntity
                     include("Classes/PHPExcel/IOFactory.php");*/
 						try {
 							//Load the excel(.xls/.xlsx) file
-							$objPHPExcel = PHPExcel_IOFactory::load($file);
+							$spreadsheet = IOFactory::load($file);
 						} catch (Exception $e) {
 							//  die('Error loading file "' . pathinfo($file, PATHINFO_BASENAME). '": ' . $e->getMessage());
 							$result["error"] = true;
@@ -619,7 +619,7 @@ class AdresseEntity
 						}
 
 						//An excel file may contains many sheets, so you have to specify which one you need to read or work with.
-						$sheet = $objPHPExcel->getSheet(0);
+						$sheet = $spreadsheet->getSheet(0);
 						//It returns the highest number of rows
 						$total_rows = $sheet->getHighestRow();
 						//It returns the highest number of columns

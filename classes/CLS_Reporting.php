@@ -151,8 +151,72 @@ FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param
 		return	$result;
 	}
 
+public function getBatchCVSScelleCounts($cvs_list)
+{
+    // Collecter tous les codes cvs
+    $cvs_codes = array_column($cvs_list, 'code');
+    
+    // Préparer la requête pour le traitement par lots
+    $query = "
+        SELECT t_main_data.cvs_id, 
+               SUM(CASE 
+                    WHEN (LENGTH(COALESCE(scelle_un_cpteur, '')) > 0 AND LENGTH(COALESCE(scelle_deux_coffret, '')) > 0) THEN 2
+                    WHEN (LENGTH(COALESCE(scelle_un_cpteur, '')) > 0 OR LENGTH(COALESCE(scelle_deux_coffret, '')) > 0) THEN 1
+                    ELSE 0
+               END) AS nbre_scelle
+        FROM t_log_installation
+        INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_
+        INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id
+        WHERE t_main_data.cvs_id IN (" . implode(",", array_fill(0, count($cvs_codes), "?")) . ")
+        AND t_main_data.annule = ?
+        AND t_log_installation.statut_installation = 1 
+        AND t_log_installation.is_draft_install = 0 
+        AND t_log_installation.type_installation IN ('0', '1')
+        GROUP BY t_main_data.cvs_id";
+    
+    // Préparer la requête
+    $st = $this->connection->prepare($query);
+    
+    // Lier les valeurs pour les codes cvs
+    foreach ($cvs_codes as $index => $cvs_code) {
+        $st->bindValue($index + 1, $cvs_code);
+    }
+    
+    // Lier la valeur pour le paramètre annule
+    $st->bindValue(count($cvs_codes) + 1, Utils::$Valid);
+    
+    $st->execute();
+    
+    // Récupérer les résultats
+    $result = $st->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Retourner les résultats sous forme d'un tableau associatif par cvs_id
+    return array_column($result, 'nbre_scelle', 'cvs_id');
+}
 
 
+public function getCVS_CompteursInstallAndReplacePeriodeCount($cvs, $du, $au)
+{
+    $query = "SELECT 
+                 SUM(CASE WHEN t_log_installation.type_installation = 0 THEN 1 ELSE 0 END) AS nbre_install,
+                 SUM(CASE WHEN t_log_installation.type_installation = 1 THEN 1 ELSE 0 END) AS nbre_replace
+              FROM t_log_installation
+              INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
+              WHERE t_log_installation.date_fin_installation BETWEEN :du AND :au
+                AND t_main_data.cvs_id = :id_cvs
+                AND t_main_data.annule = :annule
+                AND t_log_installation.statut_installation = 1
+                AND t_log_installation.is_draft_install = 0";
+
+    $st = $this->connection->prepare($query);
+    $st->bindValue(":id_cvs", $cvs);
+    $st->bindValue(":du", $du);
+    $st->bindValue(":au", $au);
+    $st->bindValue(":annule", Utils::$Valid);
+    $st->execute();
+
+    return $st->fetch(PDO::FETCH_ASSOC);
+}
 
 
 
@@ -163,8 +227,6 @@ FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param
 		INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id where  t_main_data.cvs_id = :id_cvs and t_main_data.annule = :annule and t_log_installation.statut_installation=1 and t_log_installation.is_draft_install=0 and t_main_data.num_compteur_actuel = t_log_installation.numero_compteur";
 		$st = $this->connection->prepare($query);
 		$st->bindValue(":id_cvs", $cvs);
-		// $st->bindValue(":du", $du);
-		// $st->bindValue(":au", $au);
 		$st->bindValue(":annule", Utils::$Valid);
 		$st->execute();
 		$result = $st->fetch(PDO::FETCH_ASSOC);
@@ -194,6 +256,35 @@ FROM t_param_site_production INNER JOIN t_utilisateur_site_accessible ON t_param
 		$result = $st->fetch(PDO::FETCH_ASSOC);
 		return	$result["nombre"];
 	}
+
+	public function getCVS_CompteursInstallAndScelleCount($cvs)
+{
+    $query = "SELECT 
+                 COUNT(*) AS nbre_install,
+                 SUM(
+                     CASE 
+                         WHEN (IFNULL(LENGTH(scelle_un_cpteur), 0) > 0 AND IFNULL(LENGTH(scelle_deux_coffret), 0) > 0) THEN 2
+                         WHEN (IFNULL(LENGTH(scelle_un_cpteur), 0) > 0 OR IFNULL(LENGTH(scelle_deux_coffret), 0) > 0) THEN 1
+                         ELSE 0
+                     END
+                 ) AS nbre_scelle
+             FROM t_log_installation
+             INNER JOIN t_main_data ON t_log_installation.ref_identific = t_main_data.id_ 
+             INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id
+             WHERE t_main_data.cvs_id = :id_cvs
+               AND t_main_data.annule = :annule
+               AND t_log_installation.statut_installation = 1
+               AND t_log_installation.is_draft_install = 0
+               AND t_main_data.num_compteur_actuel = t_log_installation.numero_compteur
+               AND t_log_installation.type_installation IN ('0', '1')";
+
+    $st = $this->connection->prepare($query);
+    $st->bindValue(":id_cvs", $cvs);
+    $st->bindValue(":annule", Utils::$Valid);
+    $st->execute();
+
+    return $st->fetch(PDO::FETCH_ASSOC);
+}
 	public function getCVS_AssignationNonControllesCount($cvs, $du, $au)
 	{
 		$query =

@@ -121,7 +121,7 @@ $category_id = '10'; //Avenue
             padding: 0;
             background-color: #fff;
             border: 2px solid #ddd;
-
+        }
             .pagination li a:hover {
                 color: #FFF;
             }

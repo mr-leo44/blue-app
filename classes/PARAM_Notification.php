@@ -349,7 +349,7 @@ class PARAM_Notification
     $stmt->execute();
     return $stmt;
   }
-  function readAll($from_record_num, $records_per_page, $user_context, $filtre)
+  function readAll($from_record_num, $records_per_page, $user_context, $filtre=null)
   {
     //->site_id
     $user_filtre = $this->GetUserFilter($user_context);
@@ -405,7 +405,7 @@ class PARAM_Notification
     return $stmt;
   }
 
-  public function search($search_term, $from_record_num, $records_per_page, $user_context, $filtre)
+  public function search($search_term, $from_record_num, $records_per_page, $user_context, $filtre=null)
   {
 
     $user_filtre = $this->GetUserFilter($user_context);
@@ -462,7 +462,7 @@ INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenu
     $stmt->execute();
     return $stmt;
   }
-  public function countAll($user_context, $filtre)
+  public function countAll($user_context, $filtre=null)
   {
 
     $user_filtre = $this->GetUserFilter($user_context);
@@ -484,7 +484,7 @@ INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenu
     $num = $stmt->rowCount();
     return $num;
   }
-  public function countAll_BySearch($search_term, $user_context, $filtre)
+  public function countAll_BySearch($search_term, $user_context, $filtre=null)
   {
 
     $user_filtre = $this->GetUserFilter($user_context);

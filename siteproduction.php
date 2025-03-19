@@ -39,7 +39,7 @@ $page_url = "siteproduction.php?";
 // calculate for the query LIMIT clause
 $from_record_num = ($records_per_page * $page) - $records_per_page;
 if ($search_term == "") {
-	$stmt = $item->readwAll($from_record_num, $records_per_page);
+	$stmt = $item->readAll($from_record_num, $records_per_page);
 	$total_rows = $item->countAll();
 } else {
 	$page_url .= "s={$search_term}&";
@@ -132,6 +132,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 			padding: 0;
 			background-color: #fff;
 			border: 2px solid #ddd;
+		}
 
 			.pagination li a:hover {
 				color: #FFF;
@@ -501,7 +502,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 			});
 			<?php //}  
 			?>
-		})
+		});
 	</script>
 </body>
 

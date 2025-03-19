@@ -777,9 +777,6 @@ INNER JOIN t_utilisateurs ON t_utilisateurs.id_group = ts_group_user.id_group";
 		header("Location: $url");
 		exit();
 	}
-
-
-
 	public function EvaluateContextExpirationDuration($context_code)
 	{
 		$v = $this->GetSettingValue('6');

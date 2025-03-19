@@ -1,68 +1,31 @@
 <?php
-// session_start();
 
-
-function cellAlign($newsheet,$cells,$align){
-  
-	//Text alignment anchor: bbb
-	if($align == "R"){
-		$newsheet->getStyle($cells)->getAlignment()->setHorizontal (PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); // Align in the horizontal direction
-	}else if($align == "J"){
-		$newsheet->getStyle($cells)->getAlignment()->setHorizontal (PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY); // Align both ends horizontally
-	}else if($align == "C"){
-		$newsheet->getStyle($cells)->getAlignment()->setHorizontal (PHPExcel_Style_Alignment::VERTICAL_CENTER); // Center in the vertical direction 
-	}
-}
-
-
-function cellBorder($newsheet,$cells){
-  
-	 
-//Set cell border Anchor: bbb 
-
-$newsheet->getStyle($cells)->applyFromArray(
-	array(
-		'borders' => array (
-			'outline' => array (
-				  'style' => PHPExcel_Style_Border :: BORDER_THIN, // Set border style
-				  // 'style' => PHPExcel_Style_Border :: BORDER_THICK, another style
-				  'color' => array ('argb' => 'FF000000'), // Set the border color
-		   ),
-	 )
-	)
-  );
-}
-
-function cellStyle($newsheet,$cells,$size){
- 
-	//Set the cell font Anchor: bbb
-	// Set B1's text font to Candara. The bold underline of the 20th has a background color.
-	//$newsheet->getStyle($cells)->getFont()->setName('Candara');
-	$newsheet->getStyle($cells)->getFont()->setSize($size);
-	$newsheet->getStyle($cells)->getFont()->setBold(true);
-	//$newsheet->getStyle($cells)->getFont()->setUnderline (PHPExcel_Style_Font :: UNDERLINE_SINGLE);
-	//$newsheet->getStyle($cells)->getFont()->getColor ()-> setARGB (PHPExcel_Style_Color :: COLOR_WHITE); 
-
-}
-
-
-
-
-function cellColor($newsheet,$cells,$color){
-
-    $newsheet->getStyle($cells)->getFill()->applyFromArray(array(
-        'type' => PHPExcel_Style_Fill::FILL_SOLID,
-        'startcolor' => array(
-             'rgb' => $color
-        )
-    ));
-
-
-}
 require_once '../loader/init.php';
-Autoloader::Load('../classes');
+
+require_once '../classes/CLS_Reporting.php';
+require_once '../classes/CVS.php';
+require_once '../classes/MarqueCompteur.php';
+require_once '../classes/AdresseEntity.php';
+require_once '../classes/Site.php';
+require_once '../classes/Organisme.php';
+require_once '../classes/Droits.php';
+require_once '../classes/Utils.php';
+require_once '../classes/Utilisateur.php';
+require_once '../classes/Database.php';
+require_once '../classes/Cacher.php';
+require_once '../classes/Installation.php';
+require_once '../classes/PARAM_TypeFraude.php';
+require_once '../classes/PARAM_TypeObservation.php';
+require_once '../classes/CLS_Controle.php';
 include_once '../core.php';
 header('Content-type: text/html;charset=utf-8');
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+
 $database = new Database();
 $db = $database->getConnection();
 $utilisateur = new Utilisateur($db);
@@ -86,6 +49,49 @@ $chef_item=isset($_POST['chef_item']) ? ($_POST['chef_item']) : "";
 $utilisateur->is_logged_in();
 $utilisateur->readOne();
 
+function cellAlign($newsheet, $cells, $align)
+{
+
+	if ($align == "R") {
+		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+	} else if ($align == "J") {
+		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_JUSTIFY);
+	} else if ($align == "C") {
+		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+	}
+}
+
+function cellBorder($newsheet, $cells)
+{
+	$newsheet->getStyle($cells)->applyFromArray(
+		[
+			'borders' => [
+				'outline' => [
+					'style' => Border::BORDER_THIN,
+					'color' => ['argb' => 'FF000000'],
+				],
+			],
+		]
+	);
+}
+
+function cellStyle($newsheet, $cells, $size)
+{
+
+	$newsheet->getStyle($cells)->getFont()->setSize($size);
+	$newsheet->getStyle($cells)->getFont()->setBold(true);
+}
+
+function cellColor($newsheet, $cells, $color)
+{
+	$newsheet->getStyle($cells)->getFill()->applyFromArray([
+		'fillType' => Fill::FILL_SOLID,
+		'startColor' => [
+			'rgb' => $color,
+		],
+	]);
+}
+
 if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 	$liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
 } else {
@@ -95,7 +101,8 @@ if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
  
 $query_installateurs_suppl = "SELECT t_utilisateurs.code_utilisateur,t_utilisateurs.nom_complet,t_log_installation_users.ref_inst_ FROM t_log_installation_users INNER JOIN t_utilisateurs ON t_log_installation_users.ref_user = t_utilisateurs.code_utilisateur where t_log_installation_users.ref_inst_=:ref_inst_";
 $stmt_supp = $db->prepare($query_installateurs_suppl);
-$objPHPExcel = new PHPExcel();
+$objPHPExcel = new Spreadsheet;
+
 
 foreach($liste_site as $site_item){
 	$site_classe->code_site = $site_item;
@@ -182,20 +189,7 @@ $newsheet->setTitle("SYNTHESE");
 	$newsheet->setCellValue($col.$rowNumber,$Total_general . ' '); 
 			cellBorder($newsheet,$col.$rowNumber);
 	// Total_install
-	/*
-			$col++;
-			$newsheet->setCellValue($col.$rowNumber,'TOTAL'); 
-			cellBorder($newsheet,$col.$rowNumber);
-			cellStyle($newsheet,$col.$rowNumber,10);
-			
-			$col++;
-			$newsheet->setCellValue($col.$rowNumber,"0" . ' '); 
-			cellBorder($newsheet,$col.$rowNumber);
-			
-			$col++;
-			$newsheet->setCellValue($col.$rowNumber,"0" . ' '); 
-			cellBorder($newsheet,$col.$rowNumber);
-			*/
+	
 	$rowNumber = $rowNumber + 3;	
 	
 	
@@ -213,13 +207,7 @@ foreach($liste_site as $site_item){
 	// $ctr_cvs = 0;
 	$start_l = false;
 	 
-//	<img class="logo img-fluid ml-4" src="../image/logo.png" style="height: 30px;"/><br>
-
-                       // <h5 class="pt-2 mb-3 d-inline-block"><?php echo $site_classe->intitule_site;   
-                         
-                           //echo 'Date impression:  ' . date('m/d/Y'); 
-                               
-                      //     <h4><?php echo 'Liste des installations effectuées du '. $du_ .' au '. $au_;  
+ 
          
 	
 $newsheet = $objPHPExcel->createSheet();
@@ -291,17 +279,11 @@ cellAlign($newsheet,'R'.$rowNumber, 'C');
 cellColor($newsheet,'R'.$rowNumber, '1a5da6');
   
 
-/*
-$newsheet ->mergeCells('B1:G1');
-cellStyle($newsheet,'B1', 23);
-$newsheet->setCellValue('B1',"INFOS DU CLIENT");
-cellAlign($newsheet,'B1', 'C');
-cellColor($newsheet,'B5', 'F28A8C');
-cellBorder($newsheet,'B1:G1', 'C');*/
+
 $rowNumber++;
 		$headers_=array("","Quartier", "CVS", "Adresse (Avenue et N°)", "Noms et Postnoms", "PA (POC)", "Tarif", "Marque", "Numéro de compteur", "Date installation", "Equipe Installation", "Installateurs", "N° Scellé cpt 1", "N° Scellé coffret 2", "Date de pose scellé", "Marque", "Numéro de serie", "Index", "Date retrait", "Compteur
 			prépaiement remplacé");
-/** Loop through the result set */
+
 
 
 $newsheet->getColumnDimension('B')->setAutoSize(true); // Content adaptation 
@@ -461,15 +443,9 @@ $rowNumber +=3;
 
 
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-// header('Content-Disposition: attachment;filename="survey.xls"');
 header('Content-Disposition: attachment;filename="rapport_installation_technicien.xlsx"');
 header('Cache-Control: max-age=0');
-
-/*
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=rapport_installation.xls");
-header("Pragma: no-cache");
-header("Expires: 0");*/
-$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter = new Xlsx($objPHPExcel);
 $objWriter->save('php://output');
+exit();
 ?>

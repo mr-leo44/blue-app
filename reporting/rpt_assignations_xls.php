@@ -1,90 +1,31 @@
 <?php
-// session_start();
 
-
-function cellAlign($newsheet, $cells, $align)
-{
-
-    //Text alignment anchor: bbb
-    if ($align == "R") {
-        $newsheet->getStyle($cells)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); // Align in the horizontal direction
-    } else if ($align == "J") {
-        $newsheet->getStyle($cells)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY); // Align both ends horizontally
-    } else if ($align == "C") {
-        $newsheet->getStyle($cells)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER); // Center in the vertical direction 
-    }
-}
-
-
-function cellBorder($newsheet, $cells)
-{
-
-
-    //Set cell border Anchor: bbb 
-
-    $newsheet->getStyle($cells)->applyFromArray(
-        array(
-            'borders' => array(
-                'outline' => array(
-                    'style' => PHPExcel_Style_Border::BORDER_THIN, // Set border style
-                    // 'style' => PHPExcel_Style_Border :: BORDER_THICK, another style
-                    'color' => array('argb' => 'FF000000'), // Set the border color
-                ),
-            )
-        )
-    );
-}
-
-function cellStyle($newsheet, $cells, $size)
-{
-
-    //Set the cell font Anchor: bbb
-    // Set B1's text font to Candara. The bold underline of the 20th has a background color.
-    //$newsheet->getStyle($cells)->getFont()->setName('Candara');
-    $newsheet->getStyle($cells)->getFont()->setSize($size);
-    $newsheet->getStyle($cells)->getFont()->setBold(true);
-    //$newsheet->getStyle($cells)->getFont()->setUnderline (PHPExcel_Style_Font :: UNDERLINE_SINGLE);
-    //$newsheet->getStyle($cells)->getFont()->getColor ()-> setARGB (PHPExcel_Style_Color :: COLOR_WHITE); 
-
-}
-
-
-
-
-function cellColor($newsheet, $cells, $color)
-{
-
-    $newsheet->getStyle($cells)->getFill()->applyFromArray(array(
-        'type' => PHPExcel_Style_Fill::FILL_SOLID,
-        'startcolor' => array(
-            'rgb' => $color
-        )
-    ));
-
-
-    /*
-	$newsheet->getStyle($cells)->applyFromArray(
-		array(
-		  'borders' => array (
-			'allborders' => array (
-			  'style' => PHPExcel_Style_Border::BORDER_THIN,
-			  'color' => array('rgb' => '000000'),        // BLACK
-			)
-		  )
-		)
-	  );*/
-}
-//var_dump($_SESSION['uSession']);
-//exit();
 require_once '../loader/init.php';
-//loading Classes filess
-Autoloader::Load('../classes');
+
+require_once '../classes/CLS_Reporting.php';
+require_once '../classes/CVS.php';
+require_once '../classes/MarqueCompteur.php';
+require_once '../classes/AdresseEntity.php';
+require_once '../classes/Site.php';
+require_once '../classes/Organisme.php';
+require_once '../classes/Droits.php';
+require_once '../classes/Utils.php';
+require_once '../classes/Utilisateur.php';
+require_once '../classes/Database.php';
+require_once '../classes/Cacher.php';
 include_once '../core.php';
 header('Content-type: text/html;charset=utf-8');
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+
 $database = new Database();
 $db = $database->getConnection();
 $utilisateur = new Utilisateur($db);
-//$droits = new Droits();
+$droits = new Droits();
 $cls_report = new CLS_Reporting($db);
 $cvs = new CVS($db);
 $marquecompteur = new MarqueCompteur($db);
@@ -92,6 +33,51 @@ $adresseItem = new AdresseEntity($db);
 $site_classe = new Site($db);
 
 $organisme = new Organisme($db);
+
+function cellAlign($newsheet, $cells, $align)
+{
+
+    if ($align == "R") {
+        $newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    } else if ($align == "J") {
+        $newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_JUSTIFY);
+    } else if ($align == "C") {
+        $newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    }
+}
+
+function cellBorder($newsheet, $cells)
+{
+    $newsheet->getStyle($cells)->applyFromArray(
+        [
+            'borders' => [
+                'outline' => [
+                    'style' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]
+    );
+}
+
+function cellStyle($newsheet, $cells, $size)
+{
+
+    $newsheet->getStyle($cells)->getFont()->setSize($size);
+    $newsheet->getStyle($cells)->getFont()->setBold(true);
+}
+
+function cellColor($newsheet, $cells, $color)
+{
+    $newsheet->getStyle($cells)->getFill()->applyFromArray([
+        'fillType' => Fill::FILL_SOLID,
+        'startColor' => [
+            'rgb' => $color,
+        ],
+    ]);
+}
+
+
 
 $liste_site = array();
 $header_bg_color = "#ECF2FE"; // "#5969ff";//eee6ff
@@ -108,24 +94,20 @@ if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 } else {
     $liste_site = $site;
 }
-// dd($liste_site);
+
 
 
 $query_installateurs_suppl = "SELECT t_utilisateurs.code_utilisateur,t_utilisateurs.nom_complet,t_log_installation_users.ref_inst_ FROM t_log_installation_users INNER JOIN t_utilisateurs ON t_log_installation_users.ref_user = t_utilisateurs.code_utilisateur where t_log_installation_users.ref_inst_=:ref_inst_";
 $stmt_supp = $db->prepare($query_installateurs_suppl);
-$objPHPExcel = new PHPExcel();
-// aa7700
-/*
-Set document security Anchor: bbb
-$ objPHPExcel-> getSecurity ()-> setLockWindows (true);
-$ objPHPExcel-> getSecurity ()-> setLockStructure (true);
-$ objPHPExcel-> getSecurity ()-> setWorkbookPassword ("PHPExcel"); // Set password 
-*/
+$objPHPExcel = new Spreadsheet();
+$objPHPExcel->setActiveSheetIndex(0);
+$newsheet =   $objPHPExcel->getActiveSheet();
+
 
 foreach ($liste_site as $site_item) {
     $site_classe->code_site = $site_item;
     $site_classe->GetDetailIN();
-    //$USER_SITENAME = $site_classe->intitule_site;
+    $USER_SITENAME = $site_classe->intitule_site;
 
     $cvs_list = $cls_report->GetAll_Site_CVSList($site_item);
     $count_cvs = count($cvs_list);
@@ -148,20 +130,7 @@ foreach ($liste_site as $site_item) {
     cellBorder($newsheet, 'B' . $rowNumber . ':H' . $rowNumber);
     cellAlign($newsheet, 'B' . $rowNumber, 'C');
     cellColor($newsheet, 'B' . $rowNumber, 'b6b8b9');
-    // cellColor($newsheet,'B'.$rowNumber, '6c757d');
 
-
-    /*
-		$col = 'A'; // start at column A
-		foreach($headers_ as $cell) {
-			$newsheet->setCellValue($col.$rowNumber,$cell); 
-			cellBorder($newsheet,$col.$rowNumber);
-			cellStyle($newsheet,$col.$rowNumber,10);
-			$col++;
-		}
-		$rowNumber++;
-		$ctr_context =1;
-	*/
     $rowNumber++;
     $rowNumber++;
     cellStyle($newsheet, 'A' . $rowNumber, 13);
@@ -221,14 +190,9 @@ foreach ($liste_site as $site_item) {
 }
 
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-// header('Content-Disposition: attachment;filename="survey.xls"');
-header('Content-Disposition: attachment;filename="rapport_assignations.xlsx"');
+header('Content-Disposition: attachment;filename="rapport_assignation.xlsx"');
 header('Cache-Control: max-age=0');
 
-/*
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=rapport_installation.xls");
-header("Pragma: no-cache");
-header("Expires: 0");*/
-$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter = new Xlsx($objPHPExcel);
 $objWriter->save('php://output');
+exit();

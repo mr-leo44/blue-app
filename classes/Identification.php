@@ -114,15 +114,15 @@ class Identification
     function GetCvsCompteur($id_cvs_)
     {
         $query = $query = "SELECT t_main_data.id_,
-t_main_data.gps_longitude,
-t_main_data.gps_latitude,
-t_main_data.p_a,
-  Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,
-t_main_data.num_compteur_actuel,
-t_main_data.adresse_id,
-t_main_data.cvs_id,t_main_data.code_identificateur,
-t_main_data.etat_compteur,
-t_param_cvs.libelle FROM t_main_data INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code`  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 	WHERE t_main_data.cvs_id =:cvs_id and t_main_data.annule=" . $this->is_valid;
+        t_main_data.gps_longitude,
+        t_main_data.gps_latitude,
+        t_main_data.p_a,
+        Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,
+        t_main_data.num_compteur_actuel,
+        t_main_data.adresse_id,
+        t_main_data.cvs_id,t_main_data.code_identificateur,
+        t_main_data.etat_compteur,
+        t_param_cvs.libelle FROM t_main_data INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code`  INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 	WHERE t_main_data.cvs_id =:cvs_id and t_main_data.annule=" . $this->is_valid;
         $stmt = $this->connection->prepare($query);
         $id_cvs_ = (strip_tags($id_cvs_));
         $stmt->bindParam(":cvs_id", $id_cvs_);
@@ -160,38 +160,38 @@ t_param_cvs.libelle FROM t_main_data INNER JOIN t_param_cvs ON t_main_data.cvs_i
         $search_term = trim($search_term);
         if ($search_term != '') {
             $query = "SELECT t_main_data.id_,
-t_main_data.gps_longitude,
-t_main_data.gps_latitude,
-t_main_data.p_a,t_main_data.reference_appartement,
- Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) as nom_client_blue, coalesce(identite_client.phone_number,'-') as phone_client_blue,
-t_main_data.num_compteur_actuel,
-t_main_data.adresse_id,
-t_main_data.cvs_id,t_main_data.identificateur,
-t_main_data.etat_compteur,
-t_param_cvs.libelle  FROM t_main_data INNER JOIN t_param_cvs ON t_param_cvs.`code` = t_main_data.cvs_id INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
-INNER JOIN t_utilisateurs  as t_identificateur ON t_main_data.identificateur = t_identificateur.code_utilisateur INNER JOIN t_utilisateurs as t_chef_equipe ON t_main_data.chef_equipe = t_chef_equipe.code_utilisateur  INNER JOIN t_param_organisme ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme 
-INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code`
-INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 
-   WHERE (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) Like :search_term or identite_client.phone_number Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term Or t_identificateur.nom_complet LIKE :search_term) and t_main_data.annule=" . $this->is_valid . "  and t_main_data.is_draft='0'  and t_main_data.est_installer='0' and t_main_data.deja_assigner=0 " . $user_filtre . $cvs_query;
-            // echo ($query);
-        } else {
-            $query = "SELECT t_main_data.id_,
-t_main_data.gps_longitude,
-t_main_data.gps_latitude,
-t_main_data.p_a,t_main_data.reference_appartement,
- Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) as nom_client_blue, coalesce(identite_client.phone_number,'-') as phone_client_blue,
-t_main_data.num_compteur_actuel,
-t_main_data.adresse_id,
-t_main_data.cvs_id,t_main_data.identificateur,
-t_main_data.etat_compteur,
-t_param_cvs.libelle  FROM t_main_data INNER JOIN t_param_cvs ON t_param_cvs.`code` = t_main_data.cvs_id INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
-INNER JOIN t_utilisateurs ON t_main_data.identificateur = t_utilisateurs.code_utilisateur INNER JOIN t_utilisateurs as t_chef_equipe ON t_main_data.chef_equipe = t_chef_equipe.code_utilisateur  INNER JOIN t_param_organisme ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme 
-INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code`
-INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 
-  
-WHERE t_main_data.deja_assigner=0 and t_main_data.is_draft='0' and t_main_data.est_installer='0' and t_main_data.annule=" . $this->is_valid . $user_filtre . $cvs_query;
+        t_main_data.gps_longitude,
+        t_main_data.gps_latitude,
+        t_main_data.p_a,t_main_data.reference_appartement,
+        Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) as nom_client_blue, coalesce(identite_client.phone_number,'-') as phone_client_blue,
+        t_main_data.num_compteur_actuel,
+        t_main_data.adresse_id,
+        t_main_data.cvs_id,t_main_data.identificateur,
+        t_main_data.etat_compteur,
+        t_param_cvs.libelle  FROM t_main_data INNER JOIN t_param_cvs ON t_param_cvs.`code` = t_main_data.cvs_id INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
+        INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
+        INNER JOIN t_utilisateurs  as t_identificateur ON t_main_data.identificateur = t_identificateur.code_utilisateur INNER JOIN t_utilisateurs as t_chef_equipe ON t_main_data.chef_equipe = t_chef_equipe.code_utilisateur  INNER JOIN t_param_organisme ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme 
+        INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code`
+        INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 
+        WHERE (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) Like :search_term or identite_client.phone_number Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term Or t_identificateur.nom_complet LIKE :search_term) and t_main_data.annule=" . $this->is_valid . "  and t_main_data.is_draft='0'  and t_main_data.est_installer='0' and t_main_data.deja_assigner=0 " . $user_filtre . $cvs_query;
+                    // echo ($query);
+                } else {
+                    $query = "SELECT t_main_data.id_,
+        t_main_data.gps_longitude,
+        t_main_data.gps_latitude,
+        t_main_data.p_a,t_main_data.reference_appartement,
+        Concat(coalesce(identite_client.nom,' '),' ',coalesce(identite_client.postnom,' '),' ',coalesce(identite_client.prenom,'')) as nom_client_blue, coalesce(identite_client.phone_number,'-') as phone_client_blue,
+        t_main_data.num_compteur_actuel,
+        t_main_data.adresse_id,
+        t_main_data.cvs_id,t_main_data.identificateur,
+        t_main_data.etat_compteur,
+        t_param_cvs.libelle  FROM t_main_data INNER JOIN t_param_cvs ON t_param_cvs.`code` = t_main_data.cvs_id INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
+        INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` 
+        INNER JOIN t_utilisateurs ON t_main_data.identificateur = t_utilisateurs.code_utilisateur INNER JOIN t_utilisateurs as t_chef_equipe ON t_main_data.chef_equipe = t_chef_equipe.code_utilisateur  INNER JOIN t_param_organisme ON t_main_data.id_equipe_identification = t_param_organisme.ref_organisme 
+        INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code`
+        INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id 
+        
+        WHERE t_main_data.deja_assigner=0 and t_main_data.is_draft='0' and t_main_data.est_installer='0' and t_main_data.annule=" . $this->is_valid . $user_filtre . $cvs_query;
             // WHERE   t_main_data.annule=" . $this->is_valid . "  and t_param_assignation.is_valid='0' and t_main_data.cvs_id=:cvs_id  and t_main_data.is_draft='0'  and t_main_data.est_installer='0' and t_main_data.deja_assigner=0 "; 
             // 99c5d008e5c71470ff1d7dd132da9b0e
             // 114222021
@@ -1311,7 +1311,6 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
 
         $stmt->execute();
         return $stmt;
-       
     }
 
 
@@ -1327,7 +1326,6 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
         $stmt->execute();
         $num = $stmt->rowCount();
         return $num;
-
     }
 
     function search($search_term, $from_record_num, $records_per_page, $user_context, $filtre)
@@ -1361,7 +1359,6 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
 
         $stmt->execute();
         return $stmt;
-      
     }
 
     function countAll_BySearch($search_term, $user_context, $filtre)
@@ -1377,7 +1374,6 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
 
         $stmt->execute();
         return $stmt;
-       
     }
 
     function search_advanced($du, $au, $search_term, $from_record_num, $records_per_page, $user_context, $filtre)
@@ -1410,7 +1406,6 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
 
         $stmt->execute();
         return $stmt;
-       
     }
 
 
@@ -1479,7 +1474,6 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total_rows'];
-        
     }
 
     //public function uniqUid($len = 13) {  
@@ -1608,7 +1602,7 @@ $query = "select  id,quartier_id,commune_id,ville_id,province_id,numero,avenue,i
         $stmt->execute();
         $result["error"] = 0;
         $row_ =  $stmt->fetchAll(PDO::FETCH_ASSOC);
-       
+
         // $stmt->execute();
         // $result["error"] = 0;
         // $row_ = $stmt->fetchAll(PDO::FETCH_ASSOC);

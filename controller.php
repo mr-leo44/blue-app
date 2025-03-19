@@ -2472,7 +2472,7 @@ exit();*/
 				$filtre .= ")";
 			}
 		}
-		//var_dump($filtre);
+		// var_dump($filtre);
 
 		$search_item = isset($_GET['s']) ? $_GET['s'] : '';
 		$du = isset($_GET['Du']) ? Utils::ClientToDbDateFormat($_GET['Du']) : "";

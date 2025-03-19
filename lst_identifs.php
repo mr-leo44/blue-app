@@ -53,6 +53,19 @@ if ($utilisateur->is_logged_in() == false) {
     $utilisateur->redirect('login.php');
 }
 $utilisateur->readOne();
+
+// $stmt_chief = null;
+// if ($utilisateur->id_service_group ==  '3') {  //Administration
+//     $stmt_chief = $utilisateur->GetAllChiefForAdmin();
+// } else {
+//     $stmt_chief = $utilisateur->GetCurrentUserChief($utilisateur); //->code_utilisateur,$utilisateur->id_organisme,$utilisateur->chef_equipe_id);
+// }
+
+// $chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
+// var_dump($chief_rows);die();
+// foreach ($chief_rows as $row_chief) {
+// echo "<option value=t_main_data.chef_equipe='" . $row_chief["code_utilisateur"] . "'> Chef équipe - " . $row_chief["nom_complet"] . "</option>";
+// }
 ?>
 <!doctype html>
 <html lang="fr">
@@ -329,7 +342,7 @@ $utilisateur->readOne();
                                                     } else {
                                                         $stmt_chief = $utilisateur->GetCurrentUserChief($utilisateur); //->code_utilisateur,$utilisateur->id_organisme,$utilisateur->chef_equipe_id);
                                                     }
-
+                                                    
                                                     $chief_rows = $stmt_chief->fetchAll(PDO::FETCH_ASSOC);
                                                     foreach ($chief_rows as $row_chief) {
                                                         echo "<option value=t_main_data.chef_equipe='" . $row_chief["code_utilisateur"] . "'> Chef équipe - " . $row_chief["nom_complet"] . "</option>";

@@ -1,89 +1,35 @@
 <?php
-//session_start();
 
-function cellAlign($newsheet, $cells, $align)
-{
-
-	//Text alignment anchor: bbb
-	if ($align == "R") {
-		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); // Align in the horizontal direction
-	} else if ($align == "J") {
-		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY); // Align both ends horizontally
-	} else if ($align == "C") {
-		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER); // Center in the vertical direction 
-	}
-}
-
-
-function cellBorder($newsheet, $cells)
-{
-
-
-	//Set cell border Anchor: bbb 
-
-	$newsheet->getStyle($cells)->applyFromArray(
-		array(
-			'borders' => array(
-				'outline' => array(
-					'style' => PHPExcel_Style_Border::BORDER_THIN, // Set border style
-					// 'style' => PHPExcel_Style_Border :: BORDER_THICK, another style
-					'color' => array('argb' => 'FF000000'), // Set the border color
-				),
-			)
-		)
-	);
-}
-
-function cellStyle($newsheet, $cells, $size)
-{
-
-	//Set the cell font Anchor: bbb
-	// Set B1's text font to Candara. The bold underline of the 20th has a background color.
-	//$newsheet->getStyle($cells)->getFont()->setName('Candara');
-	$newsheet->getStyle($cells)->getFont()->setSize($size);
-	$newsheet->getStyle($cells)->getFont()->setBold(true);
-	//$newsheet->getStyle($cells)->getFont()->setUnderline (PHPExcel_Style_Font :: UNDERLINE_SINGLE);
-	//$newsheet->getStyle($cells)->getFont()->getColor ()-> setARGB (PHPExcel_Style_Color :: COLOR_WHITE); 
-
-}
-
-
-
-
-function cellColor($newsheet, $cells, $color)
-{
-
-	$newsheet->getStyle($cells)->getFill()->applyFromArray(array(
-		'type' => PHPExcel_Style_Fill::FILL_SOLID,
-		'startcolor' => array(
-			'rgb' => $color
-		)
-	));
-
-
-	/*
-	$newsheet->getStyle($cells)->applyFromArray(
-		array(
-		  'borders' => array (
-			'allborders' => array (
-			  'style' => PHPExcel_Style_Border::BORDER_THIN,
-			  'color' => array('rgb' => '000000'),        // BLACK
-			)
-		  )
-		)
-	  );*/
-}
-
-
-
-require_once '../vendor/autoload.php';
 require_once '../loader/init.php';
 
-//loading Classes filess
-Autoloader::Load('../classes');
+require_once '../classes/CLS_Reporting.php';
+require_once '../classes/CVS.php';
+require_once '../classes/MarqueCompteur.php';
+require_once '../classes/AdresseEntity.php';
+require_once '../classes/Site.php';
+require_once '../classes/Organisme.php';
+require_once '../classes/Droits.php';
+require_once '../classes/Utils.php';
+require_once '../classes/Utilisateur.php';
+require_once '../classes/Database.php';
+require_once '../classes/Cacher.php';
+require_once '../classes/Installation.php';
+require_once '../classes/PARAM_TypeFraude.php';
+require_once '../classes/PARAM_TypeObservation.php';
+require_once '../classes/CLS_Controle.php';
 include_once '../core.php';
-// include_once '../classes/core.php';
 header('Content-type: text/html;charset=utf-8');
+
+
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+
+
 $database = new Database();
 $db = $database->getConnection();
 $utilisateur = new Utilisateur($db);
@@ -108,16 +54,66 @@ $au_ = isset($_POST['Au']) ? ($_POST['Au']) : "";
 $utilisateur->is_logged_in();
 $utilisateur->readOne();
 
+function cellAlign($newsheet, $cells, $align)
+{
+
+	if ($align == "R") {
+		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+	} else if ($align == "J") {
+		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_JUSTIFY);
+	} else if ($align == "C") {
+		$newsheet->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+	}
+}
+
+function cellBorder($newsheet, $cells)
+{
+	$newsheet->getStyle($cells)->applyFromArray(
+		[
+			'borders' => [
+				'outline' => [
+					'style' => Border::BORDER_THIN,
+					'color' => ['argb' => 'FF000000'],
+				],
+			],
+		]
+	);
+}
+
+function cellStyle($newsheet, $cells, $size)
+{
+
+	$newsheet->getStyle($cells)->getFont()->setSize($size);
+	$newsheet->getStyle($cells)->getFont()->setBold(true);
+}
+
+function cellColor($newsheet, $cells, $color)
+{
+	$newsheet->getStyle($cells)->getFill()->applyFromArray([
+		'fillType' => Fill::FILL_SOLID,
+		'startColor' => [
+			'rgb' => $color,
+		],
+	]);
+}
+
 if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 	$liste_site =  $cls_report->GetAll_AccessibleUSerSite($utilisateur->code_utilisateur);
 } else {
 	$liste_site = $site;
+	
 }
 
 $ctr_cvs = 0;
-$objPHPExcel = new PHPExcel();
+$objPHPExcel = new Spreadsheet();
+$objPHPExcel->setActiveSheetIndex(0);
+$newsheet = $objPHPExcel->getActiveSheet();
+$newsheet->setTitle("SYNTHESE");
+
+
 
 foreach ($liste_site as $site_item) {
+	
 	$site_classe->code_site = $site_item;
 	$site_classe->GetDetailIN();
 	//$USER_SITENAME = $site_classe->intitule_site;
@@ -128,9 +124,6 @@ foreach ($liste_site as $site_item) {
 	$start_l = false;
 	$rowNumber = 7; //start in row 1
 
-
-
-	$objPHPExcel->setActiveSheetIndex(0);
 	$newsheet =   $objPHPExcel->getActiveSheet();
 	//DEBUT SYNTHESE
 
@@ -214,12 +207,6 @@ foreach ($liste_site as $site_item) {
 	$cvs_list = $cls_report->GetAll_Site_CVSList($site_item);
 	$count_cvs = count($cvs_list);
 	$start_l = false;
-	// echo $site_classe->intitule_site; 
-	//echo 'Date impression:  ' . date('m/d/Y');  
-	// echo 'Liste des compteurs contrôlés du '. $du_ .' au '. $au_; 
-
-
-
 
 	$rowNumber = 1; //start in row 1
 
@@ -274,29 +261,6 @@ foreach ($liste_site as $site_item) {
 		$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
 	}
 
-
-
-	//end ENTETES PRINCIPALES
-	/*		Suppression de colonnes
-Les colonnes listées ci-dessous sont supprimées :
-8.3.3	Colonne 1 - le titre du document est lui correct, et à conserver
-8.3.4	PA (POC) (5)
-8.3.5	Tarif (6)
-8.3.6	Marque (7)
-8.3.7	N° Scellé cpt 1 (10)
-8.3.8	N° Scellé coffret 2  (11)
-8.3.9	Date de pose scellé (12)
-8.3.10	Scellé compteur brisé 1(13)
-8.3.11	Scellé coffret brisé 2(14)
-8.3.12	Scellé cpt existant 1(15)
-8.3.13	Scellé coffret existant 2(16)
-8.3.14	Etat du compteur (20)
-8.3.15	Tarif contrôle (24)
-8.3.16	Autocollant placé (Contrôleur) (25)*/
-
-	// $headers_=array("","Quartier","CVS","Adresse (Avenue et N°)","Noms et Postnoms","PA (POC)","Tarif","Marque","Numéro de compteur","Date installation","N° Scellé cpt 1","N° Scellé coffret 2","Date de pose scellé","Scellé compteur brisé 1","Scellé coffret brisé 2","Scellé cpt existant 1","Scellé coffret existant 2","Numéro série compteur trouvé","Etat de fraude","Raison de la fraude", "Etat du compteur","Date de dernier ticket rentré","Qté des derniers Kwh rentrés","Crédit restant","Tarif contrôle","Autocollant placé (Contrôleur)","Observation");
-
-	// $headers_=array("N°","Date du controle","Controleur","Quartier","CVS","Adresse (Avenue et N°)","Noms et Postnoms","Date Installation","N° de Compteur à vérifier","N° du Compteur trouvé","Date du dernier ticket","Montant du dernier ticket","Crédit restant","Conso 30 jours","Etat de fraude","Type(s) de fraude","Code(s) du diagnostic","Observations complémentaires");
 	$headers_ = array("Date du controle", "Controleur", "Quartier", "CVS", "Adresse (Avenue et N°)", "Noms et Postnoms", "Date Installation", "N° de Compteur à vérifier", "N° du Compteur trouvé", "Date du dernier ticket", "Montant du dernier ticket", "Crédit restant", "Conso 30 jours", "Etat de fraude", "Type(s) de fraude", "Code(s) du diagnostic", "Observations complémentaires");
 
 
@@ -345,11 +309,7 @@ Les colonnes listées ci-dessous sont supprimées :
 
 				//RECUPERATION INFOS FOUND INSTALL DURING CONTROLES
 				$row_install = $Installation->GetDetail_Light($row_["ref_last_install_found"]);
-				// $marquecompteur->code=$row_install["marque_compteur"];
-				// $marquecompteur->GetDetailIN(); 				
-				// $newsheet->setCellValue($col.$rowNumber,$marquecompteur->libelle);
-				// cellBorder($newsheet,$col.$rowNumber);
-				// $col++; 
+
 				//RECUPERATION INFOS FOUND INSTALL DURING CONTROLES		
 				$date_installation = $row_install["date_fin_installation_fr"];
 				$numero_compteur_a_verifier = $row_install["numero_compteur"];
@@ -401,11 +361,6 @@ Les colonnes listées ci-dessous sont supprimées :
 
 
 				///ECRITURES CELLULES DATA
-
-				/*
-				$newsheet->setCellValue($col.$rowNumber,$ctr_context);
-				cellBorder($newsheet,$col.$rowNumber);
-				$col++; */
 
 				$newsheet->setCellValue($col . $rowNumber, $date_controle_fr);
 				cellBorder($newsheet, $col . $rowNumber);
@@ -485,9 +440,8 @@ Les colonnes listées ci-dessous sont supprimées :
 }
 
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-// header('Content-Disposition: attachment;filename="survey.xls"');
-header('Content-Disposition: attachment;filename="rapport_controle.xlsx"');
+header('Content-Disposition: attachment;filename="rapport_compteur_control.xlsx"');
 header('Cache-Control: max-age=0');
 
-$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter = new Xlsx($objPHPExcel);
 $objWriter->save('php://output');

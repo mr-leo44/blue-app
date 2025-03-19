@@ -127,34 +127,35 @@ $category_id = '10'; //Avenue
 			padding: 0;
 			background-color: #fff;
 			border: 2px solid #ddd;
+		}
 
-			.pagination li a:hover {
-				color: #FFF;
-			}
+		.pagination li a:hover {
+			color: #FFF;
+		}
 
-			.pagination li.disabled a {
-				background-color: #000;
-			}
+		.pagination li.disabled a {
+			background-color: #000;
+		}
 
-			.pagination li.disabled i {
-				color: #eee;
-			}
+		.pagination li.disabled i {
+			color: #eee;
+		}
 
-			.pagination li i {
-				font-size: 16px;
-			}
+		.pagination li i {
+			font-size: 16px;
+		}
 
-			.page-item.disabled .page-link {
-				color: #6c757d;
-				pointer-events: none;
-				cursor: auto;
-				background-color: #000;
-				border-color: #dee2e6;
-			}
+		.page-item.disabled .page-link {
+			color: #6c757d;
+			pointer-events: none;
+			cursor: auto;
+			background-color: #000;
+			border-color: #dee2e6;
+		}
 
-			.search {
-				cursor: pointer
-			}
+		.search {
+			cursor: pointer
+		}
 	</style>
 
 	<link href="assets/css/parsley.css" rel="stylesheet">
@@ -199,7 +200,6 @@ $category_id = '10'; //Avenue
 											</div>
 										</div>
 									<?php   }
-
 
 									$item->type_assignation = "2";
 									$list_items =	$item->GetOrganeInstReplaceAssignedSearch($utilisateur, $search_param);

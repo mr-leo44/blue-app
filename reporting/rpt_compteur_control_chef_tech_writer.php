@@ -1,19 +1,37 @@
 <?php
+require_once '../loader/init.php';
+
+require_once '../classes/CLS_Reporting.php';
+require_once '../classes/CVS.php';
+require_once '../classes/MarqueCompteur.php';
+require_once '../classes/AdresseEntity.php';
+require_once '../classes/Site.php';
+require_once '../classes/Organisme.php';
+require_once '../classes/Droits.php';
+require_once '../classes/Utils.php';
+require_once '../classes/Utilisateur.php';
+require_once '../classes/Database.php';
+require_once '../classes/Cacher.php';
+require_once '../classes/Installation.php';
+require_once '../classes/PARAM_TypeFraude.php';
+require_once '../classes/PARAM_TypeObservation.php';
+require_once '../classes/CLS_Controle.php';
+include_once '../core.php';
+header('Content-type: text/html;charset=utf-8');
+
+
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+
 
 set_include_path(get_include_path() . PATH_SEPARATOR . "..");
-include_once("libs/xlsxwriter.class.php");
 
-include_once 'loader/init.php';
-
-//loading Classes filess
-Autoloader::Load('classes');
-include_once 'core.php';
-// include_once '../classes/core.php';
 header('Content-type: text/html;charset=utf-8');
 $database = new Database();
 $db = $database->getConnection();
 $utilisateur = new Utilisateur($db);
-//$droits = new Droits();
 $cls_report = new CLS_Reporting($db);
 $Installation = new Installation($db);
 $adresseItem = new AdresseEntity($db);
@@ -40,100 +58,44 @@ if (in_array($MULTI_ACCESS_SITE_CODE, $site)) {
 }
 
 $ctr_cvs = 0;
-// $objPHPExcel = new PHPExcel();
-// $array = array();
-$writer = new XLSXWriter();
-$writer->setAuthor('Blue-App');
-$sheetName = "";
+$objPHPExcel =  new Spreadsheet();
+$sheet = $objPHPExcel->getActiveSheet();
+$sheet->setTitle('SYNTHESE');
 foreach ($liste_site as $site_item) {
-	$site_classe->code_site = $site_item;
-	$site_classe->GetDetailIN();
-	//$USER_SITENAME = $site_classe->intitule_site;
+    $site_classe->code_site = $site_item;
+    $site_classe->GetDetailIN();
+    
+    $user_list = $cls_report->getChiefTechnician($chef_item);
+    
+    // Parcours des techniciens
+    $ctr_tech = 0;
+    foreach ($user_list as $user_item) {
+        $ctr_tech++;
+        
+        // Récupérer les données pour le technicien
+        $nbre_control = $cls_report->getSite_CompteursControlPeriodeCountUser($user_item['code_utilisateur'], $site_item, $du_, $au_);
+        $nbre_fraude = $cls_report->getSite_CompteursFraudePeriodeCountUser($user_item['code_utilisateur'], $site_item, $du_, $au_);
+        
+        // Mettre à jour les totaux
+        $Total_general += $nbre_control;
+        $Total_fraude += $nbre_fraude;
+        
+        // Remplir les données
+        $sheet->setCellValue('A' . $rowNumber, $ctr_tech);
+        $sheet->setCellValue('B' . $rowNumber, $user_item['nom_complet']);
+        $sheet->setCellValue('C' . $rowNumber, $nbre_control . ' ');
+        $sheet->setCellValue('D' . $rowNumber, $nbre_fraude . ' ');
+        
+        $rowNumber++;
+    }
 
-	$user_list = $cls_report->getChiefTechnician($chef_item);
-	$rowNumber = 7; //start in row 1
+    // Total général
+    $sheet->setCellValue('C' . $rowNumber, $Total_general . ' ');
+    $sheet->setCellValue('D' . $rowNumber, $Total_fraude . ' ');
 
-	// $objPHPExcel->setActiveSheetIndex(0);
-	// $newsheet =   $objPHPExcel->getActiveSheet();
-	//DEBUT SYNTHESE
-
-	//$newsheet->setTitle("SYNTHESE");
-	$sheetName = 'SYNTHESE';
-	$writer->addRowAt($sheetName, $rowNumber);
-	$row = array('', 'TABLEAU SYNTHESE  du ' . $du_ . ' au ' . $au_);
-
-	$writer->writeSheetRow($sheetName, $row);
-	/*
-	$newsheet ->mergeCells('B'.$rowNumber.':H'.$rowNumber);
-	cellStyle($newsheet,'B'.$rowNumber, 14);
-	$newsheet->setCellValue('B'.$rowNumber,'TABLEAU SYNTHESE  du '. $du_ .' au '. $au_);
-	
-	
-	cellBorder($newsheet,'B'.$rowNumber.':H'.$rowNumber);
-	cellAlign($newsheet,'B'.$rowNumber, 'C');
-	cellColor($newsheet,'B'.$rowNumber, 'b6b8b9');
-	*/
-	$rowNumber++;
-	$rowNumber++;
-	$rowNumber++;
-	$Total_general = 0;
-	$Total_fraude = 0;
-	$col = 'A';
-	//ITERATION DATA IINSTALL FOR CURRENT SITE 
-
-	$writer->addRowAt($sheetName, $rowNumber);
-	$newsheet->setCellValue($col . $rowNumber, 'N°');
-	cellBorder($newsheet, $col . $rowNumber);
-	$col++;
-	$newsheet->setCellValue($col . $rowNumber, 'Techniciens');
-	cellBorder($newsheet, $col . $rowNumber);
-	$col++;
-
-	$newsheet->setCellValue($col . $rowNumber, 'Contrôlés ');
-	cellBorder($newsheet, $col . $rowNumber);
-	$col++;
-	$newsheet->setCellValue($col . $rowNumber, 'Fraudes');
-	cellBorder($newsheet, $col . $rowNumber);
-
-	$ctr_tech = 0;
-	foreach ($user_list as $user_item) {
-		$ctr_tech++;
-		//RECUPERATION LISTE DES COMPTEURS INSTALLES PAR LE USER CURRENT  AND GIVEN PERIOD 
-		$nbre_control = $cls_report->getSite_CompteursControlPeriodeCountUser($user_item['code_utilisateur'], $site_item, $du, $au);
-		$nbre_fraude = $cls_report->getSite_CompteursFraudePeriodeCountUser($user_item['code_utilisateur'], $site_item, $du, $au);
-
-		$Total_general += $nbre_control;
-		$Total_fraude += $nbre_fraude;
-		$col = 'A';
-		$rowNumber++;
-		$newsheet->setCellValue($col . $rowNumber, $ctr_tech);
-		cellBorder($newsheet, $col . $rowNumber);
-		cellStyle($newsheet, $col . $rowNumber, 10);
-
-		$col++;
-		$newsheet->setCellValue($col . $rowNumber, $user_item['nom_complet']);
-		cellBorder($newsheet, $col . $rowNumber);
-		cellStyle($newsheet, $col . $rowNumber, 10);
-
-		$col++;
-		$newsheet->setCellValue($col . $rowNumber, $nbre_control . ' ');
-		cellBorder($newsheet, $col . $rowNumber);
-
-		$col++;
-		$newsheet->setCellValue($col . $rowNumber, $nbre_fraude . ' ');
-		cellBorder($newsheet, $col . $rowNumber);
-
-
-		//$col++;	
-	}
-
-	$rowNumber++;
-	$newsheet->setCellValue('C' . $rowNumber, $Total_general . ' ');
-	cellBorder($newsheet, 'C' . $rowNumber);
-	$newsheet->setCellValue($col . $rowNumber, $Total_fraude . ' ');
-	cellBorder($newsheet,  $col . $rowNumber);
-	$rowNumber = $rowNumber + 3;
+    $rowNumber += 3; // Espace pour le prochain site
 }
+
 //FIN SYNTHESE  
 
 foreach ($liste_site as $site_item) {
@@ -179,28 +141,17 @@ foreach ($liste_site as $site_item) {
 		$data_ = $cls_report->getSite_CompteursControlUser($user_item['code_utilisateur'], $site_item, $du, $au);
 		$nb_data_ = count($data_);
 		if ($nb_data_ > 0) {
-
-
-			/* <h5 class="mb-3">CVS :</h5>                                            
-                                            <h4 class="text-dark mb-1"><?php echo $cvs_item["libelle"]; ?></h4>*/
-
-			// $rowNumber = 1; //start in row 1
-
 			$col = 'A'; // start at column A
 
 			$newsheet->setCellValue($col . $rowNumber, "Technicien : " . $user_item['nom_complet'] . "(" . $nb_data_ . " Compteurs)");
 			cellStyle($newsheet, $col . $rowNumber, 14);
 			$rowNumber++;
-
-
-
 			//ENTETES PRINCIPALES
 
 			cellStyle($newsheet, 'A' . $rowNumber, 10);
 			$newsheet->setCellValue('A' . $rowNumber, "N°");
 			cellAlign($newsheet, 'A' . $rowNumber, 'C');
 			cellColor($newsheet, 'A' . $rowNumber, 'ffc107');
-
 
 			$colons = array('B', 'C', 'D', 'E', 'F', 'G');
 			foreach ($colons as $mycol) {
@@ -231,11 +182,7 @@ foreach ($liste_site as $site_item) {
 				$newsheet->getColumnDimension($mycol)->setAutoSize(true); // Content adaptation 
 			}
 
-
-
 			//end ENTETES PRINCIPALES
-
-
 			foreach ($headers_ as $cell) {
 				$newsheet->setCellValue($col . $rowNumber, $cell);
 				$col++;
@@ -282,14 +229,10 @@ foreach ($liste_site as $site_item) {
 				cellBorder($newsheet, $col . $rowNumber);
 				$col++;
 
-
-
 				//RECUPERATION INFOS FOUND INSTALL DURING CONTROLES
 				$row_install = $Installation->GetDetail_Light($row_["ref_last_install_found"]);
 				$marquecompteur->code = $row_install["marque_compteur"];
 				$marquecompteur->GetDetailIN();
-
-
 
 				$newsheet->setCellValue($col . $rowNumber, $marquecompteur->libelle);
 				cellBorder($newsheet, $col . $rowNumber);
@@ -386,10 +329,11 @@ foreach ($liste_site as $site_item) {
 	}
 }
 
+
+
+
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-// header('Content-Disposition: attachment;filename="survey.xls"');
 header('Content-Disposition: attachment;filename="rapport_controle_technicien.xlsx"');
 header('Cache-Control: max-age=0');
-
-$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-$objWriter->save('php://output');
+$writer = new Xlsx($objPHPExcel);
+$writer->save('php://output');

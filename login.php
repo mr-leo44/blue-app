@@ -1,61 +1,69 @@
 <?php
+session_start();
+// Titre de la page
 $page_title = "Authentification";
-//require_once 'config.php';
-require_once './vendor/autoload.php';
+
+// Inclusion des fichiers nécessaires
 require_once 'vendor/autoload.php';
 require_once 'loader/init.php';
-//Autoloader::Load(FS_PATH.'/classes');
+
+// Chargement des classes nécessaires
 Autoloader::Load('classes');
-include_once 'core.php'; /*
-include_once 'include/database_pdo.php'; 
-include_once 'classes/class.utilisateur.php'; */
-// get database connection  notika
+
+
+// Initialisation de la connexion à la base de données
 $database = new Database();
 $db = $database->getConnection();
 
+// Création de l'objet Utilisateur
 $utilisateur = new Utilisateur($db);
-$is_mobile  = isset($_GET['mobile']) ? "?mobile=" . $_GET['mobile'] : '';
+
+// Vérification si la requête vient d'un appareil mobile
+$is_mobile = isset($_GET['mobile']) ? "?mobile=" . $_GET['mobile'] : '';
+
+// Initialisation des variables
 $user = isset($_POST['username']) ? $_POST['username'] : '';
-$response =  array();
-//$_SESSION['last_acted_on'] = time();
+$response = array();
+
+// Démarrage de la session si ce n'est pas déjà fait
+if (session_status() == PHP_SESSION_NONE) {
+	session_start();
+}
 
 
-// var_dump($utilisateur->is_logged_in());
 
+
+
+// Si l'utilisateur est déjà connecté
 if ($utilisateur->is_logged_in() == true) {
+	// Récupérer les informations de l'utilisateur
 	$utilisateur->readOne();
 
-	// var_dump($utilisateur);
-
-	//Acceder au dashboard web
-	// if($utilisateur->HasDroits("10_290"))
-	// { 
-	// $utilisateur->redirect('accueil.php');	 
-	// }else if($utilisateur->HasDroits("10_340"))
-	// { 
-	// $utilisateur->redirect('lst_install.php');
-	// $utilisateur->redirect('lst_identifs.php');	
-	// }else{
+	// Rediriger l'utilisateur vers la page d'accueil
 	$utilisateur->redirect('accueil.php' . $is_mobile);
-	// }	
-} else if (isset($_POST['username']) && isset($_POST['password'])) {
+}
+// Si l'utilisateur soumet un formulaire de connexion
+else if (isset($_POST['username']) && isset($_POST['password'])) {
+	// Récupérer les données du formulaire de connexion
 	$email = addslashes($_POST['username']);
 	$upass = addslashes($_POST['password']);
-	//if(filter_var($email,FILTER_VALIDATE_EMAIL)) { 
+
+	// Authentification de l'utilisateur
 	$response = $utilisateur->login($email, $upass);
+
+	// Vérifier si la connexion a réussi
 	if (isset($response['login']) && $response['login'] == true) {
+		// Récupérer les informations de l'utilisateur après la connexion
 		$utilisateur->readOne();
-		// $utilisateur->redirect('accueil.php');	
+
+		// Rediriger l'utilisateur vers la page d'accueil
 		$utilisateur->redirect('accueil.php' . $is_mobile);
-		//exit;
 	}
-	// else if(isset($response['login']) && $response['login'] == false)
-	// {
-	// $error = $response['error'];
-	// }		
 }
+// Commentaire pour future débogage si nécessaire
 // var_dump($_POST);
 // exit;
+
 ?>
 
 <!DOCTYPE html>

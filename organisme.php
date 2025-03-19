@@ -135,7 +135,7 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
             padding: 0;
             background-color: #fff;
             border: 2px solid #ddd;
-
+        }
             .pagination li a:hover {
                 color: #FFF;
             }
