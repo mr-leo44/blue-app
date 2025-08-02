@@ -58,11 +58,11 @@ exit();*/
 
 $search_term = isset($_GET['s']) ? $_GET['s'] : '';
 $stmt = null;
-$page_url = 'lst_assign_install.php?';
+$page_url = 'lst_assign_replace.php?';
 
 // calculate for the query LIMIT clause
 $from_record_num = ($records_per_page * $page) - $records_per_page;
-$page_c = 'lst_assign_install.php';
+$page_c = 'lst_assign_replace.php';
 $collapse = "";
 $search_value = "";
 $du = "";
@@ -492,13 +492,13 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
             </div>
         </div>
         <?php
-        if ($utilisateur->HasDroits("10_515")) {
+                if ($utilisateur->HasDroits("10_515")) {
 
-            echo '<div class="btn-group-fab" role="group" aria-label="FAB Menu">
-	  <div>
-		<button type="button" class="btn btn-main btn-primary has-tooltip" data-placement="left" title="Menu" id="btn_new_"> <i class="fa fa-plus"></i> </button>
-	  </div>
-	</div>';
+                    echo '<div class="btn-group-fab" role="group" aria-label="FAB Menu">
+            <div>
+                <button type="button" class="btn btn-main btn-primary has-tooltip" data-placement="left" title="Menu" id="btn_new_"> <i class="fa fa-plus"></i> </button>
+            </div>
+            </div>';
         }
         include_once "layout_script.php";
         ?>
