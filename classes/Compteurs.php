@@ -1,6 +1,6 @@
 <?php
 
-//require_once 'utils/PHPExcel-1.8/Classes/PHPExcel.php';
+require_once 'utils/PHPExcel-1.8/Classes/PHPExcel.php';
 
 class Compteurs
 {
@@ -67,7 +67,7 @@ class Compteurs
             $stmt->bindParam(":sts_serial_number", $this->sts_serial_number);
             $stmt->bindParam(":order_number", $this->order_number);
             $stmt->bindParam(":manufacturer_ref", $this->manufacturer_ref);
-            $stmt->bindParam(":site_id_affectation", $this->site_id_affectation);
+            $stmt->bindParam(" :site_id_affectation", $this->site_id_affectation);
             $stmt->bindParam(":annee_fabrication", $this->annee_fabrication);
 
             //$stmt->bindParam(":date_actuelle_affectation", $this->date_actuelle_affectation);
@@ -517,28 +517,48 @@ class Compteurs
                             // $objPHPExcel = $objReader->load($file);
                             //Load the excel(.xls/.xlsx) file
                             $objPHPExcel = PHPExcel_IOFactory::load($file);
-                        } catch (Exception $e) {
+                         } catch (Exception $e) {
                             //  die('Error loading file "' . pathinfo($file, PATHINFO_BASENAME). '": ' . $e->getMessage());
                             $result["error"] = true;
                             $result["message"] = "Echec de la lecture du fichier";
                         }
 
                         //An excel file may contains many sheets, so you have to specify which one you need to read or work with.
-                        $sheet = $objPHPExcel->getSheet(0);
-                        //It returns the highest number of rows
-                        $total_rows = $sheet->getHighestRow();
-                        //It returns the highest number of columns
-                        $total_columns = $sheet->getHighestColumn();
+                        // $sheet = $objPHPExcel->getSheet(0);
+                        $sheet = $objPHPExcel->getActiveSheet();
+                        $data = [];
+                        $lastRow = $sheet->getHighestRow();
 
+                        for ($row=1; $row <= $lastRow ; $row++) { 
+                            $rowData = [];
+                            $highestColumn = $sheet->getHighestColumn();
+                            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+                            for($col = 0; $col < $highestColumnIndex; $col++) {
+                                $cell = $sheet->getCellByColumnAndRow($col, $row);
+                                $value = $cell->getValue();
+                                if(is_string($value)) {
+                                    $value = trim($value);
+                                }
+                                $rowData[] = $value;
+                            }
+                            if($row > 3) {
+                                $data[] = $rowData;
+                            }
+                        }
+
+                        // dd($data);
+                        //It returns the highest number of rows
+                        //It returns the highest number of columns
+                        // dd($sheet, $total_rows, $total_columns);
                         //echo '<h4>Data from excel file</h4>';
                         //echo '<table cellpadding="5" cellspacing="1" border="1" class="responsive">';
-                        //DEBUT TRANSACTION
+                        //DEBUT TRANSACTION 
                         try {
                             $this->connection->beginTransaction();
 
                             $stmt_select = $this->connection->prepare('SELECT ref_produit_series,serial_number FROM t_param_liste_compteurs where serial_number=:numero_serie');
 
-                            $query = "INSERT INTO " . $this->table_name . "  SET ref_produit_series=:ref_produit_series,n_user_create=:n_user_create,serial_number=:serial_number,sts_serial_number=:sts_serial_number,order_number=:order_number,manufacturer_ref=:manufacturer_ref,site_id_affectation=:site_id_affectation,datesys=now()";
+                            $query = "INSERT INTO " . $this->table_name . " SET ref_produit_series=:ref_produit_series,n_user_create=:n_user_create,serial_number=:serial_number,sts_serial_number=:sts_serial_number,order_number=:order_number,manufacturer_ref=:manufacturer_ref,site_id_affectation=:site_id_affectation,datesys=now()";
                             $stmt = $this->connection->prepare($query);
 
                             $query_update = "UPDATE " . $this->table_name . "  SET n_user_update=:n_user_create,serial_number=:serial_number,sts_serial_number=:sts_serial_number,order_number=:order_number,manufacturer_ref=:manufacturer_ref,site_id_affectation=:site_id_affectation,date_update=now() WHERE ref_produit_series=:ref_produit_series";
@@ -549,13 +569,12 @@ class Compteurs
                             //$query = "insert into `user_details` (`id`, `name`, `mobile`, `country`) VALUES ";
                             $has_ro = 0;
                             //Loop through each row of the worksheet
-                            for ($row = 2; $row <= $total_rows; $row++) {
+                            for ($row = 0; $row < count($data); $row++) {
                                 //$sleep = mt_rand(1, 10);
                                 $has_ro++;
                                 //[Serial Number(0)]	[STS Serial Number(1)]	[Order No(2)]	[Manufacturer(3)]
                                 //Read a single row of data and store it as a array.
                                 //This line of code selects range of the cells like A1:D1
-                                $single_row = $sheet->rangeToArray('A' . $row . ':' . $total_columns . $row, NULL, TRUE, FALSE);
                                 //echo "<tr>";
                                 //Creating a dynamic query based on the rows from the excel file
                                 //$query .= "(";
@@ -569,16 +588,15 @@ class Compteurs
 									echo "</tr>";*/
 
 
-                                $str = trim($single_row[0][1]); //sts_serial_number REAL COMPTEUR NUMBER
-                                $serial_number = preg_replace("/\s+/", "", $str);
-                                if ($serial_number != "") {
+                                $serial_number = (int)$data[$row][0];
+                                if ($serial_number != null) {
                                     $stmt_select->bindValue(':numero_serie', $serial_number);
                                     $stmt_select->execute();
                                     $data_row = $stmt_select->fetch(PDO::FETCH_ASSOC);
                                     if (!$data_row) {
                                         $ref_produit_series = Utils::uniqUid("t_param_liste_compteurs", "ref_produit_series", $this->connection);
-                                        $sts_serial_number = $single_row[0][0];
-                                        $order_number = $single_row[0][2];
+                                        $sts_serial_number = $sts_serial_number ?? null;
+                                        $order_number = $order_number ?? null;
                                         /*$manufacturer_ref = $single_row[0][3];
 											$manufacturer_ref_ID = $this->GetIDonLabel($manufacturer_ref) . "";
 											if(strlen($manufacturer_ref_ID) == 0){
@@ -597,8 +615,8 @@ class Compteurs
                                         //$stmt->bindParam(":date_actuelle_affectation", $this->date_actuelle_affectation);
                                         $stmt->execute();
                                     } else {
-                                        $sts_serial_number = $single_row[0][0];
-                                        $order_number = $single_row[0][2];
+                                        $sts_serial_number = $sts_serial_number ?? null;
+                                        $order_number = $order_number ?? null;
                                         $stmt_update->bindParam(":ref_produit_series", $data_row['ref_produit_series']);
                                         $stmt_update->bindParam(":n_user_create", $this->n_user_create);
                                         $stmt_update->bindParam(":serial_number", $serial_number);
