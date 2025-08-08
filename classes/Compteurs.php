@@ -67,7 +67,7 @@ class Compteurs
             $stmt->bindParam(":sts_serial_number", $this->sts_serial_number);
             $stmt->bindParam(":order_number", $this->order_number);
             $stmt->bindParam(":manufacturer_ref", $this->manufacturer_ref);
-            $stmt->bindParam(" :site_id_affectation", $this->site_id_affectation);
+            $stmt->bindParam(":site_id_affectation", $this->site_id_affectation);
             $stmt->bindParam(":annee_fabrication", $this->annee_fabrication);
 
             //$stmt->bindParam(":date_actuelle_affectation", $this->date_actuelle_affectation);
@@ -588,7 +588,7 @@ class Compteurs
 									echo "</tr>";*/
 
 
-                                $serial_number = (int)$data[$row][0];
+                                $serial_number = $data[$row][0];
                                 if ($serial_number != null) {
                                     $stmt_select->bindValue(':numero_serie', $serial_number);
                                     $stmt_select->execute();
