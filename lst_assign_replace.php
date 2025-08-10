@@ -103,7 +103,7 @@ if ($search_term == '') {
 } else {
     $page_url .= "s={$search_term}&";
     $stmt = $Abonne->search($search_term, $from_record_num, $records_per_page, $utilisateur);
-    $total_rows = $Abonne->countAll_BySearch($search_term, $utilisateur);
+    $total_rows = $Abonne->countAll_BySearch(null, null, $search_term, $utilisateur);
 }
 $search_value = isset($search_term) ? "value='{$search_term}'" : "";
 //}
@@ -492,9 +492,9 @@ $search_value = isset($search_term) ? "value='{$search_term}'" : "";
             </div>
         </div>
         <?php
-                if ($utilisateur->HasDroits("10_515")) {
+        if ($utilisateur->HasDroits("10_515")) {
 
-                    echo '<div class="btn-group-fab" role="group" aria-label="FAB Menu">
+            echo '<div class="btn-group-fab" role="group" aria-label="FAB Menu">
             <div>
                 <button type="button" class="btn btn-main btn-primary has-tooltip" data-placement="left" title="Menu" id="btn_new_"> <i class="fa fa-plus"></i> </button>
             </div>

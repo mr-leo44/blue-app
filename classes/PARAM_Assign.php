@@ -94,10 +94,10 @@ class PARAM_Assign
 		$search = trim($search);
 		if ($search != '') {
 			$query = "SELECT t_main_data.id_,t_main_data.date_identification,t_main_data.reference_appartement,DATE_FORMAT(t_param_assignation.date_update,'%d/%m/%Y %H:%i:%S')  as date_assign_technicien,t_main_data.p_a,t_main_data.gps_longitude,t_main_data.gps_latitude,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,coalesce(identite_client.phone_number,'-') as phone_client_blue,t_main_data.adresse_id,t_main_data.cvs_id,t_main_data.num_compteur_actuel,t_main_data.est_installer,t_param_assignation.id_assign,t_param_assignation.id_organe,t_param_assignation.datesys,DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,t_param_assignation.statut_,t_param_assignation.type_assignation,t_param_assignation.is_valid,t_param_assignation.annule,t_param_cvs.libelle,t_param_assignation.id_chef_operation,t_param_assignation.id_technicien,t_param_assignation.is_sceller_required,t_param_assignation.date_rendez_vous,DATE_FORMAT(t_param_assignation.date_rendez_vous,'%d/%m/%Y')  as date_rendez_vous_fr,t_param_assignation.comment_rendez_vous,t_param_assignation.accesibility,t_param_assignation.date_accessibility  FROM t_main_data INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code` INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id  INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` where (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or identite_client.phone_number Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term) and t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys  DESC  LIMIT :from, :offset";
+	INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` where (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or identite_client.phone_number Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term) and t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys  DESC  LIMIT :from, :offset";
 
 			$query_total = "SELECT COUNT(*) as total_rows FROM t_main_data INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code` INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id  INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` where (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or identite_client.phone_number Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term) and t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys";
+	INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` where (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or identite_client.phone_number Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term) and t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys";
 		} else {
 			$query = "SELECT t_main_data.id_,t_main_data.date_identification,t_main_data.reference_appartement,DATE_FORMAT(t_param_assignation.date_update,'%d/%m/%Y %H:%i:%S')  as date_assign_technicien,t_main_data.p_a,t_main_data.gps_longitude,t_main_data.gps_latitude,Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,coalesce(identite_client.phone_number,'-') as phone_client_blue,t_main_data.adresse_id,t_main_data.cvs_id,t_main_data.num_compteur_actuel,t_main_data.est_installer,t_param_assignation.id_assign,t_param_assignation.id_organe,t_param_assignation.datesys,DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,t_param_assignation.statut_,t_param_assignation.type_assignation,t_param_assignation.is_valid,t_param_assignation.annule,t_param_cvs.libelle,t_param_assignation.id_chef_operation,t_param_assignation.id_technicien,t_param_assignation.is_sceller_required,t_param_assignation.date_rendez_vous,DATE_FORMAT(t_param_assignation.date_rendez_vous,'%d/%m/%Y')  as date_rendez_vous_fr,t_param_assignation.comment_rendez_vous,t_param_assignation.accesibility,t_param_assignation.date_accessibility  FROM t_main_data INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code` INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id where t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys  DESC  LIMIT :from, :offset";
 
@@ -149,7 +149,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		if ($search != '') {
 
 			$query_total = "SELECT COUNT(*) as total_rows FROM t_main_data INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code` INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id  INNER JOIN t_log_adresses ON t_main_data.adresse_id = t_log_adresses.id INNER JOIN t_param_adresse_entity AS e_quartier ON t_log_adresses.quartier_id = e_quartier.`code` INNER JOIN t_param_adresse_entity AS e_commune  ON t_log_adresses.commune_id = e_commune.`code` 
-INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` where (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or coalesce(identite_client.phone_number,'') Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term) and t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys";
+			INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_ville.`code` INNER JOIN t_param_adresse_entity AS e_avenue ON t_log_adresses.avenue = e_avenue.`code` where (t_main_data.p_a Like :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) Like :search_term or coalesce(identite_client.phone_number,'') Like :search_term or t_main_data.num_compteur_actuel Like :search_term or t_main_data.id_ Like :search_term or e_avenue.libelle Like :search_term or e_quartier.libelle Like :search_term or e_commune.libelle Like :search_term or e_ville.libelle Like :search_term OR t_log_adresses.numero Like :search_term) and t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys";
 		} else {
 			$query_total = "SELECT COUNT(*) as total_rows FROM t_main_data INNER JOIN t_param_assignation ON t_main_data.id_ = t_param_assignation.id_fiche_identif INNER JOIN t_param_cvs ON t_main_data.cvs_id = t_param_cvs.`code` INNER JOIN t_param_identite AS identite_client ON t_main_data.client_id = identite_client.id where t_main_data.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and  t_param_assignation.is_valid=1 and t_param_assignation.type_assignation=:type_assignation " . $user_filtre . " ORDER BY t_param_assignation.datesys";
 		}
@@ -430,78 +430,50 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		return $stmt;
 	}
 
-	public function search($du=null, $au=null, $search_term, $from_record_num, $records_per_page, $user_context, $filtre = null)
+	// 	public function search($search_term, $from_record_num, $records_per_page, $site)
+	//   {
+	//     $query = "SELECT code,libelle,is_sync,annule  FROM " . $this->table_name  . " WHERE libelle LIKE :search_term  ORDER BY libelle ASC LIMIT :from, :offset";
+
+
+	//     $query = "SELECT t.*, DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,t_param_assignation.statut_,t_param_assignation.type_assignation,t_param_assignation.is_valid,t_param_assignation.annule FROM t_main_data as t INNER JOIN t_param_assignation ON t.id_ = t_param_assignation.id_fiche_identif  where (t.ref_site_identif=:ref_site_identif and t_param_assignation.annule=0 and t_param_assignation.type_assignation={$this->param_type}) and (num_compteur_actuel LIKE :search_term or nom_client_blue LIKE :search_term or phone_client_blue LIKE :search_term) ORDER BY t_param_assignation.datesys  DESC LIMIT :from, :offset";
+
+	//     $stmt = $this->connection->prepare($query);
+	//     $search_term = "%{$search_term}%";
+	//     $stmt->bindParam(':search_term', $search_term);
+	//     $stmt->bindParam(':from', $from_record_num, PDO::PARAM_INT);
+	//     $stmt->bindParam(':offset', $records_per_page, PDO::PARAM_INT);
+	//     $stmt->bindValue(":ref_site_identif", $site);
+	//     $stmt->execute();
+	//     return $stmt;
+	//   }
+
+	public function search($search_term, $from_record_num, $records_per_page, $user_context, $filtre = null)
 	{
 		// $query = "SELECT code,libelle,is_sync,annule  FROM " . $this->table_name  . " WHERE libelle LIKE :search_term  ORDER BY libelle ASC LIMIT :from, :offset";
-		$user_filtre = $user_context->GetUserFilterAssignation();
-		$user_filtre .= " " . $filtre;
+		// $user_filtre = $user_context->GetUserFilterAssignation();
+		// $user_filtre .= " " . $filtre;
 
-		$query = "SELECT t_main_data.id_,
-				t_chef_equipe.nom_complet as nom_chef,
-				t_identificateur.nom_complet as noms_identificateur,
-				t_main_data.identificateur,
-				t_main_data.date_identification,
-				t_main_data.p_a,
-				t_main_data.reference_appartement,
-				t_main_data.gps_longitude,
-				t_main_data.gps_latitude,
-				Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) as nom_client_blue,
-				coalesce(identite_client.phone_number,'-') as phone_client_blue,
-				t_main_data.adresse_id,
-				t_main_data.cvs_id,
-				t_main_data.num_compteur_actuel,
-				t_param_assignation.id_assign,
-				t_param_assignation.id_organe,
-				t_param_assignation.datesys,
-				DATE_FORMAT(t_param_assignation.datesys,'%d/%m/%Y %H:%i:%S')  as date_sys_fr,
-				t_param_assignation.statut_,
-				t_param_assignation.type_assignation,
-				t_param_assignation.is_valid,
-				t_param_assignation.annule,
-				t_param_assignation.id_chef_operation 
-			FROM t_main_data  
-				INNER JOIN t_param_identite AS identite_client 
-					ON t_main_data.client_id = identite_client.id 
-				INNER JOIN t_param_assignation 
-					ON t_main_data.id_ = t_param_assignation.id_fiche_identif 
-				INNER JOIN t_log_adresses 
-					ON t_main_data.adresse_id = t_log_adresses.id 
-				INNER JOIN t_param_adresse_entity AS e_quartier 
-					ON t_log_adresses.quartier_id = e_quartier.`code` 
-				INNER JOIN t_param_adresse_entity AS e_commune  
-					ON t_log_adresses.commune_id = e_commune.`code`  
-				INNER JOIN t_param_adresse_entity AS e_avenue 
-					ON t_log_adresses.avenue = e_avenue.`code` 
-				INNER JOIN t_utilisateurs as t_identificateur 
-					ON t_main_data.identificateur = t_identificateur.code_utilisateur 
-				LEFT JOIN t_utilisateurs as t_chef_equipe 
-					ON t_param_assignation.id_chef_operation = t_chef_equipe.code_utilisateur 
-				WHERE (
-						t_main_data.ref_site_identif=:ref_site_identif 
-						and t_param_assignation.annule=0 
-						and t_param_assignation.type_assignation=:type_assignation
-					) 
-					and (DATE_FORMAT(t_param_assignation.datesys,'%Y-%m-%d')  between :du and :au)  
-					and (num_compteur_actuel LIKE :search_term or Concat(coalesce(identite_client.nom,''),' ',coalesce(identite_client.postnom,''),' ',coalesce(identite_client.prenom,'')) 
-					LIKE :search_term OR identite_client.phone_number 
-					LIKE :search_term or  t_chef_equipe.nom_complet 
-					LIKE :search_term or  t_identificateur.nom_complet 
-					LIKE :search_term or e_avenue.libelle 
-					Like :search_term or e_quartier.libelle 
-					Like :search_term or e_commune.libelle 
-					Like :search_term)   " . $user_filtre .
-			" ORDER BY t_param_assignation.datesys  DESC LIMIT :from, :offset";
+		$query = "SELECT t.*, tpa.*,
+			DATE_FORMAT(tpa.datesys,'%d/%m/%Y %H:%i:%S') as date_sys_fr,
+			coalesce(i.phone_number,'-') as phone_client_blue,
+			Concat(coalesce(i.nom,''),' ',coalesce(i.postnom,''),' ',coalesce(i.prenom,'')) as nom_client_blue
+			FROM t_main_data as t
+			INNER JOIN t_param_assignation as tpa
+			ON t.id_ = tpa.id_fiche_identif 
+			INNER JOIN t_param_identite as i 
+				ON t.client_id = i.id 
+			WHERE t.num_compteur_actuel LIKE :search_term 
+			ORDER BY tpa.datesys  DESC LIMIT :from, :offset";
+
 
 		$stmt = $this->connection->prepare($query);
 		$search_term = "%{$search_term}%";
 		$stmt->bindParam(':search_term', $search_term);
 		$stmt->bindParam(':from', $from_record_num, PDO::PARAM_INT);
 		$stmt->bindParam(':offset', $records_per_page, PDO::PARAM_INT);
-		$stmt->bindValue(":ref_site_identif", $user_context->site_id);
-		$stmt->bindValue(":type_assignation", $this->type_assignation);
-		$stmt->bindParam(':du', $du);
-		$stmt->bindParam(':au', $au);
+
 		$stmt->execute();
+		// dd($stmt->fetch(), $stmt->execute(),$stmt->errorInfo());
 		return $stmt;
 	}
 
@@ -621,7 +593,7 @@ INNER JOIN t_param_adresse_entity AS e_ville ON t_log_adresses.ville_id = e_vill
 		return $row["total_rows"];
 	}
 
-	public function countAll_BySearch($du=null, $au=null, $search_term, $user_context, $filtre = null)
+	public function countAll_BySearch($du = null, $au = null, $search_term, $user_context, $filtre = null)
 	{
 		$user_filtre = $user_context->GetUserFilterAssignation();
 		$user_filtre .= " " . $filtre;
