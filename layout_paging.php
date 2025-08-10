@@ -6,15 +6,14 @@ echo "<ul class=\"pagination\">";
  $disabled=$page <= 1?'disabled':'';
     echo '<li class="page-item '. $disabled.'" ><a href="'. $href.'" class="page-link"><i class="fa fa-angle-double-left"></i></a></li>'; 
 // count all products in the database to calculate total pages
-$total_pages = ceil($total_rows / $records_per_page);
+$total_pages = (int)ceil($total_rows / $records_per_page) === 0 ? 1 : ceil($total_rows / $records_per_page);
 	$half = ceil( $range / 2 );
-	
-$numbers['start']=0;
-		$numbers['end']=0;
-// Prev + Next
-$prev = $page - 1;
-$next = $page + 1;
-// display links to 'range of pages' around 'current page'
+	$numbers['end']=0;
+	// Prev + Next
+	$numbers['start']=0;
+	$prev = $page - 1;
+	$next = $page + 1;
+	// display links to 'range of pages' around 'current page'
 $initial_num = $page - $range;
 $condition_limit_num = ($page + $range)  + 1;
 
@@ -43,9 +42,9 @@ $condition_limit_num = ($page + $range)  + 1;
     }
 
 $href=$page == $total_pages ? '#':$page_url.'page='.$total_pages;
-$disabled=$page == $total_pages ? 'disabled':'';
+$right_disabled=$page == $total_pages ? 'disabled':'';
 
- echo '<li class="page-item '. $disabled.'" ><a href="'.$href .'" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>'; 
+ echo '<li class="page-item '. $right_disabled.'" ><a href="'.$href .'" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>'; 
  
 echo "</ul>";
 
